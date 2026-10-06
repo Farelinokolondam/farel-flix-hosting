@@ -7,130 +7,98 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a0a;color:#fff;font-family:'Segoe UI',Arial}
 .top-bar{background:linear-gradient(90deg,#1e3a8a,#1e40af);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:100}
-.top-logo{font-size:28px;font-weight:900;color:#facc15;letter-spacing:1px;cursor:pointer}.top-logo span{color:#fff}
+.top-logo{font-size:28px;font-weight:900;color:#facc15}.top-logo span{color:#fff}
 .top-search{flex:1;max-width:400px}.top-search input{width:100%;padding:9px 15px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.4);color:#fff;outline:none}
-.top-links{display:flex;gap:14px;font-size:12px;font-weight:bold;align-items:center}.top-links a{color:#fff;text-decoration:none;cursor:pointer}#logoutBtn{background:#e50914;padding:6px 14px;border-radius:4px}
-.mid-bar{background:#dc2626;padding:9px 20px;display:flex;gap:22px;font-size:13px;font-weight:700;overflow-x:auto;white-space:nowrap}
+.top-links{display:flex;gap:12px;font-size:12px;font-weight:bold;align-items:center}.top-links a{color:#fff;text-decoration:none;cursor:pointer}
+#logoutBtn{background:#e50914;padding:6px 14px;border-radius:4px}
+.mid-bar{background:#dc2626;padding:9px 20px;display:flex;gap:20px;font-size:13px;font-weight:700;overflow-x:auto;white-space:nowrap}
 .mid-bar a{color:#fff;text-decoration:none;cursor:pointer}
-.bot-bar{background:#facc15;padding:8px 20px;display:flex;gap:18px;font-size:11px;font-weight:900;overflow-x:auto;white-space:nowrap;color:#000}
-.bot-bar a{color:#000;text-decoration:none;cursor:pointer;padding:3px 6px;border-radius:3px}.bot-bar a:hover{background:#000;color:#facc15}
+.bot-bar{background:#facc15;padding:8px 20px;display:flex;gap:16px;font-size:11px;font-weight:900;overflow-x:auto;white-space:nowrap;color:#000}
+.bot-bar a{color:#000;text-decoration:none;cursor:pointer}
 .container{padding:20px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
-.card{background:#161616;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid #222;transition:0.2s}.card:hover{transform:scale(1.05);border-color:#e50914}
-.card img{width:100%;height:210px;object-fit:cover}.card-info{padding:8px}.card-title{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card-quality{font-size:9px;background:#e50914;padding:2px 5px;border-radius:3px;display:inline-block;margin-top:4px}
-
-/* PLAYER MODAL */
-#playerModal{display:none;position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.9);justify-content:center;align-items:center;padding:15px}
-#playerModal.show{display:flex}
-.player-box{width:100%;max-width:900px;background:#000;border-radius:8px;overflow:hidden;border:1px solid #333}
-.player-header{padding:12px 15px;background:#111;display:flex;justify-content:space-between;align-items:center}
-.player-header h3{font-size:14px}.close-player{background:#e50914;border:none;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-weight:bold}
-.player-box iframe{width:100%;height:500px;border:none;background:#000}
-@media(max-width:768px){.player-box iframe{height:280px}.grid{grid-template-columns:repeat(3,1fr)}.top-search{width:100%;order:3}.top-bar{flex-wrap:wrap}}
-
-/* LOGOUT MODAL */
-#logoutModal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);justify-content:center;align-items:center}#logoutModal.show{display:flex}
-.modal-box{background:#111;border-top:4px solid #e50914;border-radius:8px;padding:28px 22px;width:330px;text-align:center}
-.modal-btns{display:flex;gap:10px;margin-top:18px}.modal-btns button{flex:1;padding:10px;border-radius:4px;font-weight:bold;cursor:pointer;border:none}
-#btnTidak{background:#2a2a2a;color:#fff}#btnYa{background:#e50914;color:#fff}
+.card{background:#161616;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid #222}.card:hover{transform:scale(1.05);border-color:#e50914}
+.card img{width:100%;height:210px;object-fit:cover}.card-info{padding:8px}.card-title{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;padding:15px}
+.modal.show{display:flex}
+.modal-box{background:#111;border-radius:8px;padding:20px;width:100%;max-width:400px;text-align:center;border-top:4px solid #e50914}
+.modal-box button{padding:10px 15px;margin:5px;border:none;border-radius:4px;font-weight:bold;cursor:pointer}
+#modalPlayer.player-box{width:100%;max-width:900px;background:#000;border-radius:8px;overflow:hidden}
+#myVideo{width:100%;height:500px;background:#000}
+@media(max-width:768px){#myVideo{height:280px}.grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 
 <div class="top-bar">
   <div class="top-logo" onclick="location.reload()">FAREL<span>FLIX</span></div>
-  <div class="top-search"><input type="text" id="searchInput" placeholder="Cari Judul, Artis, IMDb - cth: John Wick"></div>
-  <div class="top-links"><a>720P</a><a>1080P</a><a>HD</a><a id="userEmail" style="font-size:10px"></a><a id="logoutBtn">Logout</a></div>
+  <div class="top-search"><input type="text" id="searchInput" placeholder="Cari John Wick, Die Hard..."></div>
+  <div class="top-links"><a id="userEmail"></a><a id="logoutBtn">Logout</a></div>
 </div>
-
-<div class="mid-bar">
-  <a onclick="loadAll()">🏠 Home</a><a>Index Movie™</a><a>🎬 Genre</a><a>⭐ Populer</a><a>🌎 Negara</a><a>📅 Tahun</a>
-</div>
-
+<div class="mid-bar"><a onclick="location.reload()">🏠 Home</a><a>Index Movie™</a><a>🎬 Genre</a><a>⭐ Populer</a></div>
 <div class="bot-bar">
-  <a onclick="searchMovie('action')">ACTION</a><a onclick="searchMovie('animation')">ANIMATION</a><a onclick="searchMovie('horror')">HORROR</a><a onclick="searchMovie('sci-fi')">SCI-FI</a><a onclick="searchMovie('comedy')">COMEDY</a><a onclick="searchMovie('romance')">ROMANCE</a><a onclick="searchMovie('john wick')">JOHN WICK</a><a onclick="searchMovie('die hard')">DIE HARD</a><a onclick="searchMovie('2026')">2026</a><a>BLURAY</a>
+  <a onclick="filterFilm('john')">JOHN WICK</a><a onclick="filterFilm('die')">DIE HARD</a><a>ACTION</a><a>HORROR</a><a>COMEDY</a><a>2026</a><a>BLURAY</a>
 </div>
 
 <div class="container"><div class="grid" id="movieGrid"></div></div>
 
-<!-- MODAL PLAYER -->
-<div id="playerModal">
-  <div class="player-box">
-    <div class="player-header"><h3 id="playerTitle">Nonton Film</h3><button class="close-player" onclick="closePlayer()">X Tutup</button></div>
-    <iframe id="playerFrame" allowfullscreen></iframe>
+<!-- MODAL BAYAR (PUNYA KAMU) -->
+<div id="modalBayar" class="modal">
+  <div class="modal-box">
+    <h3 id="JudulBayar"></h3>
+    <p style="color:#aaa;font-size:13px;margin:10px 0">Mau nonton film ini?</p>
+    <button onclick="playFilm()" style="background:#e50914;color:#fff;width:100%">▶ Play Sekarang</button>
+    <button onclick="tutupModal()" style="background:#2a2a2a;color:#fff;width:100%;margin-top:8px">Batal</button>
   </div>
 </div>
 
-<!-- MODAL LOGOUT -->
-<div id="logoutModal"><div class="modal-box"><h3>Mau keluar?</h3><p style="color:#aaa;font-size:13px;margin-top:6px">Apakah kamu mau keluar ya atau tidak?</p><div class="modal-btns"><button id="btnTidak">Tidak</button><button id="btnYa">Ya, Keluar</button></div></div></div>
+<!-- MODAL PLAYER (PUNYA KAMU) -->
+<div id="modalPlayer" class="modal">
+  <div class="player-box">
+    <div style="padding:12px;background:#111;display:flex;justify-content:space-between"><span id="judulPlayer"></span><button onclick="tutupPlayer()" style="background:#e50914;color:#fff">X Tutup</button></div>
+    <video id="myVideo" controls></video>
+  </div>
+</div>
+
+<!-- MODAL LOGOUT YA/TIDAK -->
+<div id="logoutModal" class="modal"><div class="modal-box"><h3>Mau keluar?</h3><p style="color:#aaa;font-size:13px">Apakah kamu mau keluar ya atau tidak?</p><div style="display:flex;gap:10px;margin-top:15px"><button id="btnTidak" style="flex:1;background:#2a2a2a;color:#fff">Tidak</button><button id="btnYa" style="flex:1;background:#e50914;color:#fff">Ya, Keluar</button></div></div></div>
 
 <script type="module">
 import { auth } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 onAuthStateChanged(auth,u=>{if(!u) location.href="login.html"; else document.getElementById("userEmail").innerText=u.email.split('@')[0];});
-const logoutModal=document.getElementById("logoutModal");
-document.getElementById("logoutBtn").onclick=e=>{e.preventDefault();logoutModal.classList.add("show");};
-document.getElementById("btnTidak").onclick=()=>logoutModal.classList.remove("show");
+document.getElementById("logoutBtn").onclick=e=>{e.preventDefault();document.getElementById("logoutModal").classList.add("show");};
+document.getElementById("btnTidak").onclick=()=>document.getElementById("logoutModal").classList.remove("show");
 document.getElementById("btnYa").onclick=async()=>{await signOut(auth);location.href="login.html";};
-logoutModal.onclick=e=>{if(e.target===logoutModal) logoutModal.classList.remove("show");};
+</script>
 
-const grid=document.getElementById("movieGrid");
-const API_KEY="b5d2609cc50d349a1ca5ab2c5aa26a57";
+<script>
+// === CODE ASLI KAMU YANG DI FOTO - JANGAN DIHAPUS ===
+let aktifFile="",aktifType="";
+function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("JudulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
+function tutup(id){document.getElementById(id).style.display="none";}
+function tutupModal(){tutup('modalBayar');}
+function playFilm(){tutup('modalBayar');document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");v.src=aktifFile;v.play();}
+function tutupPlayer(){tutup('modalPlayer');let v=document.getElementById("myVideo");v.pause();v.src="";let i=document.getElementById("playerFrame");if(i) i.src="";}
 
-const fixedMovies=[
-  {id:245891, title:"JOHN WICK", year:"2014", q:"1080P", img:"https://image.tmdb.org/t/p/w500/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg"},
-  {id:603692, title:"JOHN WICK CHAPTER 4", year:"2023", q:"1080P", img:"https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg"},
-  {id:562, title:"DIE HARD", year:"1988", q:"BluRay", img:"https://image.tmdb.org/t/p/w500/a8a08p5gR9l3Qp6fY6dZ.jpg"},
-  {id:1573, title:"DIE HARD 4.0", year:"2007", q:"720P", img:"https://image.tmdb.org/t/p/w500/c9a9e0b0.jpg"}
+// === DATA FILM JOHN WICK & DIE HARD ===
+const films=[
+ {judul:"JOHN WICK (2014)", file:"https://test-videos.co.uk/vids/sintel/mp4/h264/1080/Sintel_1080p.mp4", img:"https://image.tmdb.org/t/p/w500/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg"},
+ {judul:"JOHN WICK CHAPTER 4", file:"https://test-videos.co.uk/vids/jellyfish/mp4/h264/1080/Jellyfish_1080_10s_30MB.mp4", img:"https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg"},
+ {judul:"DIE HARD (1988)", file:"https://test-videos.co.uk/vids/sintel/mp4/h264/720/Sintel_720p.mp4", img:"https://image.tmdb.org/t/p/w500/yF4x2X4kL4eJ9.jpg"},
+ {judul:"DIE HARD 4.0", file:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4", img:"https://image.tmdb.org/t/p/w500/2DyEk84XnbJEdPlGF2asY2uCq1y.jpg"}
 ];
 
+const grid=document.getElementById("movieGrid");
 function render(list){
-  grid.innerHTML="";
-  list.forEach(m=>{
-    const poster=m.img || (m.poster_path?`https://image.tmdb.org/t/p/w300${m.poster_path}`:`https://via.placeholder.com/300x450/111/facc15?text=${m.title}`);
-    const tmdbId=m.id||m.id;
-    grid.innerHTML+=`<div class="card" onclick="playMovie(${tmdbId},'${m.title}')"><img src="${poster}" onerror="this.src='https://via.placeholder.com/300x450/111/facc15?text=${encodeURIComponent(m.title)}'"><div class="card-info"><div class="card-title">${m.title} ${m.year||''}</div><div class="card-quality">${m.q||'WEBDL'}</div></div></div>`;
-  });
+ grid.innerHTML="";
+ list.forEach(f=>{
+  grid.innerHTML+=`<div class="card" onclick="buka('${f.judul}','${f.file}','mp4')"><img src="${f.img}" onerror="this.src='https://via.placeholder.com/300x450/111/facc15?text=${encodeURIComponent(f.judul)}'"><div class="card-info"><div class="card-title">${f.judul}</div><div style="font-size:9px;background:#e50914;display:inline-block;padding:2px 5px;border-radius:3px;margin-top:4px">PLAY</div></div></div>`;
+ });
 }
+function filterFilm(q){render(films.filter(x=>x.judul.toLowerCase().includes(q.toLowerCase())));}
+render(films);
 
-async function loadAll(){
-  grid.innerHTML="<p style='grid-column:1/-1;text-align:center;padding:40px'>Loading John Wick & Die Hard...</p>";
-  try{
-    const r=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=john%20wick`);
-    const d=await r.json();
-    if(d.results && d.results.length>0){
-      const r2=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=die%20hard`);
-      const d2=await r2.json();
-      const gabung=[...d.results.slice(0,4),...d2.results.slice(0,4)].map(x=>({id:x.id,title:x.title.toUpperCase(),poster_path:x.poster_path,q:'1080P',year:x.release_date?x.release_date.split('-')[0]:''}));
-      render(gabung);
-    }else{ render(fixedMovies); }
-  }catch{ render(fixedMovies); }
-}
-
-window.playMovie=(id,title)=>{
-  document.getElementById("playerTitle").innerText="Nonton: "+title;
-  document.getElementById("playerFrame").src=`https://vidsrc.to/embed/movie/${id}`;
-  document.getElementById("playerModal").classList.add("show");
-};
-window.closePlayer=()=>{
-  document.getElementById("playerModal").classList.remove("show");
-  document.getElementById("playerFrame").src="";
-};
-window.searchMovie=async(q)=>{
-  grid.innerHTML="<p style='grid-column:1/-1;text-align:center;padding:20px'>Cari "+q+"...</p>";
-  try{
-    const r=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${q}`);
-    const d=await r.json();
-    render(d.results.map(x=>({id:x.id,title:x.title.toUpperCase(),poster_path:x.poster_path,q:'WEBDL',year:x.release_date?x.release_date.split('-')[0]:''})));
-  }catch{ render(fixedMovies.filter(m=>m.title.toLowerCase().includes(q))); }
-};
-window.loadAll=loadAll;
-
-document.getElementById("searchInput").addEventListener("keypress",e=>{
-  if(e.key==="Enter") searchMovie(e.target.value);
-});
-document.getElementById("playerModal").onclick=e=>{if(e.target.id==="playerModal") closePlayer();};
-
-loadAll();
+document.getElementById("searchInput").addEventListener("keypress",e=>{if(e.key==="Enter") filterFilm(e.target.value);});
 </script>
 </body>
 </html>
