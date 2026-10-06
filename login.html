@@ -14,9 +14,11 @@ body{height:100vh;overflow:hidden;background:#000;font-family:'Segoe UI',Arial;d
 .box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:#e50914;border-radius:8px 8px 0 0}
 .logo{font-size:38px;font-weight:900;letter-spacing:4px;color:#e50914}
 .logo span{color:#fff}
-#btnLogin{width:100%;padding:14px;background:#e50914;color:#fff;border:none;border-radius:4px;font-weight:bold;font-size:15px;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:10px;margin-top:40px}
-#btnLogin:hover{background:#f40612}
-#error{color:#e50914;font-size:12px;margin-top:12px}
+#btnLogin{width:100%;padding:14px;background:#e50914;color:#fff;border:none;border-radius:4px;font-weight:bold;font-size:15px;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:10px;margin-top:40px;transition:0.2s}
+#btnLogin:hover{background:#f40612;transform:scale(1.02)}
+#btnLogin:disabled{opacity:0.6}
+#error{color:#ffb3b3;background:rgba(229,9,20,0.15);border:1px solid rgba(229,9,20,0.3);padding:10px;border-radius:4px;font-size:13px;margin-top:15px;display:none}
+#error.show{display:block}
 </style>
 </head>
 <body>
@@ -33,10 +35,42 @@ for(let i=0;i<30;i++){const d=document.createElement('div');d.className='p';d.st
 <script type="module">
 import { auth, provider } from "./firebase.js";
 import { signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
 onAuthStateChanged(auth,u=>{if(u) location.href="index.html";});
-document.getElementById("btnLogin").onclick=async()=>{
-  document.getElementById("error").innerText="Connecting...";
-  try{await signInWithPopup(auth,provider);location.href="index.html";}catch(e){document.getElementById("error").innerText=e.message;}
+
+const btn=document.getElementById("btnLogin");
+const errBox=document.getElementById("error");
+
+function gagalLogin(){
+  errBox.innerText="Gagal login, coba lagi ya";
+  errBox.classList.add("show");
+  // hilang otomatis 3 detik
+  setTimeout(()=>{errBox.classList.remove("show");},3000);
+}
+
+btn.onclick=async()=>{
+  btn.disabled=true;
+  const asli=btn.innerHTML;
+  btn.innerHTML="Menghubungkan...";
+  errBox.classList.remove("show");
+  
+  try{
+    const result=await signInWithPopup(auth,provider);
+    
+    // JIKA TIDAK MEMASUKKAN GMAIL / GAK ADA USER
+    if(!result.user || !result.user.email){
+      throw new Error("no-email");
+    }
+    
+    location.href="index.html";
+    
+  }catch(e){
+    // SEMUA JENIS GAGAL - TAMPILKAN PESAN YANG KAMU MAU
+    btn.innerHTML=asli;
+    btn.disabled=false;
+    gagalLogin(); // <-- INI YANG MUNCUL: "Gagal login, coba lagi ya"
+    console.log("Debug:", e.code || e.message);
+  }
 };
 </script>
 </body>
