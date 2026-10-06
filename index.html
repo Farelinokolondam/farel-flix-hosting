@@ -9,13 +9,13 @@
 body{margin:0;background:#141414;color:#fff;font-family:Arial}
 header{background:#000;padding:12px 15px;color:#ff0000;font-size:22px;font-weight:bold;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:2px solid #222}
 .nav-menu{display:flex;gap:8px;align-items:center}
-.nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px}
-.nav-menu button.active{background:#ff8c00;color:#000;border-color:#ff8c00;font-weight:bold}
+.nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;transition:0.2s}
+.nav-menu button.active{background:#facc15!important;color:#000!important;border-color:#facc15!important;font-weight:900;box-shadow:0 0 10px rgba(250,204,21,0.6)}
 #searchBox{background:#222;color:#fff;border:1px solid #444;padding:8px 14px;border-radius:20px;width:200px;outline:none}
-#searchBox:focus{border-color:#ff8c00}
+#searchBox:focus{border-color:#facc15}
 #semuaKategori{padding:15px;display:none}
 .kategori{margin-bottom:25px}
-.kategori h2{color:#ff8c00;margin:10px 0}
+.kategori h2{color:#facc15;margin:10px 0}
 .row{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px}
 .card{background:#222;border-radius:8px;min-width:140px;cursor:pointer;padding:5px;transition:0.2s}
 .card:hover{transform:scale(1.05);background:#333}
@@ -23,7 +23,7 @@ header{background:#000;padding:12px 15px;color:#ff0000;font-size:22px;font-weigh
 .card p{font-size:12px;text-align:center;margin:6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;justify-content:center;align-items:center;z-index:999;padding:0}
 .modal-box{background:#222;padding:20px;border-radius:10px;text-align:center;max-width:90%}
-button{padding:10px 18px;background:#ff8c00;border:none;border-radius:5px;font-weight:bold;cursor:pointer;margin:5px}
+button{padding:10px 18px;background:#facc15;border:none;border-radius:5px;font-weight:bold;cursor:pointer;margin:5px;color:#000}
 #myVideo,#myIframe{width:100%;height:75vh;max-width:100vw;border:none;border-radius:0;background:#000;display:block;margin:0}
 .no-result{text-align:center;color:#777;margin-top:50px;font-size:18px;display:none}
 </style>
@@ -101,11 +101,22 @@ function goHome(){
   window.scrollTo(0,0);
 }
 
+// INI YANG UDAH AKU BENERIN BIAR HOME JADI KUNING
 function filterKategori(kat){
   document.getElementById("searchBox").value="";
   document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
-  document.getElementById("btn-"+kat.toLowerCase()).classList.add('active');
-  if(kat==='all'){ renderFilm(dataFilm); return; }
+
+  if(kat==='all'){
+    document.getElementById("btn-home").classList.add('active');
+    renderFilm(dataFilm);
+    return;
+  }
+
+  // ACTION dan TERBARU
+  const idBtn = "btn-" + kat.toLowerCase();
+  const btn = document.getElementById(idBtn);
+  if(btn) btn.classList.add('active');
+
   let filtered={};
   filtered[kat]=dataFilm[kat];
   renderFilm(filtered);
