@@ -13,7 +13,7 @@ header{background:#000;padding:12px 15px;color:#ff0000;font-size:22px;font-weigh
 .nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px}
 .nav-menu button.active{background:#facc15!important;color:#000!important;font-weight:900}
 #searchBox{background:#222;color:#fff;border:1px solid #444;padding:8px 14px;border-radius:20px;width:160px;outline:none}
-#semuaKategori{padding:15px;display:none;width:100%;max-width:100vw}
+#semuaKategori{padding:15px;display:block;width:100%;max-width:100vw}
 .kategori{margin-bottom:25px;width:100%}
 .kategori h2{color:#facc15;margin:10px 0}
 .row{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;width:100%;scroll-snap-type:x mandatory}
@@ -59,8 +59,6 @@ button{padding:10px 18px;background:#facc15;border:none;border-radius:5px;font-w
     <button onclick="tutup('modalLogout')" style="flex:1;background:#333;color:#fff">Tidak</button>
     <button onclick="konfirmasiLogout()" style="flex:1;background:#e50914;color:#fff">Ya</button>
   </div>
-</div></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -69,30 +67,32 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const loading = document.getElementById("loadingScreen");
 const kategori = document.getElementById("semuaKategori");
-const EMAIL_ADMIN = "farelinokolondam50@gmail.com"; // GANTI JADI EMAIL KAMU
+const EMAIL_ADMIN = "farelinokolondam50@gmail.com";
 
 onAuthStateChanged(auth, (user) => {
-  if(!user){ 
-    window.location.href="login.html"; 
-  } else { 
-    document.getElementById("userEmail").innerText=user.email; 
-    loading.style.display="none"; 
-    kategori.style.display="block"; 
-
-    // CEK ADMIN ATAU USER
+  if(!user){
+    window.location.href="login.html";
+  } else {
+    document.getElementById("userEmail").innerText=user.email;
+    loading.style.display="none";
+    kategori.style.display="block";
     if(user.email === EMAIL_ADMIN){
       console.log("Halo Admin Farel!");
     } else {
-      console.log("Halo selamat datang: " + user.email);
+      console.log("Halo user: " + user.email);
+    }
+    if(window.renderFilm && window.dataFilm){
+      window.renderFilm(window.dataFilm);
     }
   }
 });
 window.logout = ()=>{ document.getElementById("modalLogout").style.display="flex"; }
 window.konfirmasiLogout = ()=>{ signOut(auth).then(()=>{ window.location.href="login.html"; }); }
+window.tutup = (id)=>{ document.getElementById(id).style.display="none"; }
 </script>
 
 <script>
-const dataFilm={
+window.dataFilm={
   "ACTION":[
     {judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"gambar/diehard2023.jpg"},
     {judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"gambar/John_Wick_Chapter_3_Parabellum.png"},
@@ -102,11 +102,9 @@ const dataFilm={
     {judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg"}
   ]
 };
-
 let aktifFile="",aktifType="";
 const container=document.getElementById("semuaKategori");
-
-function renderFilm(data){
+window.renderFilm = function(data){
   container.innerHTML="";
   let adaFilm=false;
   for(let kat in data){
@@ -121,48 +119,13 @@ function renderFilm(data){
   }
   document.getElementById("noResult").style.display = adaFilm? "none" : "block";
 }
-
-function goHome(){
-  document.getElementById("searchBox").value="";
-  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
-  document.getElementById("btn-home").classList.add('active');
-  renderFilm(dataFilm);
-  window.scrollTo(0,0);
-}
-
-function filterKategori(kat){
-  document.getElementById("searchBox").value="";
-  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
-  if(kat==='all'){
-    document.getElementById("btn-home").classList.add('active');
-    renderFilm(dataFilm);
-    return;
-  }
-  const idBtn = "btn-" + kat.toLowerCase();
-  const btn = document.getElementById(idBtn);
-  if(btn) btn.classList.add('active');
-  let filtered={};
-  filtered[kat]=dataFilm[kat];
-  renderFilm(filtered);
-}
-
-function cariFilm(){
-  let q=document.getElementById("searchBox").value.toLowerCase().trim();
-  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
-  if(q===""){ document.getElementById("btn-home").classList.add('active'); renderFilm(dataFilm); return; }
-  let hasil={};
-  for(let kat in dataFilm){
-    let cocok=dataFilm[kat].filter(f=>f.judul.toLowerCase().includes(q));
-    if(cocok.length>0) hasil[kat]=cocok;
-  }
-  renderFilm(hasil);
-}
-
+function goHome(){document.getElementById("searchBox").value="";document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));document.getElementById("btn-home").classList.add('active');window.renderFilm(window.dataFilm);window.scrollTo(0,0);}
+function filterKategori(kat){document.getElementById("searchBox").value="";document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));if(kat==='all'){document.getElementById("btn-home").classList.add('active');window.renderFilm(window.dataFilm);return;}const idBtn="btn-"+kat.toLowerCase();const btn=document.getElementById(idBtn);if(btn)btn.classList.add('active');let filtered={};filtered[kat]=window.dataFilm[kat];window.renderFilm(filtered);}
+function cariFilm(){let q=document.getElementById("searchBox").value.toLowerCase().trim();document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));if(q===""){document.getElementById("btn-home").classList.add('active');window.renderFilm(window.dataFilm);return;}let hasil={};for(let kat in window.dataFilm){let cocok=window.dataFilm[kat].filter(f=>f.judul.toLowerCase().includes(q));if(cocok.length>0)hasil[kat]=cocok;}window.renderFilm(hasil);}
 function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
-function tutup(id){document.getElementById(id).style.display="none";}
-function tutupModal(){tutup('modalBayar');}
-function playFilm(){tutup('modalBayar');document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");let i=document.getElementById("myIframe");if(aktifType=="drive"||aktifType=="streamtape"){v.style.display="none";v.pause();i.style.display="block";i.src=aktifFile;}else{i.style.display="none";i.src="";v.style.display="block";v.src=aktifFile;v.play();}}
-function tutupPlayer(){tutup('modalPlayer');let v=document.getElementById("myVideo");v.pause();v.src="";let i=document.getElementById("myIframe");i.src="";i.style.display="none";}
+function tutupModal(){document.getElementById("modalBayar").style.display="none";}
+function playFilm(){document.getElementById("modalBayar").style.display="none";document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");let i=document.getElementById("myIframe");if(aktifType=="drive"||aktifType=="streamtape"){v.style.display="none";v.pause();i.style.display="block";i.src=aktifFile;}else{i.style.display="none";i.src="";v.style.display="block";v.src=aktifFile;v.play();}}
+function tutupPlayer(){document.getElementById("modalPlayer").style.display="none";let v=document.getElementById("myVideo");v.pause();v.src="";let i=document.getElementById("myIframe");i.src="";i.style.display="none";}
 </script>
 </body>
 </html>
