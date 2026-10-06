@@ -1,6 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Farel Flix</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-sm text-center">
+  <h1 class="text-4xl font-bold">FAREL FLIX</h1>
+  <p class="text-gray-400 mt-2 mb-10">Login untuk nonton film gratis</p>
+  
+  <button id="google-login-btn" class="w-full bg-white text-black py-3.5 rounded-full font-bold flex items-center justify-center gap-3 hover:bg-gray-200">
+    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5"> Login dengan Gmail
+  </button>
+
+  <p id="status" class="text-xs text-gray-500 mt-4"></p>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU",
@@ -15,28 +36,29 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Cek hasil redirect
-getRedirectResult(auth).then((result) => {
-  if(result) window.location.href = "index.html";
+// Kalau sudah login, langsung ke index.html
+onAuthStateChanged(auth, (user) => {
+  if(user){
+    window.location.href = "index.html";
+  }
 });
 
-const btn = document.getElementById("google-login-btn"); // ganti id sesuai tombol kamu
-const isFB = /FBAN|FBAV|FB_IAB|FB4A|Instagram|FBAN\/Messenger/.test(navigator.userAgent);
-
-if(isFB){
-  document.body.innerHTML = `
-    <div style="padding:40px;text-align:center;font-family:sans-serif">
-      <h2>⚠️ Gagal dibuka di Facebook Lite</h2>
-      <p>Login Google tidak bisa di dalam Facebook. Klik titik 3 kanan atas, lalu pilih <b>Buka di browser eksternal / Open in Chrome</b></p>
-      <br>
-      <a href="https://farel-flix-hosting-m3c5.vercel.app/login.html" style="background:black;color:white;padding:12px 20px;border-radius:8px;text-decoration:none">Buka di Chrome</a>
-      <p style="margin-top:20px;font-size:12px">Link: farel-flix-hosting-m3c5.vercel.app</p>
-    </div>`;
-} else {
-  btn?.addEventListener("click", () => {
-    signInWithPopup(auth, provider)
-      .then(()=> window.location.href="index.html")
-      .catch(()=> signInWithRedirect(auth, provider));
-  });
-}
+document.getElementById("google-login-btn").addEventListener("click", async () => {
+  const btn = document.getElementById("google-login-btn");
+  const status = document.getElementById("status");
+  try{
+    btn.innerText = "Loading...";
+    status.innerText = "Buka popup Gmail...";
+    const result = await signInWithPopup(auth, provider);
+    status.innerText = "Berhasil: " + result.user.email;
+    window.location.href = "index.html";
+  } catch (e) {
+    btn.innerHTML = '<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5"> Login dengan Gmail';
+    status.innerText = "Gagal: " + e.message;
+    alert("Login Gmail Gagal: " + e.message);
+    console.log(e);
+  }
+});
 </script>
+</body>
+</html>
