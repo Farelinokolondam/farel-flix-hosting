@@ -45,8 +45,7 @@ button{padding:10px 18px;background:#facc15;border:none;border-radius:5px;font-w
 <div id="semuaKategori"></div>
 <div id="noResult" class="no-result">Film tidak ditemukan 😥</div>
 
-<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()">BAYAR & TONTON</button><button onclick="tutupModal()" style="background:#333;color:#fff">BATAL</button></div></div>
-<div id="modalPlayer" class="modal"><div style="width:100%;text-align:center"><h3 id="judulPlayer"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><button onclick="tutupPlayer()">TUTUP</button></div></div>
+<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><p style="color:#aaa;font-size:13px;margin:10px 0">Siap nonton?</p><button onclick="playFilm()" style="background:#facc15;color:#000;padding:12px 25px;font-size:15px">▶ TONTON SEKARANG</button><br><button onclick="tutupModal()" style="background:#333;color:#fff;margin-top:10px">BATAL</button></div></div>
 
 <div id="modalLogout" class="modal"><div class="modal-box" style="border-top-color:#e50914">
   <h3>Mau keluar?</h3>
@@ -161,7 +160,7 @@ function cariFilm(){
   renderFilm(hasil);
 }
 
-function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
+function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulPlayer").innerText=j;playFilm();}
 function tutup(id){document.getElementById(id).style.display="none";}
 function tutupModal(){tutup('modalBayar');}
 function playFilm(){tutup('modalBayar');document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");let i=document.getElementById("myIframe");if(aktifType=="drive"||aktifType=="streamtape"){v.style.display="none";v.pause();i.style.display="block";i.src=aktifFile;}else{i.style.display="none";i.src="";v.style.display="block";v.src=aktifFile;v.play();}}
