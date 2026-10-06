@@ -1,51 +1,173 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FARELFLIX-tambala</title>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAREL FLIX tambala</title>
 <style>
-body{margin:0;background:#141414;color:#fff;font-family:Arial}
+*{box-sizing:border-box}
+body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial, sans-serif}
 header{background:#000;padding:12px 15px;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:2px solid #222}
-.nav-menu{display:flex;gap:8px;align-items:center}
-.nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px}
-.nav-menu button.active{background:#ff8c00;color:#000;font-weight:bold}
-#searchBox{background:#222;color:#fff;border:1px solid #444;padding:8px 14px;border-radius:20px;width:200px;outline:none}
-#semuaKategori{padding:15px}.kategori{margin-bottom:25px}.kategori h2{color:#ff8c00}
-.row{display:flex;gap:12px;overflow-x:auto}.card{background:#222;border-radius:8px;min-width:140px;cursor:pointer;padding:5px}.card img{width:140px;height:210px;object-fit:cover;border-radius:5px}.card p{font-size:12px;text-align:center}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;justify-content:center;align-items:center;z-index:999}.modal-box{background:#222;padding:20px;border-radius:10px;text-align:center}
-#myVideo,#myIframe{width:100%;height:75vh;border:none;background:#000}
-.no-result{text-align:center;color:#777;margin-top:50px;display:none}
-</style></head><body>
+.logo{color:#ff0000;font-size:22px;font-weight:bold;cursor:pointer;letter-spacing:1px}
+.nav-menu{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px;transition:0.2s}
+.nav-menu button.active{background:#ff8c00;color:#000;font-weight:bold;border-color:#ff8c00}
+.nav-menu button:hover{background:#333}
+#searchBox{background:#1a1a1a;color:#fff;border:1px solid #444;padding:8px 14px;border-radius:20px;width:200px;outline:none}
+#searchBox:focus{border-color:#ff8c00}
+.user-area{display:flex;align-items:center;gap:8px}
+#userEmail{font-size:11px;color:#aaa;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-logout{background:#e50914;color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:12px}
+
+#semuaKategori{padding:20px}
+.kategori{margin-bottom:30px}
+.kategori h2{color:#ff8c00;margin:0 0 12px 5px;font-size:18px;letter-spacing:1px}
+
+/* INI CSS YANG BIKIN GAMBAR JADI BESAR & RAPI */
+.row{display:flex;gap:15px;overflow-x:auto;padding:10px 5px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+.card{background:#1c1c1c;border-radius:10px;min-width:160px;max-width:160px;cursor:pointer;overflow:hidden;transition:0.2s;flex-shrink:0;scroll-snap-align:start;border:1px solid #2a2a2a}
+.card:hover{transform:scale(1.07);box-shadow:0 0 15px rgba(255,140,0,0.6);border-color:#ff8c00}
+.card img{width:100%;height:230px;object-fit:cover;display:block;background:#222}
+.card p{font-size:12px;text-align:center;padding:10px 5px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold}
+
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);justify-content:center;align-items:center;z-index:9999;flex-direction:column}
+.modal-box{background:#222;padding:25px;border-radius:12px;text-align:center;width:90%;max-width:350px;border:1px solid #333}
+.modal-box button{padding:10px 18px;margin:8px;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
+.btn-play{background:#ff8c00;color:#000}
+.btn-close{background:#333;color:#fff}
+#myVideo,#myIframe{width:95%;max-width:900px;height:75vh;border:none;background:#000;border-radius:8px}
+.no-result{text-align:center;color:#777;margin-top:80px;display:none;font-size:16px}
+#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;justify-content:center;align-items:center;z-index:10000;color:#ff8c00;font-size:20px}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen">Loading FAREL FLIX...</div>
+
 <header>
-<span onclick="goHome()" style="color:#ff0000;font-size:22px;font-weight:bold;cursor:pointer">FARELFLIX-tambala</span>
+<span class="logo" onclick="goHome()">FARELFLIX-tambala</span>
 <div class="nav-menu">
 <button id="btn-home" class="active" onclick="filterKategori('all')">Home</button>
 <button id="btn-action" onclick="filterKategori('ACTION')">Action</button>
 <button id="btn-terbaru" onclick="filterKategori('TERBARU')">Terbaru</button>
 <input id="searchBox" type="text" placeholder="Cari film..." onkeyup="cariFilm()">
 </div>
-<div><span id="userEmail" style="font-size:11px"></span><button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:6px 10px;border-radius:5px">Logout</button></div>
+<div class="user-area">
+<span id="userEmail"></span>
+<button class="btn-logout" onclick="logout()">Logout</button>
+</div>
 </header>
-<div id="semuaKategori"></div><div id="noResult" class="no-result">Film tidak ditemukan</div>
-<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()">BAYAR & TONTON</button><button onclick="tutupModal()">BATAL</button></div></div>
-<div id="modalPlayer" class="modal"><div style="width:100%;text-align:center"><h3 id="judulPlayer"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><button onclick="tutupPlayer()">TUTUP</button></div></div>
+
+<div id="semuaKategori" style="display:none"></div>
+<div id="noResult" class="no-result">Film tidak ditemukan 😕</div>
+
+<div id="modalBayar" class="modal">
+<div class="modal-box">
+<h3 id="judulBayar" style="margin-top:0"></h3>
+<p style="color:#aaa;font-size:13px">Mau nonton sekarang?</p>
+<button class="btn-play" onclick="playFilm()">BAYAR & TONTON</button>
+<button class="btn-close" onclick="tutupModal()">BATAL</button>
+</div>
+</div>
+
+<div id="modalPlayer" class="modal">
+<h3 id="judulPlayer" style="color:#ff8c00"></h3>
+<video id="myVideo" controls controlsList="nodownload"></video>
+<iframe id="myIframe" allowfullscreen></iframe>
+<br><br><button class="btn-close" onclick="tutupPlayer()">TUTUP</button>
+</div>
 
 <script type="module">
 import { auth } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-const loading = {style:{display:"none"}}; // dummy biar gak error
+
 onAuthStateChanged(auth, (user) => {
   if(!user){ window.location.href="login.html"; }
-  else { document.getElementById("userEmail").innerText=user.email; document.getElementById("semuaKategori").style.display="block"; renderFilm(dataFilm); }
+  else {
+    document.getElementById("userEmail").innerText=user.email;
+    document.getElementById("loadingScreen").style.display="none";
+    document.getElementById("semuaKategori").style.display="block";
+    renderFilm(dataFilm);
+  }
 });
 window.logout = ()=>{ signOut(auth).then(()=>{ window.location.href="login.html"; }); }
 </script>
+
 <script>
-const dataFilm={"ACTION":[{judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"gambar/diehard2023.jpg"},{judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"gambar/John_Wick_Chapter_3_Parabellum.png"}],"TERBARU":[{judul:"JOHN WICK 4",file:"https://streamtape.com/e/160ZVwLZM9FdZ1",type:"streamtape",gambar:"gambar/johnwick4.webp"}]};
-let aktifFile="",aktifType=""; const container=document.getElementById("semuaKategori");
-function renderFilm(data){ container.innerHTML=""; let ada=false; for(let kat in data){ if(!data[kat].length) continue; ada=true; let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`; data[kat].forEach(f=>{html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=No+Image'"><p>${f.judul}</p></div>`;}); html+=`</div></div>`; container.innerHTML+=html; } document.getElementById("noResult").style.display=ada?"none":"block"; }
-function goHome(){ document.getElementById("searchBox").value=""; document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active')); document.getElementById("btn-home").classList.add('active'); renderFilm(dataFilm); }
-function filterKategori(kat){ document.getElementById("searchBox").value=""; document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active')); document.getElementById("btn-"+kat.toLowerCase()).classList.add('active'); if(kat==='all'){renderFilm(dataFilm);return;} let f={}; f[kat]=dataFilm[kat]; renderFilm(f); }
-function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){goHome();return;} let h={}; for(let k in dataFilm){ let c=dataFilm[k].filter(f=>f.judul.toLowerCase().includes(q)); if(c.length) h[k]=c; } renderFilm(h); }
+const dataFilm={
+"ACTION":[
+{judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"gambar/diehard2023.jpg"},
+{judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"gambar/John_Wick_Chapter_3_Parabellum.png"}
+],
+"TERBARU":[
+{judul:"JOHN WICK 4",file:"https://streamtape.com/e/160ZVwLZM9FdZ1",type:"streamtape",gambar:"gambar/johnwick4.webp"}
+]
+};
+
+let aktifFile="",aktifType="";
+const container=document.getElementById("semuaKategori");
+
+function renderFilm(data){
+  container.innerHTML="";
+  let ada=false;
+  for(let kat in data){
+    if(!data[kat] ||!data[kat].length) continue;
+    ada=true;
+    let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;
+    data[kat].forEach(f=>{
+      html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/160x230?text=No+Image'"><p>${f.judul}</p></div>`;
+    });
+    html+=`</div></div>`;
+    container.innerHTML+=html;
+  }
+  document.getElementById("noResult").style.display=ada?"none":"block";
+}
+
+function goHome(){
+  document.getElementById("searchBox").value="";
+  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
+  document.getElementById("btn-home").classList.add('active');
+  renderFilm(dataFilm);
+}
+function filterKategori(kat){
+  document.getElementById("searchBox").value="";
+  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
+  document.getElementById("btn-"+kat.toLowerCase()).classList.add('active');
+  if(kat==='all'){renderFilm(dataFilm);return;}
+  let f={}; f[kat]=dataFilm[kat]; renderFilm(f);
+}
+function cariFilm(){
+  let q=document.getElementById("searchBox").value.toLowerCase();
+  if(!q){goHome();return;}
+  let h={};
+  for(let k in dataFilm){
+    let c=dataFilm[k].filter(f=>f.judul.toLowerCase().includes(q));
+    if(c.length) h[k]=c;
+  }
+  renderFilm(h);
+}
+
 function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
-function tutup(id){document.getElementById(id).style.display="none";} function tutupModal(){tutup('modalBayar');}
-function playFilm(){tutup('modalBayar');document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");let i=document.getElementById("myIframe");if(aktifType=="drive"||aktifType=="streamtape"){v.style.display="none";v.pause();i.style.display="block";i.src=aktifFile;}else{i.style.display="none";v.style.display="block";v.src=aktifFile;v.play();}}
-function tutupPlayer(){tutup('modalPlayer');let v=document.getElementById("myVideo");v.pause();v.src="";let i=document.getElementById("myIframe");i.src="";i.style.display="none";}
-</script></body></html>
+function tutup(id){document.getElementById(id).style.display="none";}
+function tutupModal(){tutup('modalBayar');}
+function playFilm(){
+  tutup('modalBayar');
+  document.getElementById("modalPlayer").style.display="flex";
+  let v=document.getElementById("myVideo");
+  let i=document.getElementById("myIframe");
+  if(aktifType=="drive"||aktifType=="streamtape"){
+    v.style.display="none";v.pause();
+    i.style.display="block";i.src=aktifFile;
+  }else{
+    i.style.display="none";v.style.display="block";v.src=aktifFile;v.play();
+  }
+}
+function tutupPlayer(){
+  tutup('modalPlayer');
+  let v=document.getElementById("myVideo");v.pause();v.src="";
+  let i=document.getElementById("myIframe");i.src="";i.style.display="none";
+}
+</script>
+</body>
+</html>
