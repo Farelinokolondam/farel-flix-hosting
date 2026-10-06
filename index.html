@@ -21,23 +21,52 @@ button{padding:10px 18px;background:#ff8c00;border:none;border-radius:5px;font-w
 </style>
 </head>
 <body>
-  <script>
-if(!localStorage.getItem("farel_user")){
-  window.location.href="login.html";
-}
-function logout(){
-  localStorage.removeItem("farel_user");
-  window.location.href="login.html";
-}
-</script>
+
 <header style="display:flex;justify-content:space-between;align-items:center;background:#000;padding:15px;color:#ff0000;font-size:26px;font-weight:bold">
 <span>FARELFLIX-tambala</span>
+<div>
+<span id="userEmail" style="font-size:12px;color:#fff;margin-right:10px"></span>
 <button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 15px;border-radius:5px;cursor:pointer">Logout</button>
+</div>
 </header>
 
 <div id="semuaKategori"></div>
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()">BAYAR & TONTON</button><button onclick="tutupModal()">BATAL</button></div></div>
-<div id="modalPlayer" class="modal"><div style="text-align:center;border:none;padding:0"><h3 id="judulPlayer"></h3><video id="myVideo" controls></video><iframe id="myIframe"></iframe><br><button onclick="tutupPlayer()">TUTUP</button></div></div>
+<div id="modalPlayer" class="modal"><div style="text-align:center;border:none;padding:0;width:100%"><h3 id="judulPlayer"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><button onclick="tutupPlayer()">TUTUP</button></div></div>
+
+<!-- GANTI SCRIPT LOGIN DARI LOCALSTORAGE KE FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU",
+  authDomain: "farel-flix-tambala.firebaseapp.com",
+  projectId: "farel-flix-tambala",
+  storageBucket: "farel-flix-tambala.firebasestorage.app",
+  messagingSenderId: "265996924707",
+  appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// CEK LOGIN PAKAI FIREBASE, BUKAN LOCALSTORAGE
+onAuthStateChanged(auth, (user) => {
+  if(!user){
+    window.location.href="login.html";
+  } else {
+    document.getElementById("userEmail").innerText = user.email;
+  }
+});
+
+window.logout = function(){
+  signOut(auth).then(()=>{
+    window.location.href="login.html";
+  });
+}
+</script>
+
 <script>
 const dataFilm={
 "ACTION":[
@@ -60,6 +89,7 @@ container.innerHTML+=html;
 }
 function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
 function tutup(id){document.getElementById(id).style.display="none";}
+function tutupModal(){tutup('modalBayar');}
 function playFilm(){tutup('modalBayar');document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");let i=document.getElementById("myIframe");if(aktifType=="drive"||aktifType=="streamtape"){v.style.display="none";v.pause();i.style.display="block";i.src=aktifFile;}else{i.style.display="none";i.src="";v.style.display="block";v.src=aktifFile;v.play();}}
 function tutupPlayer(){tutup('modalPlayer');let v=document.getElementById("myVideo");v.pause();v.src="";let i=document.getElementById("myIframe");i.src="";i.style.display="none";}
 </script>
