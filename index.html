@@ -1,52 +1,27 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FAREL FLIX tambala</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial, sans-serif;overflow-x:hidden}
+*{box-sizing:border-box}body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial}
 header{background:#000;padding:12px 15px;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:2px solid #222}
 .logo{color:#ff0000;font-size:22px;font-weight:bold;cursor:pointer;animation:glow 2s infinite alternate}
-@keyframes glow{from{text-shadow:0 0 5px #ff0000}to{text-shadow:0 0 15px #ff0000,0 0 25px #ff0000}}
+@keyframes glow{from{text-shadow:0 0 5px #ff0000}to{text-shadow:0 0 15px #ff0000}}
 .nav-menu{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px;transition:0.3s}
+.nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px}
 .nav-menu button.active{background:#ff8c00;color:#000;font-weight:bold;transform:scale(1.1)}
 #searchBox{background:#1a1a1a;color:#fff;border:1px solid #444;padding:8px 14px;border-radius:20px;width:200px;outline:none}
-.user-area{display:flex;align-items:center;gap:8px}
-#userEmail{font-size:11px;color:#aaa}
-.btn-logout{background:#e50914;color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer}
-
-/* HERO ANIMASI BARU */
-.hero{position:relative;height:42vh;min-height:280px;background:linear-gradient(90deg,#000 20%,transparent), url('gambar/johnwick4.webp');background-size:cover;background-position:center;display:flex;align-items:center;padding:25px;animation:zoomHero 10s infinite alternate}
-@keyframes zoomHero{0%{background-size:100%}100%{background-size:110%}}
-.hero h1{font-size:32px;margin:0;color:#fff;animation:slideLeft 1s ease}
-.hero p{color:#ccc;max-width:400px;animation:slideLeft 1.3s ease}
-@keyframes slideLeft{from{transform:translateX(-50px);opacity:0}to{transform:translateX(0);opacity:1}}
-.hero button{margin-top:12px;padding:10px 22px;background:#ff8c00;border:none;border-radius:6px;font-weight:bold;cursor:pointer;animation:bounce 2s infinite}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-
-#semuaKategori{padding:20px}
-.kategori{margin-bottom:30px}
-.kategori h2{color:#ff8c00;margin:0 0 12px 5px}
-.row{display:flex;gap:15px;overflow-x:auto;padding:10px 5px;scrollbar-width:none}
-.row::-webkit-scrollbar{display:none}
-.card{background:#1c1c1c;border-radius:10px;min-width:160px;max-width:160px;cursor:pointer;overflow:hidden;flex-shrink:0;border:1px solid #2a2a2a;animation:fadeUp 0.6s ease both;transition:0.3s}
-.card:nth-child(1){animation-delay:0.1s}.card:nth-child(2){animation-delay:0.2s}.card:nth-child(3){animation-delay:0.3s}
-@keyframes fadeUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-.card:hover{transform:scale(1.1) rotateZ(1deg);box-shadow:0 0 20px rgba(255,140,0,0.7)}
-.card img{width:100%;height:230px;object-fit:cover;display:block}
-.card p{font-size:12px;text-align:center;padding:10px 5px;margin:0;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
+.hero{position:relative;height:40vh;min-height:260px;background:linear-gradient(90deg,#000 30%,transparent), url('gambar/johnwick4.webp');background-size:cover;background-position:center;display:flex;align-items:center;padding:25px}
+.hero h1{font-size:32px;margin:0}.hero button{margin-top:12px;padding:10px 22px;background:#ff8c00;border:none;border-radius:6px;font-weight:bold;cursor:pointer}
+#semuaKategori{padding:20px}.kategori{margin-bottom:25px}.kategori h2{color:#ff8c00}
+.row{display:flex;gap:15px;overflow-x:auto;padding:10px 5px}.card{background:#1c1c1c;border-radius:10px;min-width:160px;max-width:160px;cursor:pointer;overflow:hidden;flex-shrink:0;border:1px solid #2a2a2a;transition:0.3s}
+.card:hover{transform:scale(1.07);box-shadow:0 0 15px #ff8c00}
+.card img{width:100%;height:230px;object-fit:cover;display:block}.card p{font-size:12px;text-align:center;padding:8px;margin:0;font-weight:bold}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);justify-content:center;align-items:center;z-index:9999;flex-direction:column}
-.modal-box{background:#222;padding:25px;border-radius:12px;text-align:center;width:90%;max-width:350px;animation:pop 0.3s ease}
-@keyframes pop{from{transform:scale(0.7)}to{transform:scale(1)}}
-.modal-box button{padding:10px 18px;margin:8px;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
-.btn-play{background:#ff8c00;color:#000}.btn-close{background:#333;color:#fff}
-#myVideo,#myIframe{width:95%;max-width:900px;height:75vh;border:none;background:#000;border-radius:8px}
-.no-result{text-align:center;color:#777;margin-top:80px;display:none}
-#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;justify-content:center;align-items:center;z-index:10000;color:#ff8c00;font-size:20px}
+.modal-box{background:#222;padding:20px;border-radius:10px;text-align:center}
+#myVideo,#myIframe{width:95%;max-width:900px;height:70vh;border:none;background:#000}
+#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;justify-content:center;align-items:center;z-index:10000;color:#ff8c00}
 </style>
 </head>
 <body>
@@ -54,27 +29,22 @@ header{background:#000;padding:12px 15px;position:sticky;top:0;z-index:100;displ
 <header>
 <span class="logo" onclick="goHome()">FARELFLIX-tambala</span>
 <div class="nav-menu">
-<button id="btn-home" class="active" onclick="filterKategori('all')">Home</button>
+<button id="btn-home" class="active" onclick="goHome()">Home</button>
 <button id="btn-action" onclick="filterKategori('ACTION')">Action</button>
 <button id="btn-terbaru" onclick="filterKategori('TERBARU')">Terbaru</button>
 <input id="searchBox" type="text" placeholder="Cari film..." onkeyup="cariFilm()">
 </div>
-<div class="user-area"><span id="userEmail"></span><button class="btn-logout" onclick="logout()">Logout</button></div>
+<div><span id="userEmail" style="font-size:11px"></span><button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:6px 10px;border-radius:5px">Logout</button></div>
 </header>
 
 <div id="homeHero" class="hero">
-<div>
-<h1 id="heroTitle">JOHN WICK 4</h1>
-<p id="heroDesc">Film unggulan hari ini - Nonton sekarang dengan kualitas HD!</p>
-<button onclick="buka('JOHN WICK 4','https://streamtape.com/e/160ZVwLZM9FdZ1','streamtape')">▶ NONTON SEKARANG</button>
-</div>
+<div><h1>JOHN WICK 4</h1><p>Film unggulan hari ini - Nonton HD sekarang!</p><button onclick="buka('JOHN WICK 4','https://streamtape.com/e/160ZVwLZM9FdZ1','streamtape')">▶ NONTON SEKARANG</button></div>
 </div>
 
 <div id="semuaKategori" style="display:none"></div>
-<div id="noResult" class="no-result">Film tidak ditemukan 😕</div>
-
-<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button class="btn-play" onclick="playFilm()">BAYAR & TONTON</button><button class="btn-close" onclick="tutupModal()">BATAL</button></div></div>
-<div id="modalPlayer" class="modal"><h3 id="judulPlayer" style="color:#ff8c00"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><br><button class="btn-close" onclick="tutupPlayer()">TUTUP</button></div>
+<div id="noResult" style="display:none;text-align:center;margin-top:50px;color:#777">Film tidak ditemukan</div>
+<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="background:#ff8c00;padding:10px 15px;border:none;border-radius:5px;font-weight:bold">BAYAR & TONTON</button><button onclick="tutupModal()" style="background:#333;color:#fff;padding:10px 15px;border:none;border-radius:5px">BATAL</button></div></div>
+<div id="modalPlayer" class="modal"><h3 id="judulPlayer" style="color:#ff8c00"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><br><button onclick="tutupPlayer()" style="background:#333;color:#fff;padding:8px 15px;border:none;border-radius:5px">TUTUP</button></div>
 
 <script type="module">
 import { auth } from "./firebase.js";
@@ -84,9 +54,7 @@ onAuthStateChanged(auth, (user) => {
   else {
     document.getElementById("userEmail").innerText=user.email;
     document.getElementById("loadingScreen").style.display="none";
-    document.getElementById("semuaKategori").style.display="block";
-    document.getElementById("homeHero").style.display="flex";
-    renderFilm(dataFilm);
+    goHome();
   }
 });
 window.logout = ()=>{ signOut(auth).then(()=>{ window.location.href="login.html"; }); }
@@ -104,27 +72,56 @@ const dataFilm={
 };
 let aktifFile="",aktifType="";
 const container=document.getElementById("semuaKategori");
+const homeHero=document.getElementById("homeHero");
+
+function setActive(id){document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
 function renderFilm(data){
-  container.innerHTML="";let ada=false;
+  container.style.display="block";
+  container.innerHTML="";
+  let ada=false;
   for(let kat in data){
-    if(!data[kat].length) continue;ada=true;
+    if(!data[kat].length) continue; ada=true;
     let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;
-    data[kat].forEach(f=>{html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/160x230?text=No+Image'"><p>${f.judul}</p></div>`;});
-    html+=`</div></div>`;container.innerHTML+=html;
+    data[kat].forEach(f=>{html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/160x230'"><p>${f.judul}</p></div>`;});
+    html+=`</div></div>`; container.innerHTML+=html;
   }
   document.getElementById("noResult").style.display=ada?"none":"block";
 }
-function goHome(){document.getElementById("searchBox").value="";document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));document.getElementById("btn-home").classList.add('active');document.getElementById("homeHero").style.display="flex";renderFilm(dataFilm);}
-function filterKategori(kat){document.getElementById("searchBox").value="";document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));document.getElementById("btn-"+kat.toLowerCase()).classList.add('active');document.getElementById("homeHero").style.display=kat==='all'?"flex":"none";if(kat==='all'){renderFilm(dataFilm);return;}let f={};f[kat]=dataFilm[kat];renderFilm(f);}
-function cariFilm(){let q=document.getElementById("searchBox").value.toLowerCase();if(!q){goHome();return;}document.getElementById("homeHero").style.display="none";let h={};for(let k in dataFilm){let c=dataFilm[k].filter(f=>f.judul.toLowerCase().includes(q));if(c.length) h[k]=c;}renderFilm(h);}
+
+// INI YANG BENER - KLIK LOGO / HOME BALIK KE HOME LENGKAP
+function goHome(){
+  document.getElementById("searchBox").value="";
+  setActive("btn-home");
+  homeHero.style.display="flex";
+  container.style.display="block";
+  renderFilm(dataFilm);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function filterKategori(kat){
+  document.getElementById("searchBox").value="";
+  setActive("btn-"+kat.toLowerCase());
+  homeHero.style.display="none";
+  let f={}; f[kat]=dataFilm[kat];
+  renderFilm(f);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function cariFilm(){
+  let q=document.getElementById("searchBox").value.toLowerCase();
+  if(!q){goHome();return;}
+  homeHero.style.display="none";
+  let h={};
+  for(let k in dataFilm){let c=dataFilm[k].filter(f=>f.judul.toLowerCase().includes(q)); if(c.length) h[k]=c;}
+  renderFilm(h);
+}
+
 function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
-function tutup(id){document.getElementById(id).style.display="none";}function tutupModal(){tutup('modalBayar');}
+function tutup(id){document.getElementById(id).style.display="none";}
+function tutupModal(){tutup('modalBayar');}
 function playFilm(){tutup('modalBayar');document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");let i=document.getElementById("myIframe");if(aktifType=="drive"||aktifType=="streamtape"){v.style.display="none";v.pause();i.style.display="block";i.src=aktifFile;}else{i.style.display="none";v.style.display="block";v.src=aktifFile;v.play();}}
 function tutupPlayer(){tutup('modalPlayer');let v=document.getElementById("myVideo");v.pause();v.src="";let i=document.getElementById("myIframe");i.src="";i.style.display="none";}
-
-// Animasi hero ganti-ganti otomatis
-let heroList=[{judul:"JOHN WICK 4",desc:"Film unggulan hari ini!",bg:"gambar/johnwick4.webp"},{judul:"DIE HARD",desc:"Action legendaris!",bg:"gambar/diehard2023.jpg"}];let heroIdx=0;
-setInterval(()=>{heroIdx=(heroIdx+1)%heroList.length;document.getElementById("heroTitle").innerText=heroList[heroIdx].judul;document.getElementById("heroDesc").innerText=heroList[heroIdx].desc;document.querySelector(".hero").style.backgroundImage=`linear-gradient(90deg,#000 20%,transparent), url('${heroList[heroIdx].bg}')`;},4000);
 </script>
 </body>
 </html>
