@@ -8,9 +8,9 @@
 body{height:100vh;overflow:hidden;background:#000;font-family:'Segoe UI',Arial;display:flex;justify-content:center;align-items:center}
 
 /* TEMBOK POSTER FILM KAYAK NETFLIX */
-.wall{position:fixed;inset:0;z-index:0;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;transform:rotate(-5deg) scale(1.2);opacity:0.35;filter:blur(10px) brightness(0.6)}
+.wall{position:fixed;inset:0;z-index:0;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;transform:rotate(-5deg) scale(1.2);opacity:0.65;filter:blur(6px) brightness(1.1)}
 .wall div{height:180px;background-size:cover;background-position:center;border-radius:4px}
-.bg-dark{position:fixed;inset:0;z-index:1;background:linear-gradient(0deg,#000 0%,rgba(0,0,0,0.7) 50%,rgba(0,0,0,0.9) 100%),radial-gradient(ellipse at center,transparent 40%,#000 90%)}
+.bg-dark{position:fixed;inset:0;z-index:1;background:linear-gradient(0deg,#000 0%,rgba(0,0,0,0.4) 50%,rgba(0,0,0,0.6) 100%),radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,0.6) 90%)}
 
 .particles{position:fixed;inset:0;z-index:2;pointer-events:none}
 .p{position:absolute;width:3px;height:3px;background:#ff3300;border-radius:50%;box-shadow:0 0 10px #ff3300;animation:naik linear infinite}
@@ -25,7 +25,9 @@ body{height:100vh;overflow:hidden;background:#000;font-family:'Segoe UI',Arial;d
 #btnLogin:hover{transform:scale(1.02);background:#e5e5e5}
 #error{color:#ffb3b3;background:rgba(229,9,20,0.15);border:1px solid rgba(229,9,20,0.3);padding:10px;border-radius:4px;font-size:13px;margin-top:15px;display:none}
 #error.show{display:block}
-.footer{margin-top:20px;color:#777;font-size:11px}
+
+/* INI YANG DIPINDAH KE KANAN BAWAH */
+.footer{position:fixed;bottom:15px;right:20px;z-index:30;color:#aaa;font-size:11px;background:rgba(0,0,0,0.6);padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(8px)}
 </style>
 </head>
 <body>
@@ -39,11 +41,11 @@ body{height:100vh;overflow:hidden;background:#000;font-family:'Segoe UI',Arial;d
   <div class="tagline">Nonton Film Bioskop Gratis Tanpa Iklan</div>
   <button id="btnLogin"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Login dengan Google</button>
   <div id="error"></div>
-  <div class="footer">© 2026 FARELFLIX • Aman & Terpercaya</div>
 </div>
 
+<div class="footer">© 2026 FARELFLIX • Aman & Terpercaya</div>
+
 <script>
-// poster acak biar kayak Netflix
 const posters=[
 "https://image.tmdb.org/t/p/w300/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
 "https://image.tmdb.org/t/p/w300/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
@@ -56,7 +58,6 @@ const posters=[
 ];
 const wall=document.getElementById('wall');
 for(let i=0;i<24;i++){let d=document.createElement('div');d.style.backgroundImage=`url(${posters[i%posters.length]})`;wall.appendChild(d);}
-
 for(let i=0;i<30;i++){const d=document.createElement('div');d.className='p';d.style.left=Math.random()*100+'vw';d.style.animationDuration=(5+Math.random()*8)+'s';d.style.animationDelay=Math.random()*5+'s';document.getElementById('particles').appendChild(d);}
 </script>
 
