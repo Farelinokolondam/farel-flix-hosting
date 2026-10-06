@@ -2,32 +2,56 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FAREL FLIX - REAL DRAGON WAR</title>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<title>FAREL FLIX - GOLDEN DRAGON WAR</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#000;height:100vh;overflow:hidden;font-family:Arial}
-#canvas3d{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1}
-.box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,15,0.88);padding:35px 30px;border-radius:18px;text-align:center;width:360px;z-index:20;border:1px solid #333;box-shadow:0 0 40px rgba(0,0,0,0.9);backdrop-filter:blur(12px)}
-.box h1{color:#ff8c00;margin:0;font-size:30px;letter-spacing:2px}
-.box p{color:#999;font-size:13px;margin-top:5px}
-#btnLogin{width:100%;padding:13px;background:#fff;color:#000;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:18px;display:flex;justify-content:center;align-items:center;gap:8px}
-#btnLogin:hover{transform:scale(1.03)}
-#error{color:#ff4444;font-size:12px;margin-top:10px;min-height:14px}
-.top-title{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:15;color:#ff4400;font-size:12px;letter-spacing:4px;opacity:0.7}
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,#2a1a05 0%,#000 70%);z-index:1}
+.dragon-gold{position:fixed;top:5%;width:42%;max-width:550px;z-index:3;filter:drop-shadow(0 0 30px gold) drop-shadow(0 0 60px #ff4400);animation:float 3s ease-in-out infinite}
+#dragon1{left:0%;animation:float1 3.2s ease-in-out infinite, war1 6s ease-in-out infinite}
+#dragon2{right:0%;transform:scaleX(-1);animation:float2 3s ease-in-out infinite, war2 6s ease-in-out infinite;filter:drop-shadow(0 0 30px #ffaa00) drop-shadow(0 0 60px #ff4400) hue-rotate(180deg)}
+@keyframes float1{0%,100%{top:5%}50%{top:9%}}
+@keyframes float2{0%,100%{top:7%}50%{top:11%}}
+@keyframes war1{0%,100%{left:0%}50%{left:8%}}
+@keyframes war2{0%,100%{right:0%}50%{right:8%}}
+
+.fire{position:fixed;top:22%;left:50%;width:0;height:0;z-index:4;pointer-events:none}
+.fire-beam{position:absolute;width:180px;height:40px;background:linear-gradient(90deg,transparent,#ffff00,#ff6600,#ff0000);border-radius:20px;filter:blur(2px) drop-shadow(0 0 20px #ff4400);animation:beam 0.3s infinite alternate}
+#fire1 .fire-beam{left:-180px;transform-origin:right;animation:shootLeft 0.5s linear infinite}
+#fire2 .fire-beam{right:-180px;transform-origin:left;animation:shootRight 0.5s linear infinite;background:linear-gradient(270deg,transparent,#00ffff,#0066ff,#0000ff)}
+@keyframes shootLeft{0%{transform:scaleX(0.3)}100%{transform:scaleX(1.5)}}
+@keyframes shootRight{0%{transform:scaleX(0.3)}100%{transform:scaleX(1.5)}}
+@keyframes beam{0%{opacity:0.8;filter:blur(2px)}100%{opacity:1;filter:blur(4px)}}
+.explosion{position:fixed;top:25%;left:50%;transform:translateX(-50%);font-size:0px;z-index:5;animation:boom 6s infinite;pointer-events:none}
+@keyframes boom{0%,44%,56%,100%{font-size:0;opacity:0}45%,55%{font-size:90px;opacity:1}}
+
+.box{position:fixed;top:52%;left:50%;transform:translate(-50%,-50%);background:rgba(15,10,5,0.92);padding:35px 30px;border-radius:20px;text-align:center;width:360px;z-index:20;border:2px solid #ffaa0066;box-shadow:0 0 50px rgba(255,170,0,0.5), inset 0 0 20px rgba(255,170,0,0.1);backdrop-filter:blur(15px)}
+.box h1{color:#ffcc00;margin:0;font-size:30px;letter-spacing:3px;text-shadow:0 0 15px gold}
+.box p{color:#cc9900;font-size:13px;margin-top:5px}
+#btnLogin{width:100%;padding:13px;background:linear-gradient(90deg,#ffcc00,#ff9900);color:#000;border:none;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:18px;display:flex;justify-content:center;align-items:center;gap:8px;box-shadow:0 0 20px gold}
+#btnLogin:hover{transform:scale(1.05)}
+#error{color:#ff4444;font-size:12px;margin-top:10px}
 </style>
 </head>
 <body>
-<div class="top-title">REAL DRAGON WAR - FIRE FIXED 🔥</div>
-<canvas id="canvas3d"></canvas>
+<div id="bg"></div>
+
+<!-- NAGA EMAS MODEL FOTO KAMU -->
+<img id="dragon1" class="dragon-gold" src="naga-emas.png" alt="naga emas">
+<img id="dragon2" class="dragon-gold" src="naga-emas.png" alt="naga emas biru">
+
+<div id="fire1" class="fire"><div class="fire-beam"></div></div>
+<div id="fire2" class="fire"><div class="fire-beam"></div></div>
+<div class="explosion">💥</div>
+
 <div class="box">
 <h1>FAREL FLIX</h1>
-<p>Naga penjaga di langit - Login</p>
+<p>🐉 Golden Dragon War - Login 🐉</p>
 <button id="btnLogin"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Login dengan Google</button>
 <div id="error"></div>
+<p style="font-size:10px;margin-top:10px;color:#ffaa00;letter-spacing:2px">NAGA EMAS PENJAGA</p>
 </div>
 
 <script type="module">
-import * as THREE from 'three';
 import { auth, provider } from "./firebase.js";
 import { signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 onAuthStateChanged(auth,u=>{if(u) location.href="index.html";});
@@ -35,126 +59,12 @@ document.getElementById("btnLogin").onclick=async()=>{
   document.getElementById("error").innerText="Loading...";
   try{await signInWithPopup(auth,provider);location.href="index.html";}catch(e){document.getElementById("error").innerText=e.message;}
 };
-
-const canvas=document.getElementById('canvas3d');
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x05050a);
-scene.fog=new THREE.Fog(0x05050a, 12, 40);
-const camera=new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 100);
-camera.position.set(0,1,18);
-const renderer=new THREE.WebGLRenderer({canvas, antialias:true});
-renderer.setSize(innerWidth,innerHeight);
-renderer.shadowMap.enabled=true;
-
-scene.add(new THREE.AmbientLight(0x606080,1.2));
-const moon=new THREE.DirectionalLight(0xffffff,1.5); moon.position.set(5,10,5); scene.add(moon);
-const fireLight1=new THREE.PointLight(0xff3300,10,30); fireLight1.position.set(0,6,2); scene.add(fireLight1);
-const fireLight2=new THREE.PointLight(0x00aaff,10,30); fireLight2.position.set(0,6,2); scene.add(fireLight2);
-
-function makeScaleTexture(color){
-  const c=document.createElement('canvas'); c.width=256;c.height=256;
-  const ctx=c.getContext('2d'); ctx.fillStyle=color; ctx.fillRect(0,0,256,256);
-  for(let i=0;i<400;i++){ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.beginPath(); ctx.arc(Math.random()*256,Math.random()*256, Math.random()*8+2,0,Math.PI*2); ctx.fill();}
-  return new THREE.CanvasTexture(c);
-}
-
-function createRealDragon(baseColor, wingColor){
-  const group=new THREE.Group();
-  const scaleMap=makeScaleTexture(baseColor);
-  const bodyMat=new THREE.MeshStandardMaterial({color:baseColor, map:scaleMap, roughness:0.5, metalness:0.3});
-  const wingMat=new THREE.MeshStandardMaterial({color:wingColor, side:THREE.DoubleSide, roughness:0.8});
-  const hornMat=new THREE.MeshStandardMaterial({color:0x111111, roughness:0.4, metalness:0.6});
-  const body=new THREE.Mesh(new THREE.CapsuleGeometry(0.6,2.5,6,12), bodyMat); body.rotation.z=Math.PI/2; group.add(body);
-  const neck=new THREE.Mesh(new THREE.CapsuleGeometry(0.35,1.3,6,8), bodyMat); neck.position.set(1.5,0.6,0); neck.rotation.z=-Math.PI/3; group.add(neck);
-  const headGroup=new THREE.Group(); headGroup.position.set(2.2,1.4,0);
-  const skull=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.5,0.55), bodyMat); headGroup.add(skull);
-  const snout=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.3,0.4), bodyMat); snout.position.set(0.6, -0.05,0); headGroup.add(snout);
-  const jaw=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.15,0.38), bodyMat); jaw.position.set(0.5,-0.25,0); headGroup.add(jaw);
-  const hornL=new THREE.Mesh(new THREE.ConeGeometry(0.08,0.6,6), hornMat); hornL.position.set(-0.2,0.3,0.2); hornL.rotation.z=0.5; headGroup.add(hornL);
-  const hornR=hornL.clone(); hornR.position.z=-0.2; headGroup.add(hornR);
-  const eyeMat=new THREE.MeshStandardMaterial({color:0xff0000, emissive:0xff0000, emissiveIntensity:5});
-  const eye1=new THREE.Mesh(new THREE.SphereGeometry(0.09,8,8), eyeMat); eye1.position.set(0.2,0.1,0.28); headGroup.add(eye1);
-  const eye2=eye1.clone(); eye2.position.z=-0.28; headGroup.add(eye2);
-  group.add(headGroup);
-  function createWing(side){
-    const shape=new THREE.Shape(); shape.moveTo(0,0); shape.lineTo(0.2,0.9); shape.lineTo(1.6,1.5); shape.lineTo(1.9,1.0); shape.lineTo(1.2,0.2); shape.lineTo(0,0);
-    const geo=new THREE.ShapeGeometry(shape);
-    const wing=new THREE.Mesh(geo, wingMat); wing.position.set(0,0.5, side*0.5);
-    return wing;
-  }
-  group.add(createWing(1)); group.add(createWing(-1));
-  const tail=new THREE.Mesh(new THREE.CapsuleGeometry(0.2,2.8,4,8), bodyMat); tail.position.set(-2.2,0.3,0); tail.rotation.z=Math.PI/2.2; group.add(tail);
-  group.userData.head=headGroup;
-  return group;
-}
-
-const dragonRed=createRealDragon('#a02020','#3a0a0a');
-const dragonBlue=createRealDragon('#2030a0','#0a0a3a');
-scene.add(dragonRed); scene.add(dragonBlue);
-
-// ==== FIRE YANG DIPERBAIKI - LEBIH BESAR & TERANG ====
-const fires=[];
-function breathFire(fromDragon, toPos, color){
-  const pos=new THREE.Vector3(); fromDragon.userData.head.getWorldPosition(pos);
-  const dir=new THREE.Vector3().subVectors(toPos, pos).normalize();
-
-  // Bikin 20 bola api, bukan 12
-  for(let i=0;i<20;i++){
-    const size = 0.25 + Math.random()*0.3; // lebih gede
-    const mat = new THREE.MeshBasicMaterial({color: color, transparent:true, opacity:1});
-    const p=new THREE.Mesh(new THREE.SphereGeometry(size,8,8), mat);
-    p.position.copy(pos);
-    // arah + acak dikit biar nyebar kayak api beneran
-    const spread = new THREE.Vector3((Math.random()-0.5)*0.3, (Math.random()-0.5)*0.3, (Math.random()-0.5)*0.3);
-    p.userData={
-      vel: dir.clone().multiplyScalar(0.4+Math.random()*0.3).add(spread),
-      life:1
-    };
-    scene.add(p); fires.push(p);
-  }
-  // Flash lampu biar keliatan nyembur
-  fireLight1.intensity = 20; fireLight2.intensity = 20;
-  fireLight1.position.copy(pos);
-  setTimeout(()=>{fireLight1.intensity=5; fireLight2.intensity=5;},200);
-}
-
-const starGeo=new THREE.BufferGeometry(); const sPos=[];
-for(let i=0;i<600;i++) sPos.push((Math.random()-0.5)*80, (Math.random()-0.5)*50, (Math.random()-0.5)*30-20);
-starGeo.setAttribute('position', new THREE.Float32BufferAttribute(sPos,3));
-scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({size:0.22,color:0xffffff})));
-
-let t=0;
-function animate(){
-  requestAnimationFrame(animate); t+=0.015;
-  const time=Date.now()*0.001;
-  const yBase=7 + Math.sin(t*0.8)*0.8;
-  dragonRed.position.set(-8 + Math.sin(t*0.6)*3, yBase + Math.sin(time*1.3)*0.8, -1);
-  dragonBlue.position.set(8 - Math.sin(t*0.6)*3, yBase + Math.cos(time*1.3)*0.8, 1);
-  dragonRed.lookAt(dragonBlue.position); dragonRed.rotation.y+=0.15;
-  dragonBlue.lookAt(dragonRed.position); dragonBlue.rotation.y-=0.15;
-  const flap=Math.sin(time*7);
-  dragonRed.children[2].rotation.z=flap*0.5; dragonRed.children[3].rotation.z=-flap*0.5;
-  dragonBlue.children[2].rotation.z=flap*0.5; dragonBlue.children[3].rotation.z=-flap*0.5;
-
-  // FIX: Sekarang api pasti keluar tiap 2 detik, gak nunggu Python lagi!
-  if(t % 2 < 0.05){ // tiap 2 detik
-    breathFire(dragonRed, dragonBlue.position, 0xff4400);
-    setTimeout(()=>breathFire(dragonBlue, dragonRed.position, 0x00bbff), 400);
-  }
-
-  for(let i=fires.length-1;i>=0;i--){
-    const f=fires[i];
-    f.position.add(f.userData.vel);
-    f.userData.life-=0.02;
-    f.scale.setScalar(f.userData.life*1.5);
-    f.material.opacity=f.userData.life;
-    if(f.userData.life<=0){scene.remove(f); fires.splice(i,1);}
-  }
-  camera.position.x=Math.sin(t*0.3)*0.8;
-  renderer.render(scene,camera);
-}
-animate();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight);});
+// api muncul tiap 2 detik
+const f1=document.getElementById('fire1'), f2=document.getElementById('fire2');
+setInterval(()=>{
+  f1.style.opacity=1; f2.style.opacity=1;
+  setTimeout(()=>{f1.style.opacity=0; f2.style.opacity=0;},600);
+},2000);
 </script>
 </body>
 </html>
