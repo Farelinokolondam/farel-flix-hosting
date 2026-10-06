@@ -2,103 +2,95 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FAREL FLIX</title>
+<title>FAREL FLIX - Cepat</title>
+<link rel="preconnect" href="https://image.tmdb.org">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a0a;color:#fff;font-family:'Segoe UI',Arial}
-.top-bar{background:linear-gradient(90deg,#1e3a8a,#1e40af);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:100}
-.top-logo{font-size:28px;font-weight:900;color:#facc15}.top-logo span{color:#fff}
-.top-search{flex:1;max-width:400px}.top-search input{width:100%;padding:9px 15px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.4);color:#fff;outline:none}
-.top-links{display:flex;gap:12px;font-size:12px;font-weight:bold;align-items:center}.top-links a{color:#fff;text-decoration:none;cursor:pointer}
-#logoutBtn{background:#e50914;padding:6px 14px;border-radius:4px}
-.mid-bar{background:#dc2626;padding:9px 20px;display:flex;gap:20px;font-size:13px;font-weight:700;overflow-x:auto;white-space:nowrap}
-.mid-bar a{color:#fff;text-decoration:none;cursor:pointer}
-.bot-bar{background:#facc15;padding:8px 20px;display:flex;gap:16px;font-size:11px;font-weight:900;overflow-x:auto;white-space:nowrap;color:#000}
-.bot-bar a{color:#000;text-decoration:none;cursor:pointer}
-.container{padding:20px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
-.card{background:#161616;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid #222}.card:hover{transform:scale(1.05);border-color:#e50914}
-.card img{width:100%;height:210px;object-fit:cover}.card-info{padding:8px}.card-title{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;padding:15px}
+.top-bar{background:#1e3a8a;padding:10px 15px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.top-logo{font-size:24px;font-weight:900;color:#facc15}.top-logo span{color:#fff}
+.top-search{flex:1}.top-search input{width:100%;padding:8px 12px;border-radius:20px;border:none;background:#000;color:#fff;font-size:12px}
+.mid-bar{background:#dc2626;padding:8px 15px;display:flex;gap:15px;font-size:12px;font-weight:700;overflow-x:auto;white-space:nowrap}
+.mid-bar a{color:#fff;text-decoration:none}
+.bot-bar{background:#facc15;padding:6px 15px;display:flex;gap:14px;font-size:10px;font-weight:900;overflow-x:auto;white-space:nowrap;color:#000}
+.bot-bar a{color:#000;text-decoration:none}
+.container{padding:12px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.card{background:#161616;border-radius:5px;overflow:hidden;cursor:pointer;border:1px solid #222}
+.card img{width:100%;height:160px;object-fit:cover;background:#222;display:block}
+.card-info{padding:6px}.card-title{font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-size:8px;background:#e50914;padding:2px 4px;border-radius:3px;margin-top:3px;display:inline-block}
+
+/* MODAL CEPAT */
+.modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.9);display:none;justify-content:center;align-items:center}
 .modal.show{display:flex}
-.modal-box{background:#111;border-radius:8px;padding:20px;width:100%;max-width:400px;text-align:center;border-top:4px solid #e50914}
-.modal-box button{padding:10px 15px;margin:5px;border:none;border-radius:4px;font-weight:bold;cursor:pointer}
-#modalPlayer.player-box{width:100%;max-width:900px;background:#000;border-radius:8px;overflow:hidden}
-#myVideo{width:100%;height:500px;background:#000}
-@media(max-width:768px){#myVideo{height:280px}.grid{grid-template-columns:repeat(3,1fr)}}
+.box-player{width:100%;max-width:800px;background:#000;border-radius:6px;overflow:hidden}
+#myVideo{width:100%;height:450px;background:#000}
+@media(max-width:768px){#myVideo{height:220px}.grid{grid-template-columns:repeat(3,1fr)}.card img{height:140px}}
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <div class="top-logo" onclick="location.reload()">FAREL<span>FLIX</span></div>
-  <div class="top-search"><input type="text" id="searchInput" placeholder="Cari John Wick, Die Hard..."></div>
-  <div class="top-links"><a id="userEmail"></a><a id="logoutBtn">Logout</a></div>
+  <div class="top-logo">FAREL<span>FLIX</span></div>
+  <div class="top-search"><input id="searchInput" placeholder="Cari John Wick, Die Hard..."></div>
+  <a id="logoutBtn" style="background:#e50914;padding:5px 10px;border-radius:4px;font-size:11px;cursor:pointer">Logout</a>
 </div>
-<div class="mid-bar"><a onclick="location.reload()">🏠 Home</a><a>Index Movie™</a><a>🎬 Genre</a><a>⭐ Populer</a></div>
-<div class="bot-bar">
-  <a onclick="filterFilm('john')">JOHN WICK</a><a onclick="filterFilm('die')">DIE HARD</a><a>ACTION</a><a>HORROR</a><a>COMEDY</a><a>2026</a><a>BLURAY</a>
-</div>
+<div class="mid-bar"><a>🏠 Home</a><a>Populer</a><a>Genre</a></div>
+<div class="bot-bar"><a onclick="filterQ('john')">JOHN WICK</a><a onclick="filterQ('die')">DIE HARD</a><a>ACTION</a><a>HORROR</a><a>BLURAY</a></div>
 
 <div class="container"><div class="grid" id="movieGrid"></div></div>
 
-<!-- MODAL BAYAR (PUNYA KAMU) -->
-<div id="modalBayar" class="modal">
-  <div class="modal-box">
-    <h3 id="JudulBayar"></h3>
-    <p style="color:#aaa;font-size:13px;margin:10px 0">Mau nonton film ini?</p>
-    <button onclick="playFilm()" style="background:#e50914;color:#fff;width:100%">▶ Play Sekarang</button>
-    <button onclick="tutupModal()" style="background:#2a2a2a;color:#fff;width:100%;margin-top:8px">Batal</button>
-  </div>
-</div>
+<div id="modalBayar" class="modal"><div style="background:#111;padding:20px;border-radius:8px;width:320px;text-align:center;border-top:4px solid #e50914"><h4 id="JudulBayar"></h4><button onclick="playFilm()" style="width:100%;margin-top:15px;padding:10px;background:#e50914;color:#fff;border:none;border-radius:4px;font-weight:bold">▶ PLAY SEKARANG</button><button onclick="tutup('modalBayar')" style="width:100%;margin-top:8px;padding:8px;background:#222;color:#fff;border:none;border-radius:4px">Batal</button></div></div>
 
-<!-- MODAL PLAYER (PUNYA KAMU) -->
-<div id="modalPlayer" class="modal">
-  <div class="player-box">
-    <div style="padding:12px;background:#111;display:flex;justify-content:space-between"><span id="judulPlayer"></span><button onclick="tutupPlayer()" style="background:#e50914;color:#fff">X Tutup</button></div>
-    <video id="myVideo" controls></video>
-  </div>
-</div>
-
-<!-- MODAL LOGOUT YA/TIDAK -->
-<div id="logoutModal" class="modal"><div class="modal-box"><h3>Mau keluar?</h3><p style="color:#aaa;font-size:13px">Apakah kamu mau keluar ya atau tidak?</p><div style="display:flex;gap:10px;margin-top:15px"><button id="btnTidak" style="flex:1;background:#2a2a2a;color:#fff">Tidak</button><button id="btnYa" style="flex:1;background:#e50914;color:#fff">Ya, Keluar</button></div></div></div>
+<div id="modalPlayer" class="modal"><div class="box-player"><div style="padding:10px;background:#111;display:flex;justify-content:space-between"><span id="judulPlayer" style="font-size:12px"></span><button onclick="tutupPlayer()" style="background:#e50914;color:#fff;border:none;padding:5px 10px;border-radius:4px">X</button></div><video id="myVideo" controls preload="metadata" playsinline></video></div></div>
 
 <script type="module">
 import { auth } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-onAuthStateChanged(auth,u=>{if(!u) location.href="login.html"; else document.getElementById("userEmail").innerText=u.email.split('@')[0];});
-document.getElementById("logoutBtn").onclick=e=>{e.preventDefault();document.getElementById("logoutModal").classList.add("show");};
-document.getElementById("btnTidak").onclick=()=>document.getElementById("logoutModal").classList.remove("show");
-document.getElementById("btnYa").onclick=async()=>{await signOut(auth);location.href="login.html";};
+onAuthStateChanged(auth,u=>{if(!u) location.href="login.html";});
+document.getElementById("logoutBtn").onclick=async()=>{if(confirm("Mau keluar ya atau tidak?")){await signOut(auth);location.href="login.html";}};
 </script>
 
 <script>
-// === CODE ASLI KAMU YANG DI FOTO - JANGAN DIHAPUS ===
-let aktifFile="",aktifType="";
-function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("JudulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
-function tutup(id){document.getElementById(id).style.display="none";}
-function tutupModal(){tutup('modalBayar');}
-function playFilm(){tutup('modalBayar');document.getElementById("modalPlayer").style.display="flex";let v=document.getElementById("myVideo");v.src=aktifFile;v.play();}
-function tutupPlayer(){tutup('modalPlayer');let v=document.getElementById("myVideo");v.pause();v.src="";let i=document.getElementById("playerFrame");if(i) i.src="";}
-
-// === DATA FILM JOHN WICK & DIE HARD ===
-const films=[
- {judul:"JOHN WICK (2014)", file:"https://test-videos.co.uk/vids/sintel/mp4/h264/1080/Sintel_1080p.mp4", img:"https://image.tmdb.org/t/p/w500/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg"},
- {judul:"JOHN WICK CHAPTER 4", file:"https://test-videos.co.uk/vids/jellyfish/mp4/h264/1080/Jellyfish_1080_10s_30MB.mp4", img:"https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg"},
- {judul:"DIE HARD (1988)", file:"https://test-videos.co.uk/vids/sintel/mp4/h264/720/Sintel_720p.mp4", img:"https://image.tmdb.org/t/p/w500/yF4x2X4kL4eJ9.jpg"},
- {judul:"DIE HARD 4.0", file:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4", img:"https://image.tmdb.org/t/p/w500/2DyEk84XnbJEdPlGF2asY2uCq1y.jpg"}
+// FILM LANGSUNG TAMPIL - GAK NUNGGU API!
+let aktifFile="", allFilms=[
+ {judul:"JOHN WICK", file:"videos/john-wick.mp4", img:"https://image.tmdb.org/t/p/w200/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg"},
+ {judul:"JOHN WICK CHAPTER 4", file:"videos/john-wick-4.mp4", img:"https://image.tmdb.org/t/p/w200/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg"},
+ {judul:"DIE HARD", file:"videos/die-hard.mp4", img:"https://image.tmdb.org/t/p/w200/yF43yaRu2I2r2Z8m6u3d3.jpg"},
+ {judul:"DIE HARD 4", file:"videos/die-hard-4.mp4", img:"https://image.tmdb.org/t/p/w200/a8p4g4.jpg"},
+ {judul:"ACTION 2026", file:"videos/action.mp4", img:"https://via.placeholder.com/200x300/111/facc15?text=ACTION"},
+ {judul:"BLURAY NEW", file:"videos/new.mp4", img:"https://via.placeholder.com/200x300/111/e50914?text=BLURAY"}
 ];
 
 const grid=document.getElementById("movieGrid");
 function render(list){
  grid.innerHTML="";
  list.forEach(f=>{
-  grid.innerHTML+=`<div class="card" onclick="buka('${f.judul}','${f.file}','mp4')"><img src="${f.img}" onerror="this.src='https://via.placeholder.com/300x450/111/facc15?text=${encodeURIComponent(f.judul)}'"><div class="card-info"><div class="card-title">${f.judul}</div><div style="font-size:9px;background:#e50914;display:inline-block;padding:2px 5px;border-radius:3px;margin-top:4px">PLAY</div></div></div>`;
+  // pakai w200 biar kecil & cepat, bukan w500
+  grid.innerHTML+=`<div class="card" onclick="buka('${f.judul}','${f.file}')"><img loading="lazy" src="${f.img}" alt="${f.judul}"><div class="card-info"><div class="card-title">${f.judul}</div><span class="badge">PLAY</span></div></div>`;
  });
 }
-function filterFilm(q){render(films.filter(x=>x.judul.toLowerCase().includes(q.toLowerCase())));}
-render(films);
 
-document.getElementById("searchInput").addEventListener("keypress",e=>{if(e.key==="Enter") filterFilm(e.target.value);});
+// TAMPILKAN LANGSUNG - 0 DETIK!
+render(allFilms);
+
+function buka(j,f){aktifFile=f;document.getElementById("JudulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
+function tutup(id){document.getElementById(id).style.display="none";}
+function playFilm(){
+ tutup('modalBayar');
+ document.getElementById("modalPlayer").classList.add("show");
+ let v=document.getElementById("myVideo");
+ v.src=aktifFile;
+ v.load(); // load cepat
+ v.play().catch(()=>{});
+}
+function tutupPlayer(){
+ document.getElementById("modalPlayer").classList.remove("show");
+ let v=document.getElementById("myVideo");
+ v.pause(); v.removeAttribute('src'); v.load();
+}
+function filterQ(q){render(allFilms.filter(x=>x.judul.toLowerCase().includes(q.toLowerCase())));}
+document.getElementById("searchInput").addEventListener("input",e=>{filterQ(e.target.value);});
 </script>
 </body>
 </html>
