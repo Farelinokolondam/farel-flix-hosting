@@ -1,191 +1,134 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FAREL FLIX</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a0a;color:#fff;font-family:'Segoe UI',Arial}
-
-/* ===== BAR 1 - BIRU TUA ===== */
-.top-bar{background:#1e2a6a;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:100}
-.top-logo{font-size:28px;font-weight:900;color:#ffcc00;letter-spacing:1px;cursor:pointer}
-.top-logo span{color:#fff;font-weight:700}
-.top-search{flex:1;max-width:400px;position:relative}
-.top-search input{width:100%;padding:9px 15px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.4);color:#fff;outline:none;font-size:13px}
-.top-search input::placeholder{color:#aaa}
-.top-links{display:flex;gap:15px;font-size:13px;font-weight:bold;align-items:center}
-.top-links a{color:#fff;text-decoration:none;cursor:pointer}
-.top-links a:hover{color:#ffcc00}
-#logoutBtn{background:#e50914;padding:6px 14px;border-radius:4px;font-size:12px}
-#logoutBtn:hover{background:#f40612}
-
-/* ===== BAR 2 - MERAH ===== */
-.mid-bar{background:#e50914;padding:9px 20px;display:flex;gap:24px;align-items:center;font-size:14px;font-weight:600;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
-.mid-bar::-webkit-scrollbar{display:none}
-.mid-bar a{color:#fff;text-decoration:none;display:flex;align-items:center;gap:5px;cursor:pointer;transition:0.2s}
-.mid-bar a:hover{color:#ffcc00;transform:scale(1.05)}
-
-/* ===== BAR 3 - KUNING ===== */
-.bot-bar{background:#ffb700;padding:8px 20px;display:flex;gap:20px;align-items:center;font-size:12px;font-weight:800;overflow-x:auto;white-space:nowrap;color:#000;scrollbar-width:none}
-.bot-bar::-webkit-scrollbar{display:none}
-.bot-bar a{color:#000;text-decoration:none;cursor:pointer;padding:2px 6px;border-radius:3px}
-.bot-bar a:hover{background:#000;color:#ffb700}
-
-/* ===== CONTENT FILM ===== */
+.top-bar{background:linear-gradient(90deg,#1e3a8a,#1e40af);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:100}
+.top-logo{font-size:28px;font-weight:900;color:#facc15;letter-spacing:1px;cursor:pointer}.top-logo span{color:#fff}
+.top-search{flex:1;max-width:400px}.top-search input{width:100%;padding:9px 15px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.4);color:#fff;outline:none;font-size:13px}
+.top-links{display:flex;gap:14px;font-size:12px;font-weight:bold;align-items:center}.top-links a{color:#fff;text-decoration:none;cursor:pointer}.top-links a:hover{color:#facc15}
+#logoutBtn{background:#e50914;padding:6px 14px;border-radius:4px}
+.mid-bar{background:#dc2626;padding:9px 20px;display:flex;gap:22px;align-items:center;font-size:13px;font-weight:700;overflow-x:auto;white-space:nowrap}
+.mid-bar a{color:#fff;text-decoration:none;cursor:pointer}.mid-bar a:hover{color:#facc15}
+.bot-bar{background:#facc15;padding:8px 20px;display:flex;gap:18px;align-items:center;font-size:11px;font-weight:900;overflow-x:auto;white-space:nowrap;color:#000}
+.bot-bar a{color:#000;text-decoration:none;cursor:pointer;padding:3px 6px;border-radius:3px}.bot-bar a:hover{background:#000;color:#facc15}
 .container{padding:20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:15px}
-.card{background:#111;border-radius:6px;overflow:hidden;cursor:pointer;transition:0.2s;border:1px solid rgba(255,255,255,0.05)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+.card{background:#161616;border-radius:6px;overflow:hidden;cursor:pointer;transition:0.2s;border:1px solid #222}
 .card:hover{transform:scale(1.05);border-color:#e50914}
-.card img{width:100%;height:210px;object-fit:cover;display:block}
-.card-info{padding:8px}
-.card-title{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-quality{font-size:10px;background:#e50914;padding:2px 5px;border-radius:3px;display:inline-block;margin-top:4px}
-
-/* ===== MODAL LOGOUT ===== */
-#logoutModal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);justify-content:center;align-items:center}
-#logoutModal.show{display:flex}
-.modal-box{background:#111;border:1px solid rgba(255,255,255,0.1);border-top:4px solid #e50914;border-radius:8px;padding:28px 22px;width:330px;text-align:center;animation:pop 0.2s}
-@keyframes pop{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-box h3{color:#fff;margin-bottom:6px}
-.modal-box p{color:#aaa;font-size:13px;margin-bottom:18px}
-.modal-btns{display:flex;gap:10px}
-.modal-btns button{flex:1;padding:10px;border-radius:4px;font-weight:bold;cursor:pointer;border:none}
-#btnTidak{background:#2a2a2a;color:#fff;border:1px solid rgba(255,255,255,0.1)}
-#btnYa{background:#e50914;color:#fff}
-
-@media(max-width:768px){
- .top-bar{flex-wrap:wrap}
- .top-search{max-width:100%;order:3;width:100%}
- .top-links{gap:10px}
- .grid{grid-template-columns:repeat(3,1fr)}
-}
+.card img{width:100%;height:210px;object-fit:cover;background:#222}
+.card-info{padding:8px}.card-title{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card-quality{font-size:9px;background:#e50914;padding:2px 5px;border-radius:3px;display:inline-block;margin-top:4px}
+#logoutModal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);justify-content:center;align-items:center}#logoutModal.show{display:flex}
+.modal-box{background:#111;border-top:4px solid #e50914;border-radius:8px;padding:28px 22px;width:330px;text-align:center}
+.modal-btns{display:flex;gap:10px;margin-top:18px}.modal-btns button{flex:1;padding:10px;border-radius:4px;font-weight:bold;cursor:pointer;border:none}
+#btnTidak{background:#2a2a2a;color:#fff}#btnYa{background:#e50914;color:#fff}
+@media(max-width:768px){.top-search{max-width:100%;order:3;width:100%;margin-top:8px}.top-bar{flex-wrap:wrap}.grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 
-<!-- BAR 1 -->
 <div class="top-bar">
   <div class="top-logo" onclick="location.reload()">FAREL<span>FLIX</span></div>
-  <div class="top-search">
-    <input type="text" id="searchInput" placeholder="Cari Judul, Artis, IMDb">
-  </div>
+  <div class="top-search"><input type="text" id="searchInput" placeholder="Cari Judul, Artis, IMDb"></div>
   <div class="top-links">
-    <a onclick="filterQuality('720')">720P</a>
-    <a onclick="filterQuality('1080')">1080P</a>
+    <a onclick="filterType('720p')">720P</a>
+    <a onclick="filterType('1080p')">1080P</a>
     <a>HD QUALITY</a>
-    <a id="userEmail" style="font-size:11px;opacity:0.7"></a>
+    <a id="userEmail" style="font-size:10px;opacity:0.7"></a>
     <a id="logoutBtn">Logout</a>
   </div>
 </div>
 
-<!-- BAR 2 -->
 <div class="mid-bar">
-  <a onclick="loadMovies('popular')">🏠 Home</a>
+  <a onclick="loadAll()">🏠 Home</a>
   <a>Index Movie™</a>
-  <a onclick="toggleGenre()">🎬 Genre ▾</a>
-  <a onclick="loadMovies('popular')">⭐ Populer ▾</a>
+  <a>🎬 Genre ▾</a>
+  <a>⭐ Populer ▾</a>
   <a>🌎 Negara ▾</a>
   <a>📅 Tahun ▾</a>
 </div>
 
-<!-- BAR 3 -->
 <div class="bot-bar">
-  <a onclick="filterByGenre(28)">ACTION</a>
-  <a onclick="filterByGenre(16)">ANIMATION</a>
-  <a onclick="filterByGenre(27)">HORROR</a>
-  <a onclick="filterByGenre(878)">SCI-FI</a>
-  <a onclick="filterByGenre(35)">COMEDY</a>
-  <a onclick="filterByGenre(10749)">ROMANCE</a>
-  <a onclick="filterByCountry('China')">CHINA</a>
-  <a onclick="filterByCountry('India')">INDIA</a>
-  <a onclick="filterByCountry('Japan')">JAPAN</a>
-  <a onclick="filterByCountry('Korea')">KOREA</a>
-  <a onclick="filterByCountry('Thailand')">THAILAND</a>
-  <a onclick="filterByYear(2026)">2026</a>
-  <a onclick="filterQuality('Bluray')">BLURAY</a>
+  <a onclick="filterGenre('action')">ACTION</a>
+  <a onclick="filterGenre('animation')">ANIMATION</a>
+  <a onclick="filterGenre('horror')">HORROR</a>
+  <a onclick="filterGenre('sci-fi')">SCI-FI</a>
+  <a onclick="filterGenre('comedy')">COMEDY</a>
+  <a onclick="filterGenre('romance')">ROMANCE</a>
+  <a onclick="filterGenre('china')">CHINA</a>
+  <a onclick="filterGenre('india')">INDIA</a>
+  <a onclick="filterGenre('japan')">JAPAN</a>
+  <a onclick="filterGenre('korea')">KOREA</a>
+  <a onclick="filterGenre('thailand')">THAILAND</a>
+  <a onclick="filterGenre('2026')">2026</a>
+  <a onclick="filterGenre('bluray')">BLURAY</a>
 </div>
 
-<!-- FILM -->
-<div class="container">
-  <div class="grid" id="movieGrid"></div>
-</div>
+<div class="container"><div class="grid" id="movieGrid"></div></div>
 
-<!-- MODAL LOGOUT YA/TIDAK -->
-<div id="logoutModal">
-  <div class="modal-box">
-    <h3>Mau keluar?</h3>
-    <p>Apakah kamu mau keluar ya atau tidak?</p>
-    <div class="modal-btns">
-      <button id="btnTidak">Tidak</button>
-      <button id="btnYa">Ya, Keluar</button>
-    </div>
-  </div>
-</div>
+<div id="logoutModal"><div class="modal-box"><h3>Mau keluar?</h3><p style="color:#aaa;font-size:13px;margin-top:6px">Apakah kamu mau keluar ya atau tidak?</p><div class="modal-btns"><button id="btnTidak">Tidak</button><button id="btnYa">Ya, Keluar</button></div></div></div>
 
 <script type="module">
 import { auth } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-// CEK LOGIN
-onAuthStateChanged(auth,(user)=>{
-  if(!user) location.href="login.html";
-  else document.getElementById("userEmail").innerText=user.email.split('@')[0];
-});
-
-// LOGOUT MODAL
+onAuthStateChanged(auth,u=>{if(!u) location.href="login.html"; else document.getElementById("userEmail").innerText=u.email.split('@')[0];});
 const modal=document.getElementById("logoutModal");
-document.getElementById("logoutBtn").onclick=(e)=>{e.preventDefault();modal.classList.add("show");};
+document.getElementById("logoutBtn").onclick=e=>{e.preventDefault();modal.classList.add("show");};
 document.getElementById("btnTidak").onclick=()=>modal.classList.remove("show");
 document.getElementById("btnYa").onclick=async()=>{await signOut(auth);location.href="login.html";};
-modal.onclick=(e)=>{if(e.target===modal) modal.classList.remove("show");};
+modal.onclick=e=>{if(e.target===modal) modal.classList.remove("show");};
 
-// ===== LOGIC FILM (PAKE API KAMU YANG LAMA) =====
-const API_KEY="8d7e1a3e7f6c9b2a5d4e6f8a1b3c5d7e"; // GANTI DENGAN API KEY TMDB KAMU
 const grid=document.getElementById("movieGrid");
+const API_KEY="b5d2609cc50d349a1ca5ab2c5aa26a57"; // API KEY AKTIF
 
-async function loadMovies(type='popular', query=''){
-  grid.innerHTML="<p style='grid-column:1/-1;text-align:center;padding:40px;color:#aaa'>Loading...</p>";
-  let url=`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=id-ID`;
-  if(query) url=`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}&language=id-ID`;
+const dummyMovies=[
+ {title:"ROOM SERVICE",img:"https://image.tmdb.org/t/p/w500/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg",q:"WEBDL"},
+ {title:"THE BUNNY GAME",img:"https://image.tmdb.org/t/p/w500/8L3N2aF3aHq3cZb5ZQ.jpg",q:"BluRay"},
+ {title:"AMERICAN TRANSLATION",img:"https://image.tmdb.org/t/p/w500/5EAlqg6WqR2z3c.jpg",q:"BluRay"},
+ {title:"AVENGERS ENDGAME",img:"https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",q:"1080P"},
+ {title:"JOHN WICK 4",img:"https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg",q:"720P"},
+ {title:"OPPENHEIMER",img:"https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",q:"WEBDL"},
+ {title:"ONE PIECE RED",img:"https://image.tmdb.org/t/p/w500/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg",q:"WEBRip"},
+ {title:"FAST X",img:"https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg",q:"Bluray"}
+];
 
-  try{
-    const res=await fetch(url);
-    const data=await res.json();
-    showMovies(data.results || []);
-  }catch{
-    // DUMMY DATA KALAU API KEY BELUM DIISI
-    showMovies([
-      {title:"ROOM SERVICE",poster_path:"",quality:"WEBDL"},
-      {title:"THE BUNNY GAME",poster_path:"",quality:"BluRay"},
-      {title:"AMERICAN TRANSLATION",poster_path:"",quality:"BluRay"},
-      {title:"ACTION MOVIE 2026",poster_path:"",quality:"WEBRip"}
-    ]);
-  }
+function render(list){
+ grid.innerHTML="";
+ list.forEach(m=>{
+  const poster=m.img || (m.poster_path?`https://image.tmdb.org/t/p/w300${m.poster_path}`:`https://via.placeholder.com/300x450/111/facc15?text=${encodeURIComponent(m.title)}`);
+  grid.innerHTML+=`<div class="card"><img src="${poster}" onerror="this.src='https://via.placeholder.com/300x450/111/facc15?text=FAREL+FLIX'"><div class="card-info"><div class="card-title">${m.title||m.name}</div><div class="card-quality">${m.q||'WEBDL'}</div></div></div>`;
+ });
 }
 
-function showMovies(movies){
-  grid.innerHTML="";
-  movies.forEach(m=>{
-    const img=m.poster_path?`https://image.tmdb.org/t/p/w300${m.poster_path}`:`https://via.placeholder.com/300x450/111/e50914?text=${encodeURIComponent(m.title||m.name)}`;
-    grid.innerHTML+=`<div class="card"><img src="${img}" loading="lazy"><div class="card-info"><div class="card-title">${m.title||m.name}</div><div class="card-quality">${m.quality||'WEBDL'}</div></div></div>`;
-  });
+async function loadAll(){
+ grid.innerHTML="<p style='grid-column:1/-1;text-align:center;padding:40px'>Loading...</p>";
+ try{
+  const r=await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=id-ID`);
+  const d=await r.json();
+  if(d.results && d.results.length>0){ render(d.results.map(x=>({title:x.title,poster_path:x.poster_path,q:'WEBDL'}))); }
+  else render(dummyMovies);
+ }catch(e){ render(dummyMovies); }
 }
 
-window.filterByGenre=(id)=>{loadMovies('genre'); console.log("Filter genre",id)};
-window.filterByYear=(y)=>{console.log("Filter tahun",y)};
-window.filterByCountry=(c)=>{console.log("Filter negara",c)};
-window.filterQuality=(q)=>{console.log("Filter quality",q)};
-window.loadMovies=loadMovies;
-window.toggleGenre=()=>{document.querySelector('.bot-bar').scrollIntoView({behavior:'smooth'});};
+window.loadAll=loadAll;
+window.filterGenre=(g)=>{ const f=dummyMovies.filter(m=>m.title.toLowerCase().includes(g.toLowerCase())); render(f.length?f:dummyMovies); };
+window.filterType=()=>loadAll();
+window.filterByGenre=window.filterGenre;
 
 document.getElementById("searchInput").addEventListener("keypress",e=>{
-  if(e.key==="Enter") loadMovies('search', e.target.value);
+ if(e.key==="Enter" && e.target.value.trim()!==""){
+  const q=e.target.value.toLowerCase();
+  const f=dummyMovies.filter(m=>m.title.toLowerCase().includes(q));
+  if(f.length>0) render(f);
+  else fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${q}`).then(r=>r.json()).then(d=>render(d.results.map(x=>({title:x.title,poster_path:x.poster_path,q:'WEBDL'})))).catch(()=>render(dummyMovies));
+ }
 });
 
-// LOAD AWAL
-loadMovies();
+loadAll();
 </script>
 </body>
 </html>
