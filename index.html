@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FARELFLIX-tambala</title>
 <style>
+#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column}
 body{margin:0;background:#141414;color:#fff;font-family:Arial}
 header{background:#000;padding:15px;color:#ff0000;font-size:26px;font-weight:bold}
-#semuaKategori{padding:15px}
+#semuaKategori{padding:15px;display:none}
 .kategori{margin-bottom:20px}
 .kategori h2{color:#ff8c00}
 .row{display:flex;gap:10px;overflow-x:auto}
@@ -21,72 +22,37 @@ button{padding:10px 18px;background:#ff8c00;border:none;border-radius:5px;font-w
 </style>
 </head>
 <body>
+<div id="loadingScreen"><div style="color:#ff0000;font-size:28px;font-weight:bold;margin-bottom:10px">FARELFLIX</div><div>Loading...</div></div>
 
-<header style="display:flex;justify-content:space-between;align-items:center;background:#000;padding:15px;color:#ff0000;font-size:26px;font-weight:bold">
+<header style="display:flex;justify-content:space-between;align-items:center">
 <span>FARELFLIX-tambala</span>
-<div>
-<span id="userEmail" style="font-size:12px;color:#fff;margin-right:10px"></span>
-<button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 15px;border-radius:5px;cursor:pointer">Logout</button>
-</div>
+<div><span id="userEmail" style="font-size:12px;color:#fff;margin-right:10px"></span><button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 15px;border-radius:5px;cursor:pointer">Logout</button></div>
 </header>
 
 <div id="semuaKategori"></div>
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()">BAYAR & TONTON</button><button onclick="tutupModal()">BATAL</button></div></div>
-<div id="modalPlayer" class="modal"><div style="text-align:center;border:none;padding:0;width:100%"><h3 id="judulPlayer"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><button onclick="tutupPlayer()">TUTUP</button></div></div>
+<div id="modalPlayer" class="modal"><div style="width:100%;text-align:center"><h3 id="judulPlayer"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><button onclick="tutupPlayer()">TUTUP</button></div></div>
 
-<!-- GANTI SCRIPT LOGIN DARI LOCALSTORAGE KE FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU",
-  authDomain: "farel-flix-tambala.firebaseapp.com",
-  projectId: "farel-flix-tambala",
-  storageBucket: "farel-flix-tambala.firebasestorage.app",
-  messagingSenderId: "265996924707",
-  appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96"
-};
-
+const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-// CEK LOGIN PAKAI FIREBASE, BUKAN LOCALSTORAGE
+const loading = document.getElementById("loadingScreen");
+const kategori = document.getElementById("semuaKategori");
 onAuthStateChanged(auth, (user) => {
-  if(!user){
-    window.location.href="login.html";
-  } else {
-    document.getElementById("userEmail").innerText = user.email;
-  }
+  if(!user){ window.location.href="login.html"; }
+  else { document.getElementById("userEmail").innerText=user.email; loading.style.display="none"; kategori.style.display="block"; }
 });
-
-window.logout = function(){
-  signOut(auth).then(()=>{
-    window.location.href="login.html";
-  });
-}
+window.logout = ()=>{ signOut(auth).then(()=>{ window.location.href="login.html"; }); }
 </script>
 
 <script>
-const dataFilm={
-"ACTION":[
-{judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"gambar/diehard2023.jpg"},
-{judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"gambar/John_Wick_Chapter_3_Parabellum.png"}
-],
-"TERBARU":[
-{judul:"JOHN WICK 4",file:"https://streamtape.com/e/160ZVwLZM9FdZ1",type:"streamtape",gambar:"gambar/johnwick4.webp"}
-]
-};
-let aktifFile=""; let aktifType="";
+const dataFilm={"ACTION":[{judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"gambar/diehard2023.jpg"},{judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"gambar/John_Wick_Chapter_3_Parabellum.png"}],"TERBARU":[{judul:"JOHN WICK 4",file:"https://streamtape.com/e/160ZVwLZM9FdZ1",type:"streamtape",gambar:"gambar/johnwick4.webp"}]};
+let aktifFile="",aktifType="";
 let container=document.getElementById("semuaKategori");
-for(let kat in dataFilm){
-let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;
-dataFilm[kat].forEach(f=>{
-html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}"><p>${f.judul}</p></div>`;
-});
-html+=`</div></div>`;
-container.innerHTML+=html;
-}
+for(let kat in dataFilm){let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;dataFilm[kat].forEach(f=>{html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}"><p>${f.judul}</p></div>`;});html+=`</div></div>`;container.innerHTML+=html;}
 function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
 function tutup(id){document.getElementById(id).style.display="none";}
 function tutupModal(){tutup('modalBayar');}
