@@ -7,29 +7,44 @@
 <style>
 #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column}
 body{margin:0;background:#141414;color:#fff;font-family:Arial}
-header{background:#000;padding:15px;color:#ff0000;font-size:26px;font-weight:bold}
+header{background:#000;padding:12px 15px;color:#ff0000;font-size:22px;font-weight:bold;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:2px solid #222}
+.nav-menu{display:flex;gap:8px;align-items:center}
+.nav-menu button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px}
+.nav-menu button.active{background:#ff8c00;color:#000;border-color:#ff8c00;font-weight:bold}
+#searchBox{background:#222;color:#fff;border:1px solid #444;padding:8px 14px;border-radius:20px;width:200px;outline:none}
+#searchBox:focus{border-color:#ff8c00}
 #semuaKategori{padding:15px;display:none}
-.kategori{margin-bottom:20px}
-.kategori h2{color:#ff8c00}
-.row{display:flex;gap:10px;overflow-x:auto}
-.card{background:#222;border-radius:8px;min-width:140px;cursor:pointer;padding:5px}
+.kategori{margin-bottom:25px}
+.kategori h2{color:#ff8c00;margin:10px 0}
+.row{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px}
+.card{background:#222;border-radius:8px;min-width:140px;cursor:pointer;padding:5px;transition:0.2s}
+.card:hover{transform:scale(1.05);background:#333}
 .card img{width:140px;height:210px;object-fit:cover;border-radius:5px}
-.card p{font-size:12px;text-align:center}
+.card p{font-size:12px;text-align:center;margin:6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;justify-content:center;align-items:center;z-index:999;padding:0}
-.modal-box{background:#222;padding:20px;border-radius:10px;text-align:center}
+.modal-box{background:#222;padding:20px;border-radius:10px;text-align:center;max-width:90%}
 button{padding:10px 18px;background:#ff8c00;border:none;border-radius:5px;font-weight:bold;cursor:pointer;margin:5px}
 #myVideo,#myIframe{width:100%;height:75vh;max-width:100vw;border:none;border-radius:0;background:#000;display:block;margin:0}
+.no-result{text-align:center;color:#777;margin-top:50px;font-size:18px;display:none}
 </style>
 </head>
 <body>
 <div id="loadingScreen"><div style="color:#ff0000;font-size:28px;font-weight:bold;margin-bottom:10px">FARELFLIX</div><div>Loading...</div></div>
 
-<header style="display:flex;justify-content:space-between;align-items:center">
-<span>FARELFLIX-tambala</span>
-<div><span id="userEmail" style="font-size:12px;color:#fff;margin-right:10px"></span><button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 15px;border-radius:5px;cursor:pointer">Logout</button></div>
+<header>
+  <span onclick="goHome()" style="cursor:pointer">FARELFLIX-tambala</span>
+  <div class="nav-menu">
+    <button id="btn-home" class="active" onclick="filterKategori('all')">Home</button>
+    <button id="btn-action" onclick="filterKategori('ACTION')">Action</button>
+    <button id="btn-terbaru" onclick="filterKategori('TERBARU')">Terbaru</button>
+    <input id="searchBox" type="text" placeholder="Cari film..." onkeyup="cariFilm()">
+  </div>
+  <div><span id="userEmail" style="font-size:11px;color:#fff;margin-right:10px"></span><button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-size:12px">Logout</button></div>
 </header>
 
 <div id="semuaKategori"></div>
+<div id="noResult" class="no-result">Film tidak ditemukan 😥</div>
+
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()">BAYAR & TONTON</button><button onclick="tutupModal()">BATAL</button></div></div>
 <div id="modalPlayer" class="modal"><div style="width:100%;text-align:center"><h3 id="judulPlayer"></h3><video id="myVideo" controls></video><iframe id="myIframe" allowfullscreen></iframe><br><button onclick="tutupPlayer()">TUTUP</button></div></div>
 
@@ -43,16 +58,71 @@ const loading = document.getElementById("loadingScreen");
 const kategori = document.getElementById("semuaKategori");
 onAuthStateChanged(auth, (user) => {
   if(!user){ window.location.href="login.html"; }
-  else { document.getElementById("userEmail").innerText=user.email; loading.style.display="none"; kategori.style.display="block"; }
+  else { document.getElementById("userEmail").innerText=user.email; loading.style.display="none"; kategori.style.display="block"; renderFilm(dataFilm); }
 });
 window.logout = ()=>{ signOut(auth).then(()=>{ window.location.href="login.html"; }); }
 </script>
 
 <script>
-const dataFilm={"ACTION":[{judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"gambar/diehard2023.jpg"},{judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"gambar/John_Wick_Chapter_3_Parabellum.png"}],"TERBARU":[{judul:"JOHN WICK 4",file:"https://streamtape.com/e/160ZVwLZM9FdZ1",type:"streamtape",gambar:"gambar/johnwick4.webp"}]};
+const dataFilm={
+  "ACTION":[
+    {judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"gambar/diehard2023.jpg"},
+    {judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"gambar/John_Wick_Chapter_3_Parabellum.png"}
+  ],
+  "TERBARU":[
+    {judul:"JOHN WICK 4",file:"https://streamtape.com/e/160ZVwLZM9FdZ1",type:"streamtape",gambar:"gambar/johnwick4.webp"}
+  ]
+};
+
 let aktifFile="",aktifType="";
-let container=document.getElementById("semuaKategori");
-for(let kat in dataFilm){let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;dataFilm[kat].forEach(f=>{html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}"><p>${f.judul}</p></div>`;});html+=`</div></div>`;container.innerHTML+=html;}
+const container=document.getElementById("semuaKategori");
+
+function renderFilm(data){
+  container.innerHTML="";
+  let adaFilm=false;
+  for(let kat in data){
+    if(data[kat].length===0) continue;
+    adaFilm=true;
+    let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;
+    data[kat].forEach(f=>{
+      html+=`<div class="card" onclick="buka('${f.judul}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=No+Image'"><p>${f.judul}</p></div>`;
+    });
+    html+=`</div></div>`;
+    container.innerHTML+=html;
+  }
+  document.getElementById("noResult").style.display = adaFilm? "none" : "block";
+}
+
+function goHome(){
+  document.getElementById("searchBox").value="";
+  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
+  document.getElementById("btn-home").classList.add('active');
+  renderFilm(dataFilm);
+  window.scrollTo(0,0);
+}
+
+function filterKategori(kat){
+  document.getElementById("searchBox").value="";
+  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
+  document.getElementById("btn-"+kat.toLowerCase()).classList.add('active');
+  if(kat==='all'){ renderFilm(dataFilm); return; }
+  let filtered={};
+  filtered[kat]=dataFilm[kat];
+  renderFilm(filtered);
+}
+
+function cariFilm(){
+  let q=document.getElementById("searchBox").value.toLowerCase().trim();
+  document.querySelectorAll('.nav-menu button').forEach(b=>b.classList.remove('active'));
+  if(q===""){ document.getElementById("btn-home").classList.add('active'); renderFilm(dataFilm); return; }
+  let hasil={};
+  for(let kat in dataFilm){
+    let cocok=dataFilm[kat].filter(f=>f.judul.toLowerCase().includes(q));
+    if(cocok.length>0) hasil[kat]=cocok;
+  }
+  renderFilm(hasil);
+}
+
 function buka(j,f,t){aktifFile=f;aktifType=t;document.getElementById("judulBayar").innerText=j;document.getElementById("judulPlayer").innerText=j;document.getElementById("modalBayar").style.display="flex";}
 function tutup(id){document.getElementById(id).style.display="none";}
 function tutupModal(){tutup('modalBayar');}
