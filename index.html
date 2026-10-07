@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FARELFLIX - FIX FINAL ANTI ERROR</title>
+<title>FARELFLIX - Nonton Film Gratis</title>
+<meta name="description" content="FARELFLIX - Nonton Film Action Terbaru 2026 Gratis di Manado, Tondano, Minahasa">
+<meta name="robots" content="index, follow">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
 *:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
@@ -69,7 +71,8 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <span id="userEmail" style="font-size:11px;color:#aaa;margin-right:6px"></span>
 <button id="btnUsers" onclick="bukaUsers()" style="display:none;background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">👥 USER (<span id="badgeOnline">0</span>)</button>
 <button id="btnAdmin" onclick="bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">+ TAMBAH FILM</button>
-<button id="btnLogout" onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
+<button id="btnLogin" onclick="window.location.href='login.html'" style="background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">Login</button>
+<button id="btnLogout" onclick="logout()" style="display:none;background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
 </div>
 </header>
 <div id="adminDashboard">
@@ -96,10 +99,10 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <div style="display:flex;gap:10px;margin-top:10px"><button onclick="tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
 </div></div>
 
-<div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:540px;width:95%;max-height:85vh;overflow:auto">
-<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - 2 PILIHAN</h3>
+<div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:540px;width:95%;max-height:85vh;overflow:auto" id="boxUsers">
+<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - ANTI LOMPAT</h3>
 <div style="display:flex;gap:6px;margin-bottom:12px">
-<input id="searchUser" oninput="renderUserList()" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
+<input id="searchUser" oninput="renderUserList(true)" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
 <button onclick="copySemuaEmail()" style="padding:8px 10px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;font-size:11px">Copy Email</button>
 </div>
 <div id="listUsers" style="font-size:12px">Loading...</div>
@@ -122,7 +125,7 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <br><button onclick="tutup('modalKategori')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
 </div></div>
 
-<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
+<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><p id="teksBayar" style="font-size:12px;color:#aaa;margin:10px 0"></p><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
 <div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
 <h3 id="judulPlayer"></h3>
 <div style="position:relative;width:100%;height:400px;background:#000">
@@ -147,6 +150,7 @@ let heartbeatTimer = null;
 let sensorAktif = true;
 let banListenerUnsub = null;
 let kickListenerUnsub = null;
+let isGuest = true;
 
 function sensorEmail(email){
 if(!email) return "-";
@@ -163,7 +167,7 @@ sensorAktif =!sensorAktif;
 const btn = document.getElementById('btnSensor');
 btn.innerText = sensorAktif? "🛡️ Sensor: ON" : "🛡️ Sensor: OFF";
 btn.style.background = sensorAktif? "#00ff88" : "#555";
-window.renderUserList();
+window.renderUserList(true);
 }
 function waktuLalu(date){
 if(!date) return "-";
@@ -203,9 +207,43 @@ async function getLokasi(){
 try{ const res = await fetch("https://ipapi.co/json/"); const data = await res.json(); return { kota: data.city || "-", region: data.region || "-", negara: data.country_name || "-", ip: data.ip || "-", lokasiText: `${data.city || ""}, ${data.region || ""}`.replace(/^, /,"").trim() || data.country_name || "Tidak terdeteksi" }; }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
 }
 
+// === FIX GOOGLEBOT - TIDAK REDIRECT LAGI ===
 onAuthStateChanged(auth, async (user) => {
-if(!user){ window.location.href="login.html"; return; }
+if(!user){
+  isGuest = true;
+  document.getElementById("loadingScreen").style.display="none";
+  document.getElementById("userEmail").innerText = "Tamu - Login untuk nonton";
+  document.getElementById("btnLogin").style.display="inline-block";
+  document.getElementById("btnLogout").style.display="none";
+  document.getElementById("btnAdmin").style.display="none";
+  document.getElementById("btnUsers").style.display="none";
+  document.getElementById("adminDashboard").style.display="none";
+  window.isAdmin = false;
+  if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
+  // Ambil data user count saja untuk Google bisa lihat, tanpa butuh login
+  onSnapshot(collection(db, "users_log"), (snap)=>{
+    let online = 0;
+    userListCache = [];
+    snap.forEach(d=>{
+      const u=d.data();
+      if(!u.email) return;
+      u.docId=d.id;
+      const last = u.lastActive?.toDate? u.lastActive.toDate() : null;
+      const diff = last? Math.floor((new Date() - last)/1000) : 9999;
+      if(u.isOnline && diff < 180) online++;
+      userListCache.push(u);
+    });
+    const el1=document.getElementById("statUserCount"); if(el1) el1.innerText=snap.size;
+    const el2=document.getElementById("statOnlineCount"); if(el2) el2.innerText=online;
+    const el3=document.getElementById("badgeOnline"); if(el3) el3.innerText=online;
+  });
+  return;
+}
+
+isGuest = false;
 document.getElementById("userEmail").innerText=user.email;
+document.getElementById("btnLogin").style.display="none";
+document.getElementById("btnLogout").style.display="inline-block";
 
 try{
   const banSnap = await getDoc(doc(db, "bannedUsers", user.email));
@@ -215,7 +253,7 @@ try{
     window.location.href="login.html";
     return;
   }
-}catch(e){ console.log("cek ban gagal", e); }
+}catch(e){}
 
 if(banListenerUnsub) banListenerUnsub();
 banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
@@ -224,7 +262,6 @@ banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
     signOut(auth).then(()=>{ window.location.href="login.html"; });
   }
 });
-
 if(kickListenerUnsub) kickListenerUnsub();
 kickListenerUnsub = onSnapshot(doc(db, "kickedUsers", user.email), (snap)=>{
   if(snap.exists()){
@@ -244,18 +281,19 @@ const dev = getDeviceAndMedia(); const lok = await getLokasi();
 try{
 await setDoc(currentUserDoc, { email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid, loginVia: loginVia, device: dev.fullText, hp_model: dev.model, browser: dev.browser, os: dev.os, situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip }, {merge:true});
 if(heartbeatTimer) clearInterval(heartbeatTimer);
-heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
-}catch(e){ console.log(e); }
+heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 15000);
+}catch(e){}
 
 onSnapshot(collection(db, "users_log"), (snap)=>{
 let online = 0;
 userListCache = [];
 snap.forEach(d=>{
   const u=d.data();
+  if(!u.email) return;
   u.docId=d.id;
   const last = u.lastActive?.toDate? u.lastActive.toDate() : null;
   const diff = last? Math.floor((new Date() - last)/1000) : 9999;
-  if(u.isOnline && diff < 120) online++;
+  if(u.isOnline && diff < 180) online++;
   userListCache.push(u);
 });
 document.getElementById("statUserCount").innerText = snap.size;
@@ -263,7 +301,8 @@ document.getElementById("statOnlineCount").innerText = online;
 document.getElementById("badgeOnline").innerText = online;
 const modal = document.getElementById("modalUsers");
 if(modal && modal.style.display==="flex"){
-  window.renderUserList();
+  const isSearching = (document.getElementById("searchUser")?.value || "").length > 0;
+  if(!isSearching) window.renderUserList(true);
 }
 });
 
@@ -276,25 +315,44 @@ document.getElementById("adminDashboard").style.display="flex";
 if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
 });
 
-// === FIX FINAL ANTI ERROR toLowerCase ===
-window.renderUserList = function(){
+// === FIX ANTI NAIK TURUN + ANTI ERROR ===
+window.renderUserList = function(fullRender = true){
 try{
 const list = document.getElementById("listUsers");
 if(!list) return;
+const box = document.getElementById("boxUsers");
+const saveScroll = box? box.scrollTop : 0;
 const q = (document.getElementById("searchUser")?.value || "").toString().toLowerCase();
 if(!userListCache || userListCache.length===0){
-  list.innerHTML="<div style='text-align:center;color:#facc15;padding:20px'>⏳ Memuat data user...</div>";
+  if(fullRender) list.innerHTML="<div style='text-align:center;color:#facc15;padding:20px'>⏳ Memuat data user...</div>";
   return;
 }
 let filtered = userListCache.filter(u =>{
+  if(!u.email) return false;
   const e = (u.email || "").toString().toLowerCase();
   const l = (u.lokasi || "").toString().toLowerCase();
   const k = (u.kota || "").toString().toLowerCase();
   return!q || (e+" "+l+" "+k).includes(q);
 });
-filtered.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
+filtered.sort((a,b)=>{
+  const now = new Date();
+  const aLast = a.lastActive?.toDate? a.lastActive.toDate() : new Date(0);
+  const bLast = b.lastActive?.toDate? b.lastActive.toDate() : new Date(0);
+  const aOnline = (a.isOnline && (now - aLast)/1000 < 180)? 1 : 0;
+  const bOnline = (b.isOnline && (now - bLast)/1000 < 180)? 1 : 0;
+  if(aOnline!== bOnline) return bOnline - aOnline;
+  return (a.email||"").toLowerCase().localeCompare((b.email||"").toLowerCase());
+});
 if(filtered.length===0){
-  list.innerHTML="<div style='text-align:center;color:#888'>Tidak ada hasil</div>";
+  if(fullRender) list.innerHTML="<div style='text-align:center;color:#888'>Tidak ada hasil</div>";
+  return;
+}
+if(!fullRender){
+  document.querySelectorAll(".waktu-lalu").forEach(el=>{
+    const t = parseInt(el.dataset.time);
+    if(!t) return;
+    el.innerText = waktuLalu(new Date(t));
+  });
   return;
 }
 let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
@@ -302,7 +360,7 @@ filtered.forEach(u=>{
 const safeEmail = (u.email || "no-email").toString();
 const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
 const diff = d? Math.floor((new Date() - d)/1000) : 99999;
-const online = u.isOnline && diff < 120;
+const online = u.isOnline && diff < 180;
 const dot = online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
 const isAdminUser = safeEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase();
 html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
@@ -312,7 +370,7 @@ html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px
 </div>
 <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
 <span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${u.loginVia||"Email"}</span>
-<span style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${waktuLalu(d)}</span>
+<span class="waktu-lalu" data-time="${d?d.getTime():0}" style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${waktuLalu(d)}</span>
 <span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"-"}</span>
 </div>
 <div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
@@ -328,12 +386,9 @@ ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
 </div>`;
 });
 html+=`</div>`; list.innerHTML=html;
-}catch(e){
-console.error("render error", e);
-document.getElementById("listUsers").innerHTML = "<div style='color:orange;padding:10px'>Error: "+e.message+"</div>";
+if(box) box.scrollTop = saveScroll;
+}catch(e){}
 }
-}
-
 window.kickUser = async (docId, email)=>{
 if((email||"").toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
 if(!confirm("KICK BIASA "+email+"?")) return;
@@ -353,7 +408,6 @@ try{
  alert("✅ BAN PERMANEN berhasil!");
 }catch(e){ alert("Gagal ban: "+e.message); }
 }
-window.hapusUser = window.banUser;
 window.bukaBanned = ()=>{
  document.getElementById("modalBanned").style.display="flex";
  const listDiv = document.getElementById("listBanned");
@@ -377,12 +431,12 @@ window.bukaUsers = ()=>{
   modal.style.display="flex";
   const listDiv = document.getElementById("listUsers");
   if(!userListCache || userListCache.length===0){
-    listDiv.innerHTML = "<div style='color:#facc15;text-align:center;padding:20px'>⏳ Memuat data user... Tunggu 1 detik</div>";
+    listDiv.innerHTML = "<div style='color:#facc15;text-align:center;padding:20px'>⏳ Memuat data user...</div>";
   } else {
-    window.renderUserList();
+    window.renderUserList(true);
   }
   if(liveTimer) clearInterval(liveTimer);
-  liveTimer = setInterval(()=>{ window.renderUserList(); }, 1500);
+  liveTimer = setInterval(()=>{ window.renderUserList(false); }, 3000);
 }
 window.gantiPasswordAdmin = async ()=>{
 const user = auth.currentUser; if(!user) return;
@@ -483,7 +537,15 @@ alert("Berhasil tambah "+judul);
 function goHome(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
 function filterKategori(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
 function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
-function buka(j,f,t){ aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j; document.getElementById("modalBayar").style.display="flex"; }
+function buka(j,f,t){
+ if(isGuest){
+   if(confirm("Login dulu untuk nonton "+j+"?")) window.location.href="login.html";
+   return;
+ }
+ aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j;
+ document.getElementById("teksBayar").innerText = "Siap nonton "+j+"?";
+ document.getElementById("modalBayar").style.display="flex";
+}
 function playFilm(){
 document.getElementById("modalBayar").style.display="none"; document.getElementById("modalPlayer").style.display="flex";
 let v=document.getElementById("myVideo"); let i=document.getElementById("myIframe"); let loader=document.getElementById("videoLoader");
@@ -492,5 +554,5 @@ if(aktifType=="drive"){ v.style.display="none"; v.pause(); i.style.display="bloc
 else { i.style.display="none"; i.src=""; v.style.display="block"; v.src=aktifFile; v.play(); v.onplaying=()=>{loader.style.display="none"}; }
 }
 function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
-function tutup(id){ document.getElementById(id).style.display="none"; }
+function tutup(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && liveTimer){ clearInterval(liveTimer); liveTimer=null; } }
 </script></body></html>
