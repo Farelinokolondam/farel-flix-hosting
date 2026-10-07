@@ -102,7 +102,7 @@ btnManual.onclick=async()=>{
     setTimeout(()=>{ location.href="index.html"; },800);
   }catch(e){
     btnManual.innerText="LOGIN PAKAI PASSWORD"; btnManual.disabled=false;
-    if(e.code==="auth/wrong-password" || e.code==="auth/invalid-credential") gagalLogin("Password salah! Pakai password baru yang diganti tadi.");
+    if(e.code==="auth/wrong-password" || e.code==="auth/invalid-credential") gagalLogin("Password Salah Coba Lagi!.");
     else if(e.code==="auth/user-not-found") gagalLogin("Email tidak terdaftar");
     else gagalLogin("Gagal: "+e.message);
   }
