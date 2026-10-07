@@ -134,21 +134,26 @@ onAuthStateChanged(auth, async (user) => {
     try{
       await setDoc(currentUserDoc, { email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid }, {merge:true});
       if(heartbeatTimer) clearInterval(heartbeatTimer);
-      heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 30000);
+      heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
     }catch(e){ console.log(e); }
+
+    // listener untuk SEMUA user biar hitungan live
+    onSnapshot(collection(db, "users_log"), (snap)=>{
+      let online = 0;
+      userListCache = [];
+      snap.forEach(d=>{ const u=d.data(); if(u.isOnline) online++; userListCache.push(u); });
+      const s1 = document.getElementById("statUserCount");
+      const s2 = document.getElementById("statOnlineCount");
+      if(s1) s1.innerText = snap.size;
+      if(s2) s2.innerText = online;
+      if(document.getElementById("modalUsers").style.display=="flex") renderUserList();
+    });
+
     if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
       document.getElementById("btnAdmin").style.display="inline-block";
       document.getElementById("btnUsers").style.display="inline-block";
       window.isAdmin = true;
       document.getElementById("adminDashboard").style.display="flex";
-      onSnapshot(collection(db, "users_log"), (snap)=>{
-        let online = 0;
-        userListCache = [];
-        snap.forEach(d=>{ const u=d.data(); if(u.isOnline) online++; userListCache.push(u); });
-        document.getElementById("statUserCount").innerText = snap.size;
-        document.getElementById("statOnlineCount").innerText = online;
-        if(document.getElementById("modalUsers").style.display=="flex") renderUserList();
-      });
     } else { window.isAdmin = false; }
     if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
   }
@@ -156,14 +161,15 @@ onAuthStateChanged(auth, async (user) => {
 
 function renderUserList(){
   const list = document.getElementById("listUsers");
+  if(!userListCache.length){ list.innerHTML="Belum ada user"; return; }
   userListCache.sort((a,b)=> (b.lastActive?.seconds||b.lastLogin?.seconds||0) - (a.lastActive?.seconds||a.lastLogin?.seconds||0));
   let html = `<table style="width:100%;border-collapse:collapse"><tr style="background:#333"><th style="padding:8px;text-align:left">Email</th><th style="padding:8px">Status</th><th style="padding:8px">Terakhir Dilihat</th></tr>`;
   userListCache.forEach(u=>{
     const d = u.lastActive?.toDate? u.lastActive.toDate() : (u.lastLogin?.toDate? u.lastLogin.toDate() : null);
     const tgl = d? d.toLocaleString('id-ID') : 'Baru';
-    const lalu = u.isOnline? '<b style="color:#00ff88">● Aktif sekarang</b><br><span style="font-size:10px;color:#aaa">'+waktuLalu(d)+'</span>' : waktuLalu(d);
+    const lalu = u.isOnline? '<b style="color:#00ff88">● Aktif sekarang</b><br><span style="font-size:10px;color:#aaa">'+waktuLalu(d)+'</span>' : '<span style="color:#00d1ff">'+waktuLalu(d)+'</span>';
     const status = u.isOnline? '<b style="color:#00ff88">● ONLINE</b>' : '<span style="color:#888">○ OFFLINE</span>';
-    html+=`<tr style="border-bottom:1px solid #333"><td style="padding:8px">${u.email}</td><td style="padding:8px;text-align:center">${status}</td><td style="padding:8px;font-size:11px">${tgl}<br><span style="color:#00d1ff">${lalu}</span></td></tr>`;
+    html+=`<tr style="border-bottom:1px solid #333"><td style="padding:8px">${u.email}</td><td style="padding:8px;text-align:center">${status}</td><td style="padding:8px;font-size:11px">${tgl}<br>${lalu}</td></tr>`;
   });
   html+=`</table>`;
   list.innerHTML=html;
