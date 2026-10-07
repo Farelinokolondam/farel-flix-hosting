@@ -59,7 +59,6 @@ button{cursor:pointer!important;}
 <button id="btnLogout" onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
 </div>
 </header>
-
 <div id="adminDashboard">
   <div class="stat">👑 Mode Admin Aktif | </div>
   <div class="stat">Total Film: <b id="statFilm">0</b></div>
@@ -67,9 +66,7 @@ button{cursor:pointer!important;}
   <div class="stat" id="statUser" style="color:#00d1ff">User: <b id="statUserCount">0</b></div>
   <div class="stat" style="margin-left:auto;font-size:11px;color:#aaa">Klik X merah di poster untuk hapus</div>
 </div>
-
 <div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
-
 <div id="modalAdmin" class="modal"><div class="modal-box" style="text-align:left">
 <h3 style="color:#facc15;text-align:center">TAMBAH FILM (ADMIN)</h3>
 <input id="adminKategori" placeholder="Kategori: ACTION / TERBARU" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
@@ -78,13 +75,11 @@ button{cursor:pointer!important;}
 <input id="adminGambar" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
 <div style="display:flex;gap:10px;margin-top:10px"><button onclick="tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
 </div></div>
-
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:600px;width:95%;max-height:80vh;overflow:auto">
 <h3 style="color:#00d1ff;text-align:center">DAFTAR USER YANG LOGIN</h3>
 <div id="listUsers" style="font-size:12px">Loading...</div>
 <br><button onclick="tutup('modalUsers')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">TUTUP</button>
 </div></div>
-
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
 <div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
 <h3 id="judulPlayer"></h3>
@@ -97,7 +92,7 @@ button{cursor:pointer!important;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, collection, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, getDocs, query, orderBy, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
 const app = initializeApp(firebaseConfig);
@@ -110,20 +105,23 @@ onAuthStateChanged(auth, async (user) => {
   else {
     document.getElementById("userEmail").innerText=user.email;
     document.getElementById("loadingScreen").style.display="none";
-    // SIMPAN LOG USER
     try{
       await setDoc(doc(db, "users_log", user.uid), {
         email: user.email,
         lastLogin: serverTimestamp(),
         uid: user.uid
       }, {merge:true});
-    }catch(e){ console.log(e); }
+    }catch(e){ console.log("log error",e); }
 
     if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
       document.getElementById("btnAdmin").style.display="inline-block";
       document.getElementById("btnUsers").style.display="inline-block";
       window.isAdmin = true;
       document.getElementById("adminDashboard").style.display="flex";
+      // AUTO TAMPIL JUMLAH USER REALTIME - TANPA KLIK
+      onSnapshot(collection(db, "users_log"), (snap)=>{
+        document.getElementById("statUserCount").innerText = snap.size;
+      });
     } else {
       window.isAdmin = false;
     }
@@ -142,21 +140,18 @@ window.bukaUsers = async ()=>{
     snap.forEach(d=>{
       const u = d.data();
       const t = u.lastLogin?.toDate? u.lastLogin.toDate().toLocaleString('id-ID') : 'Baru saja';
-      html+=`<tr style="border-bottom:1px solid #333"><td style="padding:8px">${u.email} ${u.email.toLowerCase()==EMAIL_ADMIN.toLowerCase()?' <b style="color:#facc15">[ADMIN]</b>':''}</td><td style="padding:8px;text-align:center;font-size:11px">${t}</td></tr>`;
+      html+=`<tr style="border-bottom:1px solid #333"><td style="padding:8px">${u.email}</td><td style="padding:8px;text-align:center;font-size:11px">${t}</td></tr>`;
     });
     html+=`</table><p style="margin-top:10px;color:#aaa">Total user: ${snap.size} orang</p>`;
     list.innerHTML=html;
-    document.getElementById("statUserCount").innerText = snap.size;
   }catch(e){
-    list.innerHTML=`<div style="color:#ff5555">Error: ${e.message}<br><br>1. Buka Firebase Console<br>2. Firestore Database > Create Database > Start in test mode<br>3. Lokasi: asia-southeast1</div>`;
+    list.innerHTML=`<div style="color:#ff5555">Error: ${e.message}<br><br>Pastikan Firestore Database sudah dibuat > Start in test mode</div>`;
   }
 }
-
 window.logout = ()=>{ document.getElementById("modalLogout").style.display="flex"; }
 window.konfirmasiLogout = ()=>{ signOut(auth).then(()=>{ window.location.href="login.html"; }); }
 window.tutup = (id)=>{ document.getElementById(id).style.display="none"; }
 </script>
-
 <script>
 const saved = localStorage.getItem("farelFilm");
 window.dataFilm = saved? JSON.parse(saved) : {
