@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html><head><meta name="google-site-verification" content="5phTkppWJVjmIVYij1c6Gmxd97QzBnH4wFrFUOaVpq8" /><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FARELFLIX</title>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FARELFLIX - FIX BAN REALTIME</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
 *:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
@@ -82,9 +82,11 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <button onclick="bukaKategoriManager()" style="background:#222;color:#facc15;border:1px solid #facc15;padding:5px 10px;border-radius:15px;font-size:11px">⚙️ Kelola Kategori</button>
 <button onclick="gantiPasswordAdmin()" style="background:#222;color:#aaa;border:1px solid #444;padding:5px 10px;border-radius:15px;font-size:11px">🔑 Ganti Password</button>
 <button onclick="toggleSensor()" id="btnSensor" style="background:#00ff88;color:#000;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🛡️ Sensor: ON</button>
+<button onclick="bukaBanned()" style="background:#e50914;color:#fff;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🚫 BAN LIST</button>
 </div>
 </div>
 <div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
+
 <div id="modalAdmin" class="modal"><div class="modal-box" style="text-align:left">
 <h3 style="color:#facc15;text-align:center">TAMBAH FILM (ADMIN)</h3>
 <input id="adminKategori" placeholder="Kategori: ACTION / TERBARU" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
@@ -93,8 +95,9 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <input id="adminGambar" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
 <div style="display:flex;gap:10px;margin-top:10px"><button onclick="tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
 </div></div>
+
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:540px;width:95%;max-height:85vh;overflow:auto">
-<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - KLIK HAPUS UNTUK KICK</h3>
+<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - KICK REAL-TIME</h3>
 <div style="display:flex;gap:6px;margin-bottom:12px">
 <input id="searchUser" oninput="renderUserList()" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
 <button onclick="copySemuaEmail()" style="padding:8px 10px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;font-size:11px">Copy Email</button>
@@ -102,6 +105,13 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <div id="listUsers" style="font-size:12px">Loading...</div>
 <br><button onclick="tutup('modalUsers')" style="width:100%;padding:12px;background:#333;color:#fff;border:none;border-radius:8px;font-weight:bold">TUTUP</button>
 </div></div>
+
+<div id="modalBanned" class="modal"><div class="modal-box" style="text-align:left;max-width:400px">
+<h3 style="color:#e50914;text-align:center">DAFTAR AKUN TER-BAN</h3>
+<div id="listBanned" style="margin:10px 0;font-size:12px">Loading...</div>
+<br><button onclick="tutup('modalBanned')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
+</div></div>
+
 <div id="modalKategori" class="modal"><div class="modal-box" style="text-align:left;max-width:400px">
 <h3 style="color:#facc15;text-align:center">KELOLA KATEGORI</h3>
 <div id="listKategoriAdmin" style="margin:10px 0"></div>
@@ -111,6 +121,7 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 </div>
 <br><button onclick="tutup('modalKategori')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
 </div></div>
+
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
 <div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
 <h3 id="judulPlayer"></h3>
@@ -119,10 +130,11 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <video id="myVideo" controls style="width:100%;height:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
 </div><br><button onclick="tutupPlayer()">Tutup</button></div></div>
 <div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="konfirmasiLogout()">Ya</button> <button onclick="tutup('modalLogout')">Batal</button></div></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, collection, serverTimestamp, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, serverTimestamp, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -133,6 +145,8 @@ let userListCache = [];
 let liveTimer = null;
 let heartbeatTimer = null;
 let sensorAktif = true;
+let banListenerUnsub = null;
+
 function sensorEmail(email){
 if(!email) return "-";
 if(!sensorAktif) return email;
@@ -186,10 +200,31 @@ return { fullText: `${device} - ${os} - ${browser}`, model: model || "Desktop", 
 async function getLokasi(){
 try{ const res = await fetch("https://ipapi.co/json/"); const data = await res.json(); return { kota: data.city || "-", region: data.region || "-", negara: data.country_name || "-", ip: data.ip || "-", lokasiText: `${data.city || ""}, ${data.region || ""}`.replace(/^, /,"").trim() || data.country_name || "Tidak terdeteksi" }; }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
 }
+
 onAuthStateChanged(auth, async (user) => {
-if(!user){ window.location.href="login.html"; }
-else {
+if(!user){ window.location.href="login.html"; return; }
 document.getElementById("userEmail").innerText=user.email;
+
+// ===== FIX UTAMA: CEK BAN SEBELUM BOLEH MASUK =====
+try{
+  const banSnap = await getDoc(doc(db, "bannedUsers", user.email));
+  if(banSnap.exists()){
+    alert("🚫 AKUN KAMU DI-BAN PERMANEN OLEH ADMIN!");
+    await signOut(auth);
+    window.location.href="login.html";
+    return;
+  }
+}catch(e){ console.log("cek ban gagal", e); }
+
+// ===== FIX UTAMA: LISTENER REAL-TIME - KALAU DI-BAN PAS NONTON, LANGSUNG MENTAL =====
+if(banListenerUnsub) banListenerUnsub();
+banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
+  if(snap.exists()){
+    alert("🚫 KAMU DI-KICK OLEH ADMIN! Logout paksa!");
+    signOut(auth).then(()=>{ window.location.href="login.html"; });
+  }
+});
+
 document.getElementById("loadingScreen").style.display="none";
 currentUserDoc = doc(db, "users_log", user.uid);
 let loginVia = "Email/Password";
@@ -203,6 +238,7 @@ await setDoc(currentUserDoc, { email: user.email, lastLogin: serverTimestamp(), 
 if(heartbeatTimer) clearInterval(heartbeatTimer);
 heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
 }catch(e){ console.log(e); }
+
 onSnapshot(collection(db, "users_log"), (snap)=>{
 let online = 0; userListCache = [];
 snap.forEach(d=>{ const u=d.data(); u.docId=d.id; const diff = u.lastActive?.toDate? Math.floor((new Date() - u.lastActive.toDate())/1000) : 9999; if(u.isOnline && diff < 120) online++; userListCache.push(u); });
@@ -211,6 +247,7 @@ document.getElementById("statOnlineCount").innerText = online;
 document.getElementById("badgeOnline").innerText = online;
 if(document.getElementById("modalUsers").style.display=="flex") renderUserList();
 });
+
 if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
 document.getElementById("btnAdmin").style.display="inline-block";
 document.getElementById("btnUsers").style.display="inline-block";
@@ -218,8 +255,8 @@ window.isAdmin = true;
 document.getElementById("adminDashboard").style.display="flex";
 } else { window.isAdmin = false; }
 if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
-}
 });
+
 window.renderUserList = function(){
 const list = document.getElementById("listUsers");
 const q = (document.getElementById("searchUser")?.value || "").toLowerCase();
@@ -249,21 +286,47 @@ html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px
 <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
 </div>
 ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
-<button onclick="blokirUser('${u.docId}')" style="flex:1;background:#ff4500;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 Blokir</button>
-<button onclick="hapusUser('${u.docId}','${u.email}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🗑️ Hapus / KICK</button>
+<button onclick="hapusUser('${u.docId}','${u.email}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 KICK + BAN LANGSUNG</button>
 <button onclick="navigator.clipboard.writeText('${u.email}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
 </div>` : `<div style="margin-top:8px;font-size:10px;color:#facc15">Akun admin tidak bisa dihapus</div>`}
 </div>`;
 });
 html+=`</div>`; list.innerHTML=html;
 }
+
+// ===== FUNGSI KICK + BAN BARU - INI YANG BIKIN HP KORBAN LANGSUNG MENTAL =====
 window.hapusUser = async (docId, email)=>{
-if(!confirm("Kick & hapus user "+email+"? User harus login ulang.")) return;
-try{ await deleteDoc(doc(db, "users_log", docId)); alert("Berhasil KICK "+email+"!"); }catch(e){ alert("Gagal kick: "+e.message+" - buka Firebase > Firestore > Rules ganti jadi allow read,write: if true;"); }
+if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
+if(!confirm("KICK & BAN PERMANEN "+email+"?\nDia akan langsung keluar dari HP nya dalam 3 detik dan tidak bisa login lagi!")) return;
+try{
+ await setDoc(doc(db, "bannedUsers", email), {
+   email: email,
+   bannedAt: serverTimestamp(),
+   bannedBy: auth.currentUser.email
+ });
+ await deleteDoc(doc(db, "users_log", docId));
+ alert("✅ Berhasil KICK & BAN "+email+"!\nHP dia akan mental dalam 3 detik dan tidak bisa login lagi!");
+}catch(e){ alert("Gagal kick: "+e.message); }
 }
-window.blokirUser = async (docId)=>{
-try{ await setDoc(doc(db, "users_log", docId), { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); alert("User di-offline-kan!"); }catch(e){ alert(e.message); }
+
+window.bukaBanned = ()=>{
+ document.getElementById("modalBanned").style.display="flex";
+ const listDiv = document.getElementById("listBanned");
+ onSnapshot(collection(db, "bannedUsers"), (snap)=>{
+   if(snap.empty){ listDiv.innerHTML = "<div style='color:#888'>Belum ada akun ter-ban</div>"; return; }
+   let h="";
+   snap.forEach(d=>{
+     const data=d.data();
+     h+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px;border-radius:6px;margin:4px 0"><span style="word-break:break-all">${data.email}</span><button onclick="unbanUser('${data.email}')" style="background:#00ff88;color:#000;border:none;padding:3px 8px;border-radius:4px;font-size:10px;margin-left:6px">UNBAN</button></div>`;
+   });
+   listDiv.innerHTML = h;
+ });
 }
+window.unbanUser = async (email)=>{
+ if(!confirm("Unban "+email+"? Dia bisa login lagi.")) return;
+ try{ await deleteDoc(doc(db, "bannedUsers", email)); alert("Berhasil unban "+email); }catch(e){ alert(e.message); }
+}
+
 window.copySemuaEmail = ()=>{ const txt = userListCache.map(u=>u.email).join(", "); navigator.clipboard.writeText(txt).then(()=>alert("Semua email tercopy!")); }
 window.bukaUsers = ()=>{ document.getElementById("modalUsers").style.display="flex"; renderUserList(); if(liveTimer) clearInterval(liveTimer); liveTimer = setInterval(()=>{ renderUserList(); }, 1000); }
 window.gantiPasswordAdmin = async ()=>{
@@ -276,6 +339,7 @@ window.logout = ()=>{ document.getElementById("modalLogout").style.display="flex
 window.konfirmasiLogout = async ()=>{
 try{ if(currentUserDoc){ await setDoc(currentUserDoc, { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); } }catch(e){}
 if(liveTimer) clearInterval(liveTimer); if(heartbeatTimer) clearInterval(heartbeatTimer);
+if(banListenerUnsub) banListenerUnsub();
 signOut(auth).then(()=>{ window.location.href="login.html"; });
 }
 window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id=='modalUsers' && liveTimer){ clearInterval(liveTimer); liveTimer=null; } }
