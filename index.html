@@ -81,7 +81,7 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <div class="stat">Total Film: <b id="statFilm">0</b></div>
 <div class="stat">Kategori: <b id="statKat">0</b></div>
 <div class="stat" style="color:#00d1ff">User: <b id="statUserCount">0</b></div>
-<div class="stat" style="color:#00ff88">Online: <b id="statOnlineCount" class="online">0</b></div>
+<div class="stat" style="color:#00ff88">Online: <b id="statOnlineCount" class="online">0</b> ●</div>
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto">
 <button onclick="window.bukaKategoriManager()" style="background:#222;color:#facc15;border:1px solid #facc15;padding:5px 10px;border-radius:15px;font-size:11px">⚙️ Kelola Kategori</button>
 <button onclick="window.gantiPasswordAdmin()" style="background:#222;color:#aaa;border:1px solid #444;padding:5px 10px;border-radius:15px;font-size:11px">🔑 Ganti Password</button>
@@ -101,7 +101,7 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 </div></div>
 
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:540px;width:95%;max-height:85vh;overflow:auto" id="boxUsers">
-<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER</h3>
+<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - <span id="judulOnlineCount" style="color:#00ff88">0 ONLINE</span></h3>
 <div style="display:flex;gap:6px;margin-bottom:12px">
 <input id="searchUser" oninput="window.renderUserList(true)" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
 <button onclick="window.copySemuaEmail()" style="padding:8px 10px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;font-size:11px">Copy Email</button>
@@ -143,7 +143,6 @@ const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", auth
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-// LAPIS 1 - KUNCI ADMIN TUNGGAL
 const EMAIL_ADMIN = "farelinokolondm50@gmail.com";
 let currentUserDoc = null;
 let currentUserEmail = "";
@@ -156,8 +155,6 @@ let kickListenerUnsub = null;
 window.isGuest = true;
 window.liveTimer = null;
 window.heartbeatTimer = null;
-
-// LAPIS 2 - ANTI XSS - ESCAPE SEMUA INPUT
 function escapeHtml(str){
   if(!str) return "";
   return str.toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -270,31 +267,51 @@ const dev = getDeviceAndMedia(); const lok = await getLokasi();
 try{
 await setDoc(currentUserDoc, { email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid, loginVia: loginVia, device: dev.fullText, hp_model: dev.model, browser: dev.browser, os: dev.os, situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip }, {merge:true});
 if(heartbeatTimer) clearInterval(heartbeatTimer);
-heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 15000);
+heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
 window.heartbeatTimer = heartbeatTimer;
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState==="visible" && currentUserDoc){
+    setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true});
+  }
+});
+window.addEventListener("beforeunload", ()=>{
+  if(currentUserDoc){ setDoc(currentUserDoc, { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); }
+});
 }catch(e){}
 onSnapshot(collection(db, "users_log"), (snap)=>{
 let online = 0;
+let total = 0;
 userListCache = [];
+const sekarang = new Date();
 snap.forEach(d=>{
   const u=d.data();
   if(!u.email) return;
+  total++;
   u.docId=d.id;
   const last = u.lastActive?.toDate? u.lastActive.toDate() : null;
-  const diff = last? Math.floor((new Date() - last)/1000) : 9999;
-  if(u.isOnline && diff < 180) online++;
+  const detik = last? Math.floor((sekarang - last)/1000) : 9999;
+  const isOnlineNow = u.isOnline && detik < 180;
+  if(isOnlineNow) online++;
+  u._isOnlineNow = isOnlineNow;
   userListCache.push(u);
 });
-document.getElementById("statUserCount").innerText = snap.size;
+document.getElementById("statUserCount").innerText = total;
 document.getElementById("statOnlineCount").innerText = online;
-document.getElementById("badgeOnline").innerText = online;
+const badge = document.getElementById("badgeOnline");
+if(badge) badge.innerText = online;
+const judulOnline = document.getElementById("judulOnlineCount");
+if(judulOnline) judulOnline.innerText = online + " ONLINE";
+const btnUsers = document.getElementById("btnUsers");
+if(btnUsers){
+  btnUsers.style.background = online > 0? "#00ff88" : "#00d1ff";
+  btnUsers.innerHTML = `👥 USER (<span id="badgeOnline">${online}</span>) ${online>0?'● LIVE':''}`;
+}
 const modal = document.getElementById("modalUsers");
 if(modal && modal.style.display==="flex"){
   const isSearching = (document.getElementById("searchUser")?.value || "").length > 0;
   if(!isSearching) window.renderUserList(true);
 }
 });
-// LAPIS 1 - CEK ADMIN REAL, BUKAN DARI LOCALSTORAGE
 if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
 document.getElementById("btnAdmin").style.display="inline-block";
 document.getElementById("btnUsers").style.display="inline-block";
@@ -303,7 +320,6 @@ document.getElementById("adminDashboard").style.display="flex";
 } else { window._isAdminReal = false; }
 if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
 });
-// LAPIS 1 LANJUTAN - isAdmin TIDAK BISA DIUBAH DARI CONSOLE
 Object.defineProperty(window, 'isAdmin', {
   get(){ return window._isAdminReal === true && currentUserEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase(); },
   set(v){ console.warn("🛡️ Ditolak: isAdmin tidak bisa diubah manual!"); }
@@ -312,7 +328,7 @@ window.renderUserList = function(fullRender = true){
 try{
 const list = document.getElementById("listUsers");
 if(!list) return;
-if(!window.isAdmin) return; // LAPIS 3 - CUMA ADMIN BISA LIHAT USER
+if(!window.isAdmin) return;
 const box = document.getElementById("boxUsers");
 const saveScroll = box? box.scrollTop : 0;
 const q = (document.getElementById("searchUser")?.value || "").toString().toLowerCase();
@@ -331,8 +347,8 @@ filtered.sort((a,b)=>{
   const now = new Date();
   const aLast = a.lastActive?.toDate? a.lastActive.toDate() : new Date(0);
   const bLast = b.lastActive?.toDate? b.lastActive.toDate() : new Date(0);
-  const aOnline = (a.isOnline && (now - aLast)/1000 < 180)? 1 : 0;
-  const bOnline = (b.isOnline && (now - bLast)/1000 < 180)? 1 : 0;
+  const aOnline = (a._isOnlineNow)? 1 : 0;
+  const bOnline = (b._isOnlineNow)? 1 : 0;
   if(aOnline!== bOnline) return bOnline - aOnline;
   return (a.email||"").toLowerCase().localeCompare((b.email||"").toLowerCase());
 });
@@ -352,7 +368,7 @@ let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
 filtered.forEach(u=>{
 const safeEmail = (u.email || "no-email").toString();
 const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
-const online = u.isOnline && Math.floor((new Date() - d)/1000) < 180;
+const online = u._isOnlineNow;
 const dot = online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
 const isAdminUser = safeEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase();
 html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
@@ -454,7 +470,6 @@ signOut(auth).then(()=>{ window.location.href="login.html"; });
 window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
 </script>
 <script>
-// LAPIS 4 - ANTI TAMPER LOCALSTORAGE
 (function(){
   const EMAIL_ADMIN = "farelinokolondm50@gmail.com";
   function esc(s){ return s? s.toString().replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : ""; }
@@ -486,7 +501,6 @@ window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id==
   let katBtnHtml=""; Object.keys(data).forEach(k=>{ if(k!=="ACTION" && k!=="TERBARU") katBtnHtml+=`<button onclick="window.filterKategori('${esc(k)}')" style="background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;margin-left:4px">${esc(k)}</button>`; });
   const el = document.getElementById("btnKatDinamis"); if(el) el.innerHTML = katBtnHtml;
   }
-  // LAPIS 3 - CEK ADMIN LAGI SEBELUM HAPUS/TAMBAH
   window.hapusFilm = function(kat, idx){
   if(!window.isAdmin) return alert("🛡️ Ditolak! Hanya admin bisa hapus");
   if(!confirm("Hapus film "+esc(window.dataFilm[kat][idx].judul)+"?")) return;
@@ -535,7 +549,6 @@ window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id==
   let file=document.getElementById("adminFile").value.trim();
   let gambar=document.getElementById("adminGambar").value.trim();
   if(!kat||!judul||!file){ alert("Isi kategori, judul, file!"); return; }
-  // LAPIS 2 - VALIDASI LINK
   if(!file.includes("drive.google.com") &&!file.includes("https://")) return alert("Link file harus https://");
   if(!window.dataFilm[kat]) window.dataFilm[kat]=[];
   window.dataFilm[kat].push({judul:judul,file,type:"drive",gambar:gambar||"https://via.placeholder.com/140x210?text="+encodeURIComponent(judul)});
@@ -576,8 +589,6 @@ window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id==
   }
   window.tutupPlayer = function(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
   window.tutup = function(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
-
-  // LAPIS 4 - BLOKIR KLIK KANAN & CONSOLE UNTUK TAMU
   document.addEventListener('contextmenu', e => {
     if(!window.isAdmin){ e.preventDefault(); return false; }
   });
