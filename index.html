@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FARELFLIX - FIX BAN REALTIME</title>
+<title>FARELFLIX - 2 PILIHAN KICK</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
 *:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
@@ -97,7 +97,7 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 </div></div>
 
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:540px;width:95%;max-height:85vh;overflow:auto">
-<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - KICK REAL-TIME</h3>
+<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - 2 PILIHAN</h3>
 <div style="display:flex;gap:6px;margin-bottom:12px">
 <input id="searchUser" oninput="renderUserList()" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
 <button onclick="copySemuaEmail()" style="padding:8px 10px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;font-size:11px">Copy Email</button>
@@ -146,6 +146,7 @@ let liveTimer = null;
 let heartbeatTimer = null;
 let sensorAktif = true;
 let banListenerUnsub = null;
+let kickListenerUnsub = null;
 
 function sensorEmail(email){
 if(!email) return "-";
@@ -205,7 +206,7 @@ onAuthStateChanged(auth, async (user) => {
 if(!user){ window.location.href="login.html"; return; }
 document.getElementById("userEmail").innerText=user.email;
 
-// ===== FIX UTAMA: CEK BAN SEBELUM BOLEH MASUK =====
+// CEK BAN PERMANEN
 try{
   const banSnap = await getDoc(doc(db, "bannedUsers", user.email));
   if(banSnap.exists()){
@@ -216,11 +217,18 @@ try{
   }
 }catch(e){ console.log("cek ban gagal", e); }
 
-// ===== FIX UTAMA: LISTENER REAL-TIME - KALAU DI-BAN PAS NONTON, LANGSUNG MENTAL =====
+// LISTENER BAN + KICK REALTIME
 if(banListenerUnsub) banListenerUnsub();
 banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
   if(snap.exists()){
-    alert("🚫 KAMU DI-KICK OLEH ADMIN! Logout paksa!");
+    alert("🚫 KAMU DI-BAN PERMANEN OLEH ADMIN! Logout paksa!");
+    signOut(auth).then(()=>{ window.location.href="login.html"; });
+  }
+});
+if(kickListenerUnsub) kickListenerUnsub();
+kickListenerUnsub = onSnapshot(doc(db, "kickedUsers", user.email), (snap)=>{
+  if(snap.exists()){
+    alert("⚠️ KAMU DI-KICK OLEH ADMIN! Silakan login lagi.");
     signOut(auth).then(()=>{ window.location.href="login.html"; });
   }
 });
@@ -286,7 +294,8 @@ html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px
 <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
 </div>
 ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
-<button onclick="hapusUser('${u.docId}','${u.email}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 KICK + BAN LANGSUNG</button>
+<button onclick="kickUser('${u.docId}','${u.email}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
+<button onclick="banUser('${u.docId}','${u.email}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
 <button onclick="navigator.clipboard.writeText('${u.email}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
 </div>` : `<div style="margin-top:8px;font-size:10px;color:#facc15">Akun admin tidak bisa dihapus</div>`}
 </div>`;
@@ -294,20 +303,29 @@ ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
 html+=`</div>`; list.innerHTML=html;
 }
 
-// ===== FUNGSI KICK + BAN BARU - INI YANG BIKIN HP KORBAN LANGSUNG MENTAL =====
-window.hapusUser = async (docId, email)=>{
+// KICK BIASA - BISA LOGIN LAGI SETELAH 15 DETIK
+window.kickUser = async (docId, email)=>{
 if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
-if(!confirm("KICK & BAN PERMANEN "+email+"?\nDia akan langsung keluar dari HP nya dalam 3 detik dan tidak bisa login lagi!")) return;
+if(!confirm("KICK BIASA "+email+"?\nDia akan keluar sekarang tapi masih bisa login lagi nanti.")) return;
 try{
- await setDoc(doc(db, "bannedUsers", email), {
-   email: email,
-   bannedAt: serverTimestamp(),
-   bannedBy: auth.currentUser.email
- });
+ await setDoc(doc(db, "kickedUsers", email), { email: email, kickedAt: serverTimestamp(), kickedBy: auth.currentUser.email });
  await deleteDoc(doc(db, "users_log", docId));
- alert("✅ Berhasil KICK & BAN "+email+"!\nHP dia akan mental dalam 3 detik dan tidak bisa login lagi!");
+ setTimeout(async ()=>{ try{ await deleteDoc(doc(db, "kickedUsers", email)); }catch(e){} }, 15000);
+ alert("✅ KICK BIASA berhasil!");
 }catch(e){ alert("Gagal kick: "+e.message); }
 }
+
+// BAN PERMANEN - TIDAK BISA LOGIN LAGI
+window.banUser = async (docId, email)=>{
+if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa ban admin!");
+if(!confirm("BAN PERMANEN "+email+"?\nDia akan mental dan TIDAK BISA login lagi selamanya!")) return;
+try{
+ await setDoc(doc(db, "bannedUsers", email), { email: email, bannedAt: serverTimestamp(), bannedBy: auth.currentUser.email });
+ await deleteDoc(doc(db, "users_log", docId));
+ alert("✅ BAN PERMANEN berhasil!");
+}catch(e){ alert("Gagal ban: "+e.message); }
+}
+window.hapusUser = window.banUser;
 
 window.bukaBanned = ()=>{
  document.getElementById("modalBanned").style.display="flex";
@@ -340,6 +358,7 @@ window.konfirmasiLogout = async ()=>{
 try{ if(currentUserDoc){ await setDoc(currentUserDoc, { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); } }catch(e){}
 if(liveTimer) clearInterval(liveTimer); if(heartbeatTimer) clearInterval(heartbeatTimer);
 if(banListenerUnsub) banListenerUnsub();
+if(kickListenerUnsub) kickListenerUnsub();
 signOut(auth).then(()=>{ window.location.href="login.html"; });
 }
 window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id=='modalUsers' && liveTimer){ clearInterval(liveTimer); liveTimer=null; } }
