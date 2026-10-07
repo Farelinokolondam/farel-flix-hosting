@@ -1,0 +1,86 @@
+[33m098717b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m final lengkap lokasi dan rapi
+[33m956c7e6[m fix user list diam anti naik turun
+[33maeaf40a[m fix user list diam gak naik turun
+[33mf916ac7[m final lengkap lokasi dan rapi
+[33m67cdb73[m tambah login via dan tipe hp samsung dll
+[33m79f722e[m fix jam user live 10 detik - semua user heartbeat
+[33mef78fa0[m terakhir dilihat live
+[33m4254e16[m fix tampilan hp biar rapi
+[33mde0a9c9[m fix online realtime
+[33m968aa85[m user realtime otomatis tanpa klik
+[33m1e739e5[m tambah lihat user login
+[33m050a5c2[m admin pro hapus film dan dashboard
+[33mf021003[m fix judul tetap dibawah tidak naik ke gambar
+[33mafc16a3[m animasi poster gerak pas pilih video
+[33m38c2330[m hapus garis putih total
+[33m19e0778[m fix garis klik dan animasi logout
+[33m299ab70[m loading farelflix animasi lingkaran
+[33m4ec3fc3[m fix biar gak 404
+[33m5daca73[m final sitemap fix
+[33md6b7e15[m no cache sitemap
+[33m1167f1e[m update sitemap 3 halaman
+[33mc3b950f[m fix admin final
+[33mf688a10[m fix hitam
+[33m9141fa0[m jadi admin
+[33mf9f8281[m tambah loading animasi
+[33mf6c4392[m tambah loading animasi
+[33m9f46f6d[m footer kanan bawah
+[33mcf03288[m footer kanan bawah
+[33m308351b[m blur 10px
+[33m631d415[m login poster netflix
+[33m27472f8[m login background film pro
+[33m4a7b5c9[m rubah teks logout
+[33mbd5abb9[m tombol tonton langsung
+[33m80f6bc8[m fix full hp
+[33m2107a2f[m fix play final
+[33m117ac72[m fix play final
+[33m991af96[m fix play final
+[33m3818fdd[m ganti jadi tonton sekarang
+[33m25bda18[m final semua film jalan
+[33m606839d[m terminator fix gambar dan link
+[33mf887c8f[m terminator fix gambar dan link
+[33m74a56e7[m fix dobel dataFilm dan terminator
+[33m2f4ae68[m tambah terminator + john wick 4 drive baru
+[33m8e0a65e[m home kuning + logout ya tidak
+[33m6db84aa[m fix home kuning
+[33mccf6b3f[m tambah pencarian dan home
+[33m5d7e5c5[m home kuning bisa klik + fix loading
+[33m901276c[m balikin code asli + home kuning
+[33m6240dbf[m home kuning bisa klik + fix loading
+[33m2701f1e[m fix loading lama - instant render
+[33mabd0036[m fix loading cepat johnwick diehard
+[33mafc64c5[m balikin bisa nonton johnwick diehard
+[33ma8228f2[m balikin player john wick die hard bisa nonton
+[33m4a479e7[m fix film tidak muncul
+[33md8a124f[m full index terbit21 3 bar
+[33m30090c1[m gagal login coba lagi ya jika tidak masukin gmail
+[33mccf7a63[m fix lama kalau tidak isi gmail jadi 1 detik
+[33m85d634c[m gagal login coba lagi ya jika tidak masukin gmail
+[33m53908f9[m gagal login coba lagi ya jika tidak masukin gmail
+[33m9f39fb0[m gagal login coba lagi ya jika tidak masukin gmail
+[33m7ad6769[m hapus tulisan naga bersih
+[33me439b97[m netflix animation final - no image
+[33m2c7252e[m fix naga
+[33mfd09fe1[m naga gede melingkar fix background
+[33m5ed09f1[m 1 naga besar melingkar box login
+[33m88688f1[m naga emas golden war fix
+[33mb24b2f9[m fix api naga biar keluar
+[33mc818ea9[m gabungan python + 3d real dragon war
+[33m8b2e61f[m real dragon war di atas
+[33md1a588f[m dragon war 3D
+[33m1c7f0cc[m login animasi naga
+[33m69d6cfe[m home fix balik ke home
+[33m88c30c9[m home animasi
+[33me41eb5c[m gambar besar netflix style
+[33md55d8e0[m betulin login gmail pakai firebase.js
+[33ma0637b6[m betulin login html ketimpa
+[33mdc903d7[m tambah pencarian
+[33m7169cc4[m login animasi bergerak
+[33m6eec452[m fix loading tidak flicker
+[33m9d7a85a[m fix index biar tidak muter login
+[33m2ed291f[m hapus logo google biar tombol muncul
+[33m4d2e597[m login gmail fix anti putih
+[33mb4b89c3[m fix login full
+[33m5ae6a73[m fix login.html final
+[33m831f91a[m config final
+[33m614a809[m fix firebase
