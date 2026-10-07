@@ -19,13 +19,33 @@ header{background:#000;padding:10px 15px;display:flex;justify-content:space-betw
 #semuaKategori{padding:15px;display:block;width:100%;max-width:100vw}
 .kategori{margin-bottom:25px}.kategori h2{color:#facc15;margin:10px 0}
 .row{display:flex;flex-wrap:wrap;gap:10px}
+
+/* === ANIMASI POSTER GERAK PAS DIPILIH VIDEO === */
 .card{
   width:140px;cursor:pointer;background:#222;border-radius:5px;overflow:hidden;
   border: none!important; outline: none!important;
   user-select: none; -webkit-user-select: none;
+  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)!important;
+  transform-origin: center bottom;
 }
-.card img{width:100%;height:210px;object-fit:cover;display:block;pointer-events:none;}
-.card p{text-align:center;font-size:11px;padding:5px;margin:0}
+.card img{
+  width:100%;height:210px;object-fit:cover;display:block;pointer-events:none;
+  transition: transform 0.4s ease, filter 0.4s ease!important;
+}
+.card p{text-align:center;font-size:11px;padding:5px;margin:0;transition: all 0.3s ease;}
+/* EFEK PAS MOUSE DIARAHIN */
+.card:hover{
+  transform: scale(1.12) translateY(-10px)!important;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.85), 0 0 18px rgba(250,204,21,0.35)!important;
+  z-index: 10;
+}
+.card:hover img{
+  transform: scale(1.15)!important;
+  filter: brightness(1.25) contrast(1.1);
+}
+.card:hover p{color:#facc15;font-weight:bold;}
+.card:active{transform: scale(0.95)!important;}
+
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:999}
 .modal-box{background:#1f1f1f;padding:20px;border-radius:10px;width:90%;max-width:400px;text-align:center}
 #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#141414;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:15px}
