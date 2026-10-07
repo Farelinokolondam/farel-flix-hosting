@@ -12,10 +12,38 @@ header{background:#000;padding:10px 15px;display:flex;justify-content:space-betw
 .card p{text-align:center;font-size:11px;padding:5px;margin:0}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:999}
 .modal-box{background:#1f1f1f;padding:20px;border-radius:10px;width:90%;max-width:400px;text-align:center}
-#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#141414;display:flex;align-items:center;justify-content:center;z-index:9999}
+#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#141414;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:15px}
+
+/* ANIMASI BARU FARELFLIX */
+.farel-spinner{
+  width:90px;height:90px;
+  border:3px solid rgba(255,204,0,0.15);
+  border-top:4px solid #facc15;
+  border-right:4px solid #facc15;
+  border-radius:50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow:0 0 20px rgba(250,204,21,0.4);
+}
+.farel-text{
+  color:#facc15;font-weight:bold;letter-spacing:3px;font-size:16px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+#videoLoader{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  background:#000;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:5;gap:15px
+}
 </style>
 </head><body>
-<div id="loadingScreen">Loading...</div>
+
+<div id="loadingScreen">
+  <div class="farel-spinner"></div>
+  <div class="farel-text">FARELFLIX</div>
+</div>
+
 <header>
 <div style="color:#ff4500;font-weight:bold">FARELFLIX-tambala</div>
 <div><button onclick="goHome()">Home</button><button onclick="filterKategori('ACTION')">Action</button><button onclick="filterKategori('TERBARU')">Terbaru</button><input id="searchBox" oninput="cariFilm()" placeholder="Cari film..." style="padding:5px;border-radius:15px;border:none"></div>
@@ -37,7 +65,19 @@ header{background:#000;padding:10px 15px;display:flex;justify-content:space-betw
 </div></div>
 
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
-<div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%"><h3 id="judulPlayer"></h3><video id="myVideo" controls style="width:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:400px;display:none" allowfullscreen></iframe><br><button onclick="tutupPlayer()">Tutup</button></div></div>
+
+<div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
+<h3 id="judulPlayer"></h3>
+<div style="position:relative;width:100%;height:400px;background:#000">
+  <div id="videoLoader">
+    <div class="farel-spinner" style="width:70px;height:70px"></div>
+    <div class="farel-text" style="font-size:13px">FARELFLIX</div>
+  </div>
+  <video id="myVideo" controls style="width:100%;height:100%;display:none"></video>
+  <iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
+</div>
+<br><button onclick="tutupPlayer()">Tutup</button></div></div>
+
 <div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="konfirmasiLogout()">Ya</button> <button onclick="tutup('modalLogout')">Batal</button></div></div>
 
 <script type="module">
@@ -77,7 +117,6 @@ window.dataFilm = saved? JSON.parse(saved) : {
   ]
 };
 
-// CUMA 1x deklarasi - ini yang bikin error kemarin
 let aktifFile="",aktifType="";
 const container=document.getElementById("semuaKategori");
 
@@ -88,7 +127,7 @@ window.renderFilm = function(data){
     ada=true;
     let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;
     data[kat].forEach(f=>{
-      html+=`<div class="card" onclick="buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://farel-flix-tambala.web.app/gambar/johnwick4.webpfirebase'"><p>${f.judul}</p></div>`;
+      html+=`<div class="card" onclick="buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=${encodeURIComponent(f.judul)}'"><p>${f.judul}</p></div>`;
     });
     html+=`</div></div>`;
     container.innerHTML+=html;
@@ -99,10 +138,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   setTimeout(()=>{
     window.renderFilm(window.dataFilm);
     document.getElementById("loadingScreen").style.display="none";
-  },300);
+  },500);
 });
 
-// CUMA 1x fungsi - gak dobel lagi
 function bukaAdmin(){ document.getElementById("modalAdmin").style.display="flex"; }
 function simpanFilmAdmin(){
   let kat=document.getElementById("adminKategori").value.toUpperCase().trim();
@@ -125,6 +163,27 @@ function goHome(){document.getElementById("searchBox").value="";window.renderFil
 function filterKategori(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
 function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
 function buka(j,f,t){ aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j; document.getElementById("modalBayar").style.display="flex"; }
-function playFilm(){ document.getElementById("modalBayar").style.display="none"; document.getElementById("modalPlayer").style.display="flex"; let v=document.getElementById("myVideo"); let i=document.getElementById("myIframe"); if(aktifType=="drive"){ v.style.display="none"; v.pause(); i.style.display="block"; i.src=aktifFile; } else { i.style.display="none"; i.src=""; v.style.display="block"; v.src=aktifFile; v.play(); } }
-function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; }
+
+function playFilm(){
+  document.getElementById("modalBayar").style.display="none";
+  document.getElementById("modalPlayer").style.display="flex";
+  let v=document.getElementById("myVideo");
+  let i=document.getElementById("myIframe");
+  let loader=document.getElementById("videoLoader");
+  loader.style.display="flex";
+
+  if(aktifType=="drive"){
+    v.style.display="none"; v.pause();
+    i.style.display="block";
+    i.src=aktifFile;
+    i.onload = ()=>{ loader.style.display="none"; }
+    setTimeout(()=>{ loader.style.display="none"; }, 2500);
+  } else {
+    i.style.display="none"; i.src="";
+    v.style.display="block"; v.src=aktifFile; v.play();
+    v.onplaying = ()=>{ loader.style.display="none"; }
+  }
+}
+
+function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
 </script></body></html>
