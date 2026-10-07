@@ -1,61 +1,33 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FARELFLIX - Nonton Film Gratis</title>
-<meta name="description" content="FARELFLIX - Nonton Film Action Terbaru 2026 Gratis di Manado, Tondano, Minahasa">
-<meta name="robots" content="index, follow">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
-*:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
-html,body,div,img,button{outline:none!important;}
-body{margin:0;background:#141414;color:#fff;font-family:Arial}
-header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100; border-bottom:1px solid #222;}
-.header-left{color:#ff4500;font-weight:bold;font-size:18px;letter-spacing:1px}
-.header-center{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.header-center button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;transition:0.2s}
-.header-center button:hover{background:#facc15;color:#000;border-color:#facc15}
+*{box-sizing:border-box}body{margin:0;background:#141414;color:#fff;font-family:Arial}
+header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;border-bottom:1px solid #222}
+.header-left{color:#ff4500;font-weight:bold;font-size:18px}
+.header-center{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.header-center button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer}
 .header-center input{padding:7px 14px;border-radius:20px;border:1px solid #333;background:#1a1a1a;color:#fff;width:160px}
-.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-#semuaKategori{padding:15px;display:block;width:100%;max-width:100vw}
-.kategori{margin-bottom:25px}.kategori h2{color:#facc15;margin:10px 0}
+#semuaKategori{padding:15px}.kategori{margin-bottom:25px}.kategori h2{color:#facc15}
 .row{display:flex;flex-wrap:wrap;gap:12px}
-#adminDashboard{display:none;background:linear-gradient(90deg,#1f1f1f,#2a2a1a);border:1px solid #333;border-left:4px solid #facc15;padding:12px 18px;margin:15px;border-radius:8px;gap:12px 20px;align-items:center;flex-wrap:wrap}
-#adminDashboard b{color:#facc15}
-#adminDashboard b.online{color:#00ff88}
-.stat{font-size:13px}
-.card{width:140px;cursor:pointer;background:#222;border-radius:6px;overflow:hidden;border: none!important; outline: none!important;user-select: none; -webkit-user-select: none;display:flex; flex-direction:column; position:relative;transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)!important;transform-origin: center bottom;}
-.imgBox{width:100%; height:210px; overflow:hidden; background:#000; flex-shrink:0; position:relative;}
-.imgBox img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;transition: transform 0.4s ease, filter 0.4s ease!important;}
-.card p{text-align:center;font-size:11px;padding:8px 5px;margin:0;background:#222;position:relative; z-index:2; width:100%;transition: all 0.3s ease;}
-.card:hover{transform: scale(1.08) translateY(-10px)!important;box-shadow: 0 15px 35px rgba(0,0,0,0.85), 0 0 18px rgba(250,204,21,0.35)!important;z-index: 10;}
-.card:hover p{color:#facc15;font-weight:bold;}
-.card:active{transform: scale(0.95)!important;}
-.btnHapus{position:absolute;top:5px;right:5px;z-index:10;background:#e50914;color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:14px;font-weight:bold;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.7)}
-.card.admin.btnHapus{display:flex}
-.btnHapus:hover{background:#ff1a25;transform:scale(1.15)}
+#adminDashboard{display:none;background:#1f1f1f;border:1px solid #333;border-left:4px solid #facc15;padding:12px;margin:15px;border-radius:8px;gap:12px;align-items:center;flex-wrap:wrap}
+.card{width:140px;cursor:pointer;background:#222;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;position:relative;transition:0.3s}
+.imgBox{width:100%;height:210px;overflow:hidden;background:#000;position:relative}
+.imgBox img{width:100%;height:100%;object-fit:cover;display:block}
+.card p{text-align:center;font-size:11px;padding:8px 5px;margin:0;background:#222}
+.card:hover{transform:scale(1.08) translateY(-8px);box-shadow:0 10px 30px rgba(0,0,0,0.8),0 0 15px rgba(250,204,21,0.3);z-index:10}
+.btnHapus{position:absolute;top:5px;right:5px;z-index:10;background:#e50914;color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;display:none}
+.card.admin.btnHapus{display:flex;align-items:center;justify-content:center}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:999}
 .modal-box{background:#1f1f1f;padding:20px;border-radius:10px;width:90%;max-width:400px;text-align:center}
 #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#141414;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:15px}
-.farel-spinner{width:90px;height:90px;border:3px solid rgba(255,204,0,0.15);border-top:4px solid #facc15;border-right:4px solid #facc15;border-radius:50%;animation: spin 0.8s linear infinite;box-shadow:0 0 20px rgba(250,204,21,0.4)}
-.farel-text{color:#facc15;font-weight:bold;letter-spacing:3px;font-size:16px;animation: pulse 1.2s ease-in-out infinite}
-@keyframes spin{ to{ transform:rotate(360deg); } }
-@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:0.5} }
-#videoLoader{position:absolute;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;gap:15px}
-#btnLogout{cursor:pointer!important;transition: all 0.2s ease!important;}
-#btnLogout:hover{background:#ff1a25!important;transform:scale(1.08);box-shadow:0 0 12px rgba(229,9,20,0.7);}
-button{cursor:pointer!important;}
-@media(max-width:600px){
-header{padding:10px;gap:8px}
-.header-left{width:100%;font-size:16px}
-.header-center{width:100%}
-.header-center input{width:100%;margin-top:4px}
-.header-right{width:100%;justify-content:flex-start;margin-top:6px}
-span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:block}
-#adminDashboard{margin:10px;padding:10px 12px;gap:8px 14px}
-.card{width:calc(50% - 6px)}
-.imgBox{height:240px}
-#semuaKategori{padding:10px}
-}
+.farel-spinner{width:80px;height:80px;border:3px solid rgba(255,204,0,0.15);border-top:4px solid #facc15;border-radius:50%;animation:spin 0.8s linear infinite}
+.farel-text{color:#facc15;font-weight:bold;letter-spacing:3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.guest-lock{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;backdrop-filter:blur(2px)}
+.guest-lock span{font-size:36px}.guest-lock b{font-size:10px;color:#facc15;margin-top:6px}
+.card.guest{filter:grayscale(0.2)}
+@media(max-width:600px){.card{width:calc(50% - 6px)}.imgBox{height:240px}}
 </style>
 </head><body>
 <div id="loadingScreen"><div class="farel-spinner"></div><div class="farel-text">FARELFLIX</div></div>
@@ -69,535 +41,81 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <input id="searchBox" oninput="window.cariFilm()" placeholder="Cari film...">
 </div>
 <div class="header-right">
-<span id="userEmail" style="font-size:11px;color:#aaa;margin-right:6px"></span>
-<button id="btnUsers" onclick="window.bukaUsers()" style="display:none;background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">👥 USER (<span id="badgeOnline">0</span>)</button>
-<button id="btnAdmin" onclick="window.bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">+ TAMBAH FILM</button>
-<button id="btnLogin" onclick="window.location.href='login.html'" style="background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">Login</button>
-<button id="btnLogout" onclick="window.logout()" style="display:none;background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
+<span id="userEmail" style="font-size:11px;color:#aaa"></span>
+<button id="btnAdmin" onclick="window.bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;font-weight:bold">+ TAMBAH FILM</button>
+<button id="btnLogin" onclick="window.location.href='login.html'" style="background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;font-weight:bold">Login</button>
+<button id="btnLogout" onclick="window.logout()" style="display:none;background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px">Logout</button>
 </div>
 </header>
-<div id="adminDashboard">
-<div class="stat">👑 Mode Admin Aktif | </div>
-<div class="stat">Total Film: <b id="statFilm">0</b></div>
-<div class="stat">Kategori: <b id="statKat">0</b></div>
-<div class="stat" style="color:#00d1ff">User: <b id="statUserCount">0</b></div>
-<div class="stat" style="color:#00ff88">Online: <b id="statOnlineCount" class="online">0</b> ●</div>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto">
-<button onclick="window.bukaKategoriManager()" style="background:#222;color:#facc15;border:1px solid #facc15;padding:5px 10px;border-radius:15px;font-size:11px">⚙️ Kelola Kategori</button>
-<button onclick="window.gantiPasswordAdmin()" style="background:#222;color:#aaa;border:1px solid #444;padding:5px 10px;border-radius:15px;font-size:11px">🔑 Ganti Password</button>
-<button onclick="window.toggleSensor()" id="btnSensor" style="background:#00ff88;color:#000;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🛡️ Sensor: ON</button>
-<button onclick="window.bukaBanned()" style="background:#e50914;color:#fff;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🚫 BAN LIST</button>
-</div>
-</div>
-<div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
+<div id="adminDashboard"><div>👑 Mode Admin | Total Film: <b id="statFilm">0</b></div><div>Kategori: <b id="statKat">0</b></div></div>
+<div id="semuaKategori"></div>
 
-<div id="modalAdmin" class="modal"><div class="modal-box" style="text-align:left">
-<h3 style="color:#facc15;text-align:center">TAMBAH FILM (ADMIN)</h3>
-<input id="adminKategori" placeholder="Kategori: ACTION / TERBARU" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<input id="adminJudul" placeholder="Judul film" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<input id="adminFile" placeholder="Link Drive https://.../preview" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<input id="adminGambar" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<div style="display:flex;gap:10px;margin-top:10px"><button onclick="window.tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="window.simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
-</div></div>
-
-<div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:540px;width:95%;max-height:85vh;overflow:auto" id="boxUsers">
-<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER - <span id="judulOnlineCount" style="color:#00ff88">0 ONLINE</span></h3>
-<div style="display:flex;gap:6px;margin-bottom:12px">
-<input id="searchUser" oninput="window.renderUserList(true)" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
-<button onclick="window.copySemuaEmail()" style="padding:8px 10px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;font-size:11px">Copy Email</button>
-</div>
-<div id="listUsers" style="font-size:12px">Loading...</div>
-<br><button onclick="window.tutup('modalUsers')" style="width:100%;padding:12px;background:#333;color:#fff;border:none;border-radius:8px;font-weight:bold">TUTUP</button>
-</div></div>
-
-<div id="modalBanned" class="modal"><div class="modal-box" style="text-align:left;max-width:400px">
-<h3 style="color:#e50914;text-align:center">DAFTAR AKUN TER-BAN</h3>
-<div id="listBanned" style="margin:10px 0;font-size:12px">Loading...</div>
-<br><button onclick="window.tutup('modalBanned')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
-</div></div>
-
-<div id="modalKategori" class="modal"><div class="modal-box" style="text-align:left;max-width:400px">
-<h3 style="color:#facc15;text-align:center">KELOLA KATEGORI</h3>
-<div id="listKategoriAdmin" style="margin:10px 0"></div>
-<div style="display:flex;gap:6px;margin-top:10px">
-<input id="inputKategoriBaru" placeholder="Nama kategori baru" style="flex:1;padding:8px;background:#111;color:#fff;border-radius:5px;border:1px solid #333">
-<button onclick="window.tambahKategoriBaru()" style="padding:8px 12px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">+ Tambah</button>
-</div>
-<br><button onclick="window.tutup('modalKategori')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
-</div></div>
-
-<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><p id="teksBayar" style="font-size:12px;color:#aaa;margin:10px 0"></p><button onclick="window.playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="window.tutup('modalBayar')">Tutup</button></div></div>
-<div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
-<h3 id="judulPlayer"></h3>
-<div style="position:relative;width:100%;height:400px;background:#000">
-<div id="videoLoader"><div class="farel-spinner" style="width:70px;height:70px"></div><div class="farel-text" style="font-size:13px">FARELFLIX</div></div>
-<video id="myVideo" controls controlsList="nodownload" oncontextmenu="return false" style="width:100%;height:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
-</div><br><button onclick="window.tutupPlayer()">Tutup</button></div></div>
+<div id="modalGuestBlock" class="modal"><div class="modal-box" style="border:1px solid #facc15"><h3 style="color:#facc15">🔒 LOGIN DULU</h3><p style="font-size:13px;color:#ccc">Kamu mode Tamu. Harus login dulu baru bisa nonton film.</p><button onclick="window.location.href='login.html'" style="width:100%;padding:12px;background:#00d1ff;color:#000;font-weight:bold;border:none;border-radius:8px">LOGIN SEKARANG</button><br><br><button onclick="window.tutup('modalGuestBlock')" style="width:100%;padding:10px;background:#222;color:#fff;border:none;border-radius:6px">Nanti dulu</button></div></div>
+<div id="modalAdmin" class="modal"><div class="modal-box" style="text-align:left"><h3 style="color:#facc15;text-align:center">TAMBAH FILM</h3><input id="adminKategori" placeholder="Kategori ACTION" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff"><input id="adminJudul" placeholder="Judul film" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff"><input id="adminFile" placeholder="Link Drive preview" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff"><input id="adminGambar" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff"><div style="display:flex;gap:10px"><button onclick="window.tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="window.simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div></div></div>
+<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><p id="teksBayar"></p><button onclick="window.playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="window.tutup('modalBayar')">Tutup</button></div></div>
+<div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%"><h3 id="judulPlayer"></h3><div style="width:100%;height:400px;background:#000"><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe><video id="myVideo" controls style="width:100%;height:100%;display:none"></video></div><br><button onclick="window.tutupPlayer()">Tutup</button></div></div>
 <div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="window.konfirmasiLogout()">Ya</button> <button onclick="window.tutup('modalLogout')">Batal</button></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, serverTimestamp, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app = initializeApp(firebaseConfig); const auth=getAuth(app);
 const ADMIN_EMAILS = ["farelinokolondm50@gmail.com", "farelinokolondam50@gmail.com"];
-const EMAIL_ADMIN = "farelinokolondam50@gmail.com";
-let currentUserDoc = null;
-let currentUserEmail = "";
-let userListCache = [];
-let liveTimer = null;
-let heartbeatTimer = null;
-let sensorAktif = true;
-let banListenerUnsub = null;
-let kickListenerUnsub = null;
-window.isGuest = true;
-window.liveTimer = null;
-window.heartbeatTimer = null;
-function escapeHtml(str){
-  if(!str) return "";
-  return str.toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-function sensorEmail(email){
-if(!email) return "-";
-email = email.toString();
-if(!sensorAktif) return escapeHtml(email);
-const parts = email.split('@');
-if(parts.length!=2) return escapeHtml(email);
-const nama = parts[0]; const domain = parts[1];
-if(nama.length<=2) return escapeHtml(nama[0]+"***@"+domain);
-return escapeHtml(nama.substring(0,2)+"***"+nama.slice(-1)+"@"+domain);
-}
-window.toggleSensor = ()=>{
-sensorAktif =!sensorAktif;
-const btn = document.getElementById('btnSensor');
-btn.innerText = sensorAktif? "🛡️ Sensor: ON" : "🛡️ Sensor: OFF";
-btn.style.background = sensorAktif? "#00ff88" : "#555";
-window.renderUserList(true);
-}
-function waktuLalu(date){
-if(!date) return "-";
-const diff = Math.floor((new Date() - date)/1000);
-if(diff < 5) return "baru saja";
-if(diff < 60) return diff+" detik lalu";
-if(diff < 3600) return Math.floor(diff/60)+" menit lalu";
-if(diff < 86400) return Math.floor(diff/3600)+" jam lalu";
-return Math.floor(diff/86400)+" hari lalu";
-}
-function getDeviceAndMedia(){
-const ua = navigator.userAgent; let model = "";
-const androidM = ua.match(/Android.*?;\s*([^;\)]+)\s*Build/i);
-if(androidM) model = androidM[1].trim();
-else if(/iPhone/i.test(ua)) model = "iPhone";
-else if(/iPad/i.test(ua)) model = "iPad";
-let device = "💻 Desktop";
-if(/Android/i.test(ua)) device = "📱 " + (model || "Android Phone");
-else if(/iPhone/i.test(ua)) device = "📱 " + model;
-else if(/iPad/i.test(ua)) device = "📱 iPad";
-let browser = "Browser";
-if(ua.includes("Chrome") &&!ua.includes("Edg")) browser = "Chrome";
-else if(ua.includes("Firefox")) browser = "Firefox";
-else if(ua.includes("Safari") &&!ua.includes("Chrome")) browser = "Safari";
-else if(ua.includes("Edg")) browser = "Edge";
-let os = ""; if(ua.includes("Android")) os = "Android"; else if(ua.includes("Windows")) os = "Windows"; else if(ua.includes("iPhone") || ua.includes("iPad")) os = "iOS"; else if(ua.includes("Mac")) os = "MacOS";
-let ref = document.referrer || ""; let media = "Langsung";
-if(ref.includes("facebook.com") || ref.includes("fb.com")) media = "Facebook";
-else if(ref.includes("instagram.com")) media = "Instagram";
-else if(ref.includes("google.com")) media = "Google";
-else if(ref.includes("whatsapp") || ref.includes("wa.me")) media = "WhatsApp";
-else if(ref.includes("t.me")) media = "Telegram";
-else if(ref!== "") { try{ media = new URL(ref).hostname; }catch(e){} }
-return { fullText: `${device} - ${os} - ${browser}`, model: model || "Desktop", browser, os, media, ref, situs: window.location.hostname };
-}
-async function getLokasi(){
-try{ const res = await fetch("https://ipapi.co/json/"); const data = await res.json(); return { kota: data.city || "-", region: data.region || "-", negara: data.country_name || "-", ip: data.ip || "-", lokasiText: `${data.city || ""}, ${data.region || ""}`.replace(/^, /,"").trim() || data.country_name || "Tidak terdeteksi" }; }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
-}
-onAuthStateChanged(auth, async (user) => {
-if(!user){
-  window.isGuest = true;
-  currentUserEmail = "";
-  document.getElementById("loadingScreen").style.display="none";
-  document.getElementById("userEmail").innerText = "Tamu - Login untuk nonton";
-  document.getElementById("btnLogin").style.display="inline-block";
-  document.getElementById("btnLogout").style.display="none";
-  document.getElementById("btnAdmin").style.display="none";
-  document.getElementById("btnUsers").style.display="none";
-  document.getElementById("adminDashboard").style.display="none";
-  window._isAdminReal = false;
-  if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
-  return;
-}
-window.isGuest = false;
-currentUserEmail = user.email || "";
-document.getElementById("userEmail").innerText=escapeHtml(user.email);
-document.getElementById("btnLogin").style.display="none";
-document.getElementById("btnLogout").style.display="inline-block";
-try{
-  const banSnap = await getDoc(doc(db, "bannedUsers", user.email));
-  if(banSnap.exists()){
-    alert("🚫 AKUN KAMU DI-BAN PERMANEN OLEH ADMIN!");
-    await signOut(auth);
-    window.location.href="login.html";
-    return;
-  }
-}catch(e){}
-if(banListenerUnsub) banListenerUnsub();
-banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
-  if(snap.exists()){
-    alert("🚫 KAMU DI-BAN PERMANEN OLEH ADMIN! Logout paksa!");
-    signOut(auth).then(()=>{ window.location.href="login.html"; });
-  }
+let currentUserEmail=""; window.isGuest=true; window._isAdminReal=false;
+onAuthStateChanged(auth, (user)=>{
+if(!user){ window.isGuest=true; document.getElementById("loadingScreen").style.display="none"; document.getElementById("userEmail").innerText="Tamu - Login untuk nonton"; document.getElementById("btnLogin").style.display="inline-block"; document.getElementById("btnLogout").style.display="none"; window._isAdminReal=false; if(window.renderFilm) window.renderFilm(window.dataFilm); return;}
+window.isGuest=false; currentUserEmail=user.email||""; document.getElementById("userEmail").innerText=user.email; document.getElementById("btnLogin").style.display="none"; document.getElementById("btnLogout").style.display="inline-block"; document.getElementById("loadingScreen").style.display="none";
+if(ADMIN_EMAILS.includes(user.email.toLowerCase())){ document.getElementById("btnAdmin").style.display="inline-block"; window._isAdminReal=true; document.getElementById("adminDashboard").style.display="flex"; }
+if(window.renderFilm) window.renderFilm(window.dataFilm);
 });
-if(kickListenerUnsub) kickListenerUnsub();
-kickListenerUnsub = onSnapshot(doc(db, "kickedUsers", user.email), (snap)=>{
-  if(snap.exists()){
-    alert("⚠️ KAMU DI-KICK OLEH ADMIN! Silakan login lagi.");
-    signOut(auth).then(()=>{ window.location.href="login.html"; });
-  }
-});
-document.getElementById("loadingScreen").style.display="none";
-currentUserDoc = doc(db, "users_log", user.uid);
-let loginVia = "Email/Password";
-if(user.providerData && user.providerData[0]){
-const p = user.providerData[0].providerId;
-if(p === "google.com") loginVia = "🔵 Google"; else if(p === "facebook.com") loginVia = "🔵 Facebook"; else if(p === "password") loginVia = "📧 Email"; else if(p === "phone") loginVia = "📱 No HP"; else loginVia = p;
-}
-const dev = getDeviceAndMedia(); const lok = await getLokasi();
-try{
-await setDoc(currentUserDoc, { email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid, loginVia: loginVia, device: dev.fullText, hp_model: dev.model, browser: dev.browser, os: dev.os, situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip }, {merge:true});
-if(heartbeatTimer) clearInterval(heartbeatTimer);
-heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
-window.heartbeatTimer = heartbeatTimer;
-document.addEventListener("visibilitychange", ()=>{
-  if(document.visibilityState==="visible" && currentUserDoc){
-    setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true});
-  }
-});
-window.addEventListener("beforeunload", ()=>{
-  if(currentUserDoc){ setDoc(currentUserDoc, { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); }
-});
-}catch(e){}
-onSnapshot(collection(db, "users_log"), (snap)=>{
-let online = 0;
-let total = 0;
-userListCache = [];
-const sekarang = new Date();
-snap.forEach(d=>{
-  const u=d.data();
-  if(!u.email) return;
-  total++;
-  u.docId=d.id;
-  const last = u.lastActive?.toDate? u.lastActive.toDate() : null;
-  const detik = last? Math.floor((sekarang - last)/1000) : 9999;
-  const isOnlineNow = u.isOnline && detik < 180;
-  if(isOnlineNow) online++;
-  u._isOnlineNow = isOnlineNow;
-  userListCache.push(u);
-});
-document.getElementById("statUserCount").innerText = total;
-document.getElementById("statOnlineCount").innerText = online;
-const badge = document.getElementById("badgeOnline");
-if(badge) badge.innerText = online;
-const judulOnline = document.getElementById("judulOnlineCount");
-if(judulOnline) judulOnline.innerText = online + " ONLINE";
-const btnUsers = document.getElementById("btnUsers");
-if(btnUsers){
-  btnUsers.style.background = online > 0? "#00ff88" : "#00d1ff";
-  btnUsers.innerHTML = `👥 USER (<span id="badgeOnline">${online}</span>) ${online>0?'● LIVE':''}`;
-}
-const modal = document.getElementById("modalUsers");
-if(modal && modal.style.display==="flex"){
-  const isSearching = (document.getElementById("searchUser")?.value || "").length > 0;
-  if(!isSearching) window.renderUserList(true);
-}
-});
-if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
-document.getElementById("btnAdmin").style.display="inline-block";
-document.getElementById("btnUsers").style.display="inline-block";
-window._isAdminReal = true;
-document.getElementById("adminDashboard").style.display="flex";
-} else { window._isAdminReal = false; }
-if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
-});
-Object.defineProperty(window, 'isAdmin', {
-  get(){ return window._isAdminReal === true && currentUserEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase(); },
-  set(v){ console.warn("🛡️ Ditolak: isAdmin tidak bisa diubah manual!"); }
-});
-window.renderUserList = function(fullRender = true){
-try{
-const list = document.getElementById("listUsers");
-if(!list) return;
-if(!window.isAdmin) return;
-const box = document.getElementById("boxUsers");
-const saveScroll = box? box.scrollTop : 0;
-const q = (document.getElementById("searchUser")?.value || "").toString().toLowerCase();
-if(!userListCache || userListCache.length===0){
-  if(fullRender) list.innerHTML="<div style='text-align:center;color:#facc15;padding:20px'>⏳ Memuat data user...</div>";
-  return;
-}
-let filtered = userListCache.filter(u =>{
-  if(!u.email) return false;
-  const e = (u.email || "").toString().toLowerCase();
-  const l = (u.lokasi || "").toString().toLowerCase();
-  const k = (u.kota || "").toString().toLowerCase();
-  return!q || (e+" "+l+" "+k).includes(q);
-});
-filtered.sort((a,b)=>{
-  const now = new Date();
-  const aLast = a.lastActive?.toDate? a.lastActive.toDate() : new Date(0);
-  const bLast = b.lastActive?.toDate? b.lastActive.toDate() : new Date(0);
-  const aOnline = (a._isOnlineNow)? 1 : 0;
-  const bOnline = (b._isOnlineNow)? 1 : 0;
-  if(aOnline!== bOnline) return bOnline - aOnline;
-  return (a.email||"").toLowerCase().localeCompare((b.email||"").toLowerCase());
-});
-if(filtered.length===0){
-  if(fullRender) list.innerHTML="<div style='text-align:center;color:#888'>Tidak ada hasil</div>";
-  return;
-}
-if(!fullRender){
-  document.querySelectorAll(".waktu-lalu").forEach(el=>{
-    const t = parseInt(el.dataset.time);
-    if(!t) return;
-    el.innerText = waktuLalu(new Date(t));
-  });
-  return;
-}
-let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
-filtered.forEach(u=>{
-const safeEmail = (u.email || "no-email").toString();
-const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
-const online = u._isOnlineNow;
-const dot = online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
-const isAdminUser = safeEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase();
-html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
-<div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-<div style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${sensorEmail(safeEmail)} ${isAdminUser?'<span style="background:#facc15;color:#000;padding:2px 6px;border-radius:8px;font-size:9px;margin-left:4px">ADMIN</span>':''}</div>
-<div style="font-size:11px;white-space:nowrap">${dot}</div>
-</div>
-<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-<span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${escapeHtml(u.loginVia||"Email")}</span>
-<span class="waktu-lalu" data-time="${d?d.getTime():0}" style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${escapeHtml(waktuLalu(d))}</span>
-<span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${escapeHtml(u.lokasi||u.kota||"-")}</span>
-</div>
-<div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
-<div>📱 <b style="color:#facc15">${escapeHtml(u.hp_model||"Desktop")}</b> - ${escapeHtml(u.browser||"")} ${escapeHtml(u.os||"")}</div>
-<div style="font-size:10px;color:#888;margin-top:2px">IP: ${escapeHtml(u.ip||"-")} | Dari: ${escapeHtml(u.datang_dari_media||"Langsung")}</div>
-<div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
-</div>
-${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
-<button onclick="window.kickUser('${escapeHtml(u.docId)}','${escapeHtml(safeEmail)}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
-<button onclick="window.banUser('${escapeHtml(u.docId)}','${escapeHtml(safeEmail)}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
-<button onclick="navigator.clipboard.writeText('${escapeHtml(safeEmail)}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
-</div>` : `<div style="margin-top:8px;font-size:10px;color:#facc15">Akun admin tidak bisa dihapus</div>`}
-</div>`;
-});
-html+=`</div>`; list.innerHTML=html;
-if(box) box.scrollTop = saveScroll;
-}catch(e){}
-}
-window.kickUser = async (docId, email)=>{
-if(!window.isAdmin) return alert("🛡️ Ditolak! Bukan admin");
-if((email||"").toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
-if(!confirm("KICK BIASA "+email+"?")) return;
-try{
- await setDoc(doc(db, "kickedUsers", email), { email: email, kickedAt: serverTimestamp(), kickedBy: currentUserEmail });
- await deleteDoc(doc(db, "users_log", docId));
- setTimeout(async ()=>{ try{ await deleteDoc(doc(db, "kickedUsers", email)); }catch(e){} }, 15000);
- alert("✅ KICK BIASA berhasil!");
-}catch(e){ alert("Gagal kick: "+e.message); }
-}
-window.banUser = async (docId, email)=>{
-if(!window.isAdmin) return alert("🛡️ Ditolak! Bukan admin");
-if((email||"").toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa ban admin!");
-if(!confirm("BAN PERMANEN "+email+"?")) return;
-try{
- await setDoc(doc(db, "bannedUsers", email), { email: email, bannedAt: serverTimestamp(), bannedBy: currentUserEmail });
- await deleteDoc(doc(db, "users_log", docId));
- alert("✅ BAN PERMANEN berhasil!");
-}catch(e){ alert("Gagal ban: "+e.message); }
-}
-window.bukaBanned = ()=>{
- if(!window.isAdmin) return alert("🛡️ Hanya admin!");
- document.getElementById("modalBanned").style.display="flex";
- const listDiv = document.getElementById("listBanned");
- onSnapshot(collection(db, "bannedUsers"), (snap)=>{
-   if(snap.empty){ listDiv.innerHTML = "<div style='color:#888'>Belum ada akun ter-ban</div>"; return; }
-   let h="";
-   snap.forEach(d=>{
-     const data=d.data();
-     h+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px;border-radius:6px;margin:4px 0"><span style="word-break:break-all">${escapeHtml(data.email)}</span><button onclick="window.unbanUser('${escapeHtml(data.email)}')" style="background:#00ff88;color:#000;border:none;padding:3px 8px;border-radius:4px;font-size:10px;margin-left:6px">UNBAN</button></div>`;
-   });
-   listDiv.innerHTML = h;
- });
-}
-window.unbanUser = async (email)=>{
- if(!window.isAdmin) return;
- if(!confirm("Unban "+email+"?")) return;
- try{ await deleteDoc(doc(db, "bannedUsers", email)); alert("Berhasil unban "+email); }catch(e){ alert(e.message); }
-}
-window.copySemuaEmail = ()=>{ if(!window.isAdmin) return; const txt = userListCache.map(u=>u.email||"").join(", "); navigator.clipboard.writeText(txt).then(()=>alert("Semua email tercopy!")); }
-window.bukaUsers = ()=>{
-  if(!window.isAdmin) return alert("🛡️ Hanya admin!");
-  const modal = document.getElementById("modalUsers");
-  modal.style.display="flex";
-  const listDiv = document.getElementById("listUsers");
-  if(!userListCache || userListCache.length===0){
-    listDiv.innerHTML = "<div style='color:#facc15;text-align:center;padding:20px'>⏳ Memuat data user...</div>";
-  } else {
-    window.renderUserList(true);
-  }
-  if(liveTimer) clearInterval(liveTimer);
-  liveTimer = setInterval(()=>{ window.renderUserList(false); }, 3000);
-  window.liveTimer = liveTimer;
-}
-window.gantiPasswordAdmin = async ()=>{
-if(!window.isAdmin) return;
-const user = auth.currentUser; if(!user) return;
-let baru = prompt("Password baru admin (min 6 karakter):");
-if(!baru || baru.length < 6) return alert("Min 6 karakter");
-try{ await updatePassword(user, baru); alert("Password diganti!"); }catch(e){ alert("Gagal: "+e.message+" - logout login ulang dulu"); }
-}
-window.logout = ()=>{ document.getElementById("modalLogout").style.display="flex"; }
-window.konfirmasiLogout = async ()=>{
-try{ if(currentUserDoc){ await setDoc(currentUserDoc, { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); } }catch(e){}
-if(liveTimer) clearInterval(liveTimer); if(heartbeatTimer) clearInterval(heartbeatTimer);
-if(banListenerUnsub) banListenerUnsub();
-if(kickListenerUnsub) kickListenerUnsub();
-signOut(auth).then(()=>{ window.location.href="login.html"; });
-}
-window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
+Object.defineProperty(window,'isAdmin',{get(){return window._isAdminReal===true && ADMIN_EMAILS.includes(currentUserEmail.toLowerCase());}});
+window.logout=()=>{document.getElementById("modalLogout").style.display="flex"};
+window.konfirmasiLogout=()=>{signOut(auth).then(()=>{window.location.href="login.html";});};
+window.tutup=(id)=>{document.getElementById(id).style.display="none";};
 </script>
 <script>
 (function(){
-  const EMAIL_ADMIN = "farelinokolondm50@gmail.com";
-  function esc(s){ return s? s.toString().replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : ""; }
-  const saved = localStorage.getItem("farelFilm");
-  window.dataFilm = saved? JSON.parse(saved) : {
-  "ACTION":[
-  {judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/diehard2023.jpg"},
-  {judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/John_Wick_Chapter_3_Parabellum.png"},
-  {judul:"TERMINATOR DARK FATE",file:"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/terminator%20dark%20fate.jpg"}
-  ],
-  "TERBARU":[{judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}]
-  };
-  window.aktifFile=""; window.aktifType="";
-  const container=document.getElementById("semuaKategori");
-  window.renderFilm = function(data){
-  container.innerHTML=""; let ada=false; let totalFilm=0; let katCount = 0;
-  for(let kat in data){
-  if(!data[kat]||data[kat].length==0) continue;
-  ada=true; katCount++; totalFilm+=data[kat].length;
-  let html=`<div class="kategori"><h2>${esc(kat)} <span style="font-size:12px;color:#666">(${data[kat].length})</span> ${window.isAdmin? `<button onclick="window.hapusKategori('${esc(kat)}')" style="background:#222;color:#ff4444;border:1px solid #ff4444;padding:2px 8px;border-radius:10px;font-size:10px;margin-left:8px">Hapus Kategori</button>`:''}</h2><div class="row">`;
-  data[kat].forEach((f, idx)=>{
-  html+=`<div class="card ${window.isAdmin?'admin':''}" onclick="window.buka('${esc(f.judul).replace(/'/g,"\\'")}','${esc(f.file)}','${esc(f.type)}')"><div class="imgBox"><img src="${esc(f.gambar)}" onerror="this.src='https://via.placeholder.com/140x210?text=${encodeURIComponent(f.judul)}'"><button class="btnHapus" onclick="event.stopPropagation(); window.hapusFilm('${esc(kat)}',${idx})">×</button></div><p>${esc(f.judul)}</p></div>`;
-  });
-  html+=`</div></div>`; container.innerHTML+=html;
+function esc(s){return s? s.toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])):"";}
+const saved=localStorage.getItem("farelFilm");
+window.dataFilm=saved? JSON.parse(saved):{"ACTION":[{"judul":"DIE HARD","file":"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/diehard2023.jpg"},{"judul":"JOHN WICK 3","file":"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/John_Wick_Chapter_3_Parabellum.png"},{"judul":"TERMINATOR DARK FATE","file":"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/terminator%20dark%20fate.jpg"}],"TERBARU":[{"judul":"JOHN WICK 4","file":"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}]};
+const container=document.getElementById("semuaKategori");
+window.renderFilm=function(data){
+container.innerHTML=""; let total=0;
+for(let kat in data){
+if(!data[kat]||data[kat].length==0) continue; total+=data[kat].length;
+let html=`<div class="kategori"><h2>${esc(kat)} (${data[kat].length})</h2><div class="row">`;
+data[kat].forEach((f,idx)=>{
+const lock=window.isGuest?`<div class="guest-lock"><span>🔒</span><b>LOGIN UNTUK NONTON</b></div>`:"";
+const gClass=window.isGuest?" guest":"";
+html+=`<div class="card${gClass} ${window.isAdmin?'admin':''}" onclick="window.buka('${esc(f.judul).replace(/'/g,"\\'")}','${esc(f.file)}','${esc(f.type)}')"><div class="imgBox"><img src="${esc(f.gambar)}">${lock}<button class="btnHapus" onclick="event.stopPropagation(); window.hapusFilm('${esc(kat)}',${idx})">×</button></div><p>${esc(f.judul)}</p></div>`;
+});
+html+=`</div></div>`; container.innerHTML+=html;
+}
+document.getElementById("statFilm").innerText=total;
+document.getElementById("statKat").innerText=Object.keys(data).length;
+};
+window.goHome=()=>{document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);};
+window.filterKategori=(kat)=>{ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); };
+window.cariFilm=()=>{ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); };
+// KUNCI UTAMA: TAMU TIDAK BISA NONTON
+window.buka=function(j,f,t){
+  if(window.isGuest){
+    document.getElementById("modalGuestBlock").style.display="flex";
+    return;
   }
-  document.getElementById("noResult").style.display=ada?"none":"block";
-  document.getElementById("statFilm").innerText = totalFilm;
-  document.getElementById("statKat").innerText = katCount;
-  let katBtnHtml=""; Object.keys(data).forEach(k=>{ if(k!=="ACTION" && k!=="TERBARU") katBtnHtml+=`<button onclick="window.filterKategori('${esc(k)}')" style="background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;margin-left:4px">${esc(k)}</button>`; });
-  const el = document.getElementById("btnKatDinamis"); if(el) el.innerHTML = katBtnHtml;
-  }
-  window.hapusFilm = function(kat, idx){
-  if(!window.isAdmin) return alert("🛡️ Ditolak! Hanya admin bisa hapus");
-  if(!confirm("Hapus film "+esc(window.dataFilm[kat][idx].judul)+"?")) return;
-  window.dataFilm[kat].splice(idx,1);
-  if(window.dataFilm[kat].length===0) delete window.dataFilm[kat];
-  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-  window.renderFilm(window.dataFilm);
-  }
-  window.hapusKategori = function(kat){
-  if(!window.isAdmin) return alert("🛡️ Ditolak!");
-  if(!confirm("Hapus kategori "+esc(kat)+" beserta semua filmnya?")) return;
-  delete window.dataFilm[kat];
-  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-  window.renderFilm(window.dataFilm);
-  }
-  window.bukaKategoriManager = function(){
-  if(!window.isAdmin) return;
-  document.getElementById("modalKategori").style.display="flex";
-  let list = document.getElementById("listKategoriAdmin"); let html = "";
-  Object.keys(window.dataFilm).forEach(k=>{
-  html+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px 10px;border-radius:6px;margin:4px 0"><span>${esc(k)} (${window.dataFilm[k].length})</span><button onclick="window.hapusKategori('${esc(k)}');window.bukaKategoriManager()" style="background:#e50914;color:#fff;border:none;padding:3px 8px;border-radius:4px">Hapus</button></div>`;
-  });
-  if(html==="") html="<div style='color:#888;font-size:12px'>Belum ada kategori</div>";
-  list.innerHTML = html;
-  }
-  window.tambahKategoriBaru = function(){
-  if(!window.isAdmin) return;
-  let nama = document.getElementById("inputKategoriBaru").value.toUpperCase().trim();
-  if(!nama) return alert("Isi nama kategori");
-  if(window.dataFilm[nama]) return alert("Sudah ada");
-  window.dataFilm[nama]=[];
-  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-  document.getElementById("inputKategoriBaru").value="";
-  window.renderFilm(window.dataFilm);
-  window.bukaKategoriManager();
-  alert("Kategori "+nama+" ditambahkan!");
-  }
-  window.addEventListener("DOMContentLoaded",()=>{
-  setTimeout(()=>{ window.renderFilm(window.dataFilm); document.getElementById("loadingScreen").style.display="none"; },500);
-  });
-  window.bukaAdmin = function(){ if(!window.isAdmin) return alert("🛡️ Hanya admin!"); document.getElementById("modalAdmin").style.display="flex"; }
-  window.simpanFilmAdmin = function(){
-  if(!window.isAdmin) return alert("🛡️ Ditolak! Bukan admin");
-  let kat=document.getElementById("adminKategori").value.toUpperCase().trim();
-  let judul=document.getElementById("adminJudul").value.trim();
-  let file=document.getElementById("adminFile").value.trim();
-  let gambar=document.getElementById("adminGambar").value.trim();
-  if(!kat||!judul||!file){ alert("Isi kategori, judul, file!"); return; }
-  if(!file.includes("drive.google.com") &&!file.includes("https://")) return alert("Link file harus https://");
-  if(!window.dataFilm[kat]) window.dataFilm[kat]=[];
-  window.dataFilm[kat].push({judul:judul,file,type:"drive",gambar:gambar||"https://via.placeholder.com/140x210?text="+encodeURIComponent(judul)});
-  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-  window.renderFilm(window.dataFilm);
-  window.tutup('modalAdmin');
-  document.getElementById("adminKategori").value=""; document.getElementById("adminJudul").value=""; document.getElementById("adminFile").value=""; document.getElementById("adminGambar").value="";
-  alert("Berhasil tambah "+judul);
-  }
-  window.goHome = function(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
-  window.filterKategori = function(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
-  window.cariFilm = function(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
-  window.buka = function(j,f,t){
-   window.aktifFile=f; window.aktifType=t;
-   document.getElementById("judulBayar").innerText=esc(j);
-   document.getElementById("judulPlayer").innerText=esc(j);
-   document.getElementById("teksBayar").innerText = "Siap nonton "+esc(j)+"?";
-   document.getElementById("modalBayar").style.display="flex";
-  }
-  window.playFilm = function(){
-  document.getElementById("modalBayar").style.display="none";
-  document.getElementById("modalPlayer").style.display="flex";
-  let v=document.getElementById("myVideo");
-  let i=document.getElementById("myIframe");
-  let loader=document.getElementById("videoLoader");
-  loader.style.display="flex";
-  if(window.aktifType=="drive"){
-    v.style.display="none"; v.pause();
-    i.style.display="block";
-    i.src=window.aktifFile;
-    i.onload=()=>{loader.style.display="none"};
-    setTimeout(()=>{loader.style.display="none"},2500);
-  } else {
-    i.style.display="none"; i.src="";
-    v.style.display="block"; v.src=window.aktifFile;
-    v.play(); v.onplaying=()=>{loader.style.display="none"};
-  }
-  }
-  window.tutupPlayer = function(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
-  window.tutup = function(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
-  document.addEventListener('contextmenu', e => {
-    if(!window.isAdmin){ e.preventDefault(); return false; }
-  });
-  document.addEventListener('keydown', e=>{
-    if(!window.isAdmin && (e.key==='F12' || (e.ctrlKey && e.shiftKey && (e.key==='I' || e.key==='J' || e.key==='C')))){
-      e.preventDefault(); alert("🛡️ Mode tamu: Inspect dimatikan");
-    }
-  });
+  window.aktifFile=f; window.aktifType=t;
+  document.getElementById("judulBayar").innerText=esc(j);
+  document.getElementById("judulPlayer").innerText=esc(j);
+  document.getElementById("teksBayar").innerText="Siap nonton "+esc(j)+"?";
+  document.getElementById("modalBayar").style.display="flex";
+};
+window.playFilm=function(){ document.getElementById("modalBayar").style.display="none"; document.getElementById("modalPlayer").style.display="flex"; let i=document.getElementById("myIframe"); i.style.display="block"; i.src=window.aktifFile; };
+window.tutupPlayer=function(){ document.getElementById("modalPlayer").style.display="none"; document.getElementById("myIframe").src=""; };
+window.bukaAdmin=()=>{ if(!window.isAdmin) return alert("Hanya admin!"); document.getElementById("modalAdmin").style.display="flex"; };
+window.simpanFilmAdmin=()=>{ if(!window.isAdmin) return alert("Hanya admin!"); let kat=document.getElementById("adminKategori").value.toUpperCase().trim(); let judul=document.getElementById("adminJudul").value.trim(); let file=document.getElementById("adminFile").value.trim(); let gambar=document.getElementById("adminGambar").value.trim(); if(!kat||!judul||!file) return alert("Isi semua"); if(!window.dataFilm[kat]) window.dataFilm[kat]=[]; window.dataFilm[kat].push({judul,file,type:"drive",gambar}); localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm)); window.renderFilm(window.dataFilm); window.tutup('modalAdmin'); };
+window.hapusFilm=(kat,idx)=>{ if(!window.isAdmin) return alert("Hanya admin!"); if(!confirm("Hapus?")) return; window.dataFilm[kat].splice(idx,1); if(window.dataFilm[kat].length===0) delete window.dataFilm[kat]; localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm)); window.renderFilm(window.dataFilm); };
+window.addEventListener("DOMContentLoaded",()=>{ setTimeout(()=>{ window.renderFilm(window.dataFilm); document.getElementById("loadingScreen").style.display="none"; },500); });
 })();
 </script>
 </body></html>
