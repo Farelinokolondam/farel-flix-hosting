@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FARELFLIX - 2 PILIHAN KICK</title>
+<title>FARELFLIX - FIX FINAL</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
 *:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
@@ -206,7 +206,6 @@ onAuthStateChanged(auth, async (user) => {
 if(!user){ window.location.href="login.html"; return; }
 document.getElementById("userEmail").innerText=user.email;
 
-// CEK BAN PERMANEN
 try{
   const banSnap = await getDoc(doc(db, "bannedUsers", user.email));
   if(banSnap.exists()){
@@ -217,21 +216,21 @@ try{
   }
 }catch(e){ console.log("cek ban gagal", e); }
 
-// LISTENER BAN + KICK REALTIME
 if(banListenerUnsub) banListenerUnsub();
 banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
   if(snap.exists()){
     alert("🚫 KAMU DI-BAN PERMANEN OLEH ADMIN! Logout paksa!");
     signOut(auth).then(()=>{ window.location.href="login.html"; });
   }
-});
+}, (err)=>{ console.log("ban listener error", err); });
+
 if(kickListenerUnsub) kickListenerUnsub();
 kickListenerUnsub = onSnapshot(doc(db, "kickedUsers", user.email), (snap)=>{
   if(snap.exists()){
     alert("⚠️ KAMU DI-KICK OLEH ADMIN! Silakan login lagi.");
     signOut(auth).then(()=>{ window.location.href="login.html"; });
   }
-});
+}, (err)=>{ console.log("kick listener error", err); });
 
 document.getElementById("loadingScreen").style.display="none";
 currentUserDoc = doc(db, "users_log", user.uid);
@@ -248,12 +247,26 @@ heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTi
 }catch(e){ console.log(e); }
 
 onSnapshot(collection(db, "users_log"), (snap)=>{
-let online = 0; userListCache = [];
-snap.forEach(d=>{ const u=d.data(); u.docId=d.id; const diff = u.lastActive?.toDate? Math.floor((new Date() - u.lastActive.toDate())/1000) : 9999; if(u.isOnline && diff < 120) online++; userListCache.push(u); });
+let online = 0;
+userListCache = [];
+snap.forEach(d=>{
+  const u=d.data();
+  u.docId=d.id;
+  const last = u.lastActive?.toDate? u.lastActive.toDate() : null;
+  const diff = last? Math.floor((new Date() - last)/1000) : 9999;
+  if(u.isOnline && diff < 120) online++;
+  userListCache.push(u);
+});
 document.getElementById("statUserCount").innerText = snap.size;
 document.getElementById("statOnlineCount").innerText = online;
 document.getElementById("badgeOnline").innerText = online;
-if(document.getElementById("modalUsers").style.display=="flex") renderUserList();
+const modal = document.getElementById("modalUsers");
+if(modal && modal.style.display==="flex"){
+  window.renderUserList();
+}
+}, (err)=>{
+  console.error("users_log error:", err);
+  document.getElementById("listUsers").innerHTML = "<div style='color:red'>Gagal load: "+err.message+"<br>Cek Rules Firestore</div>";
 });
 
 if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
@@ -266,11 +279,20 @@ if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
 });
 
 window.renderUserList = function(){
+try{
 const list = document.getElementById("listUsers");
+if(!list) return;
 const q = (document.getElementById("searchUser")?.value || "").toLowerCase();
-if(!userListCache.length){ list.innerHTML="Belum ada user"; return; }
+if(!userListCache || userListCache.length===0){
+  list.innerHTML="<div style='text-align:center;color:#facc15;padding:20px'>⏳ Memuat data user...<br><span style='font-size:11px;color:#888'>Jika tetap kosong, tutup buka lagi</span></div>";
+  return;
+}
 let filtered = userListCache.filter(u =>!q || (u.email+" "+(u.lokasi||"")+" "+(u.kota||"")).toLowerCase().includes(q));
 filtered.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
+if(filtered.length===0){
+  list.innerHTML="<div style='text-align:center;color:#888'>Tidak ada hasil untuk '"+q+"'</div>";
+  return;
+}
 let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
 filtered.forEach(u=>{
 const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
@@ -301,9 +323,12 @@ ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
 </div>`;
 });
 html+=`</div>`; list.innerHTML=html;
+}catch(e){
+console.error("renderUserList error", e);
+document.getElementById("listUsers").innerHTML = "<div style='color:red;padding:10px'>Error render: "+e.message+"</div>";
+}
 }
 
-// KICK BIASA - BISA LOGIN LAGI SETELAH 15 DETIK
 window.kickUser = async (docId, email)=>{
 if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
 if(!confirm("KICK BIASA "+email+"?\nDia akan keluar sekarang tapi masih bisa login lagi nanti.")) return;
@@ -311,11 +336,10 @@ try{
  await setDoc(doc(db, "kickedUsers", email), { email: email, kickedAt: serverTimestamp(), kickedBy: auth.currentUser.email });
  await deleteDoc(doc(db, "users_log", docId));
  setTimeout(async ()=>{ try{ await deleteDoc(doc(db, "kickedUsers", email)); }catch(e){} }, 15000);
- alert("✅ KICK BIASA berhasil!");
+ alert("✅ KICK BIASA berhasil! Dia bisa login lagi setelah 15 detik.");
 }catch(e){ alert("Gagal kick: "+e.message); }
 }
 
-// BAN PERMANEN - TIDAK BISA LOGIN LAGI
 window.banUser = async (docId, email)=>{
 if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa ban admin!");
 if(!confirm("BAN PERMANEN "+email+"?\nDia akan mental dan TIDAK BISA login lagi selamanya!")) return;
@@ -346,7 +370,18 @@ window.unbanUser = async (email)=>{
 }
 
 window.copySemuaEmail = ()=>{ const txt = userListCache.map(u=>u.email).join(", "); navigator.clipboard.writeText(txt).then(()=>alert("Semua email tercopy!")); }
-window.bukaUsers = ()=>{ document.getElementById("modalUsers").style.display="flex"; renderUserList(); if(liveTimer) clearInterval(liveTimer); liveTimer = setInterval(()=>{ renderUserList(); }, 1000); }
+window.bukaUsers = ()=>{
+  const modal = document.getElementById("modalUsers");
+  modal.style.display="flex";
+  const listDiv = document.getElementById("listUsers");
+  if(!userListCache || userListCache.length===0){
+    listDiv.innerHTML = "<div style='color:#facc15;text-align:center;padding:20px'>⏳ Memuat data user...<br><span style='font-size:10px;color:#888'>Tunggu 1-2 detik</span></div>";
+  } else {
+    window.renderUserList();
+  }
+  if(liveTimer) clearInterval(liveTimer);
+  liveTimer = setInterval(()=>{ window.renderUserList(); }, 1500);
+}
 window.gantiPasswordAdmin = async ()=>{
 const user = auth.currentUser; if(!user) return;
 let baru = prompt("Password baru admin (min 6 karakter):");
