@@ -61,18 +61,18 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <header>
 <div class="header-left">FARELFLIX</div>
 <div class="header-center">
-<button onclick="goHome()">Home</button>
-<button onclick="filterKategori('ACTION')">Action</button>
-<button onclick="filterKategori('TERBARU')">Terbaru</button>
+<button onclick="window.goHome()">Home</button>
+<button onclick="window.filterKategori('ACTION')">Action</button>
+<button onclick="window.filterKategori('TERBARU')">Terbaru</button>
 <span id="btnKatDinamis"></span>
-<input id="searchBox" oninput="cariFilm()" placeholder="Cari film...">
+<input id="searchBox" oninput="window.cariFilm()" placeholder="Cari film...">
 </div>
 <div class="header-right">
 <span id="userEmail" style="font-size:11px;color:#aaa;margin-right:6px"></span>
-<button id="btnUsers" onclick="bukaUsers()" style="display:none;background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">👥 USER (<span id="badgeOnline">0</span>)</button>
-<button id="btnAdmin" onclick="bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">+ TAMBAH FILM</button>
+<button id="btnUsers" onclick="window.bukaUsers()" style="display:none;background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">👥 USER (<span id="badgeOnline">0</span>)</button>
+<button id="btnAdmin" onclick="window.bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">+ TAMBAH FILM</button>
 <button id="btnLogin" onclick="window.location.href='login.html'" style="background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">Login</button>
-<button id="btnLogout" onclick="logout()" style="display:none;background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
+<button id="btnLogout" onclick="window.logout()" style="display:none;background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
 </div>
 </header>
 <div id="adminDashboard">
@@ -82,10 +82,10 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <div class="stat" style="color:#00d1ff">User: <b id="statUserCount">0</b></div>
 <div class="stat" style="color:#00ff88">Online: <b id="statOnlineCount" class="online">0</b></div>
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto">
-<button onclick="bukaKategoriManager()" style="background:#222;color:#facc15;border:1px solid #facc15;padding:5px 10px;border-radius:15px;font-size:11px">⚙️ Kelola Kategori</button>
-<button onclick="gantiPasswordAdmin()" style="background:#222;color:#aaa;border:1px solid #444;padding:5px 10px;border-radius:15px;font-size:11px">🔑 Ganti Password</button>
-<button onclick="toggleSensor()" id="btnSensor" style="background:#00ff88;color:#000;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🛡️ Sensor: ON</button>
-<button onclick="bukaBanned()" style="background:#e50914;color:#fff;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🚫 BAN LIST</button>
+<button onclick="window.bukaKategoriManager()" style="background:#222;color:#facc15;border:1px solid #facc15;padding:5px 10px;border-radius:15px;font-size:11px">⚙️ Kelola Kategori</button>
+<button onclick="window.gantiPasswordAdmin()" style="background:#222;color:#aaa;border:1px solid #444;padding:5px 10px;border-radius:15px;font-size:11px">🔑 Ganti Password</button>
+<button onclick="window.toggleSensor()" id="btnSensor" style="background:#00ff88;color:#000;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🛡️ Sensor: ON</button>
+<button onclick="window.bukaBanned()" style="background:#e50914;color:#fff;border:none;padding:5px 10px;border-radius:15px;font-size:11px;font-weight:bold">🚫 BAN LIST</button>
 </div>
 </div>
 <div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
@@ -96,23 +96,23 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <input id="adminJudul" placeholder="Judul film" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
 <input id="adminFile" placeholder="Link Drive https://.../preview" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
 <input id="adminGambar" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<div style="display:flex;gap:10px;margin-top:10px"><button onclick="tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
+<div style="display:flex;gap:10px;margin-top:10px"><button onclick="window.tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="window.simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
 </div></div>
 
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:540px;width:95%;max-height:85vh;overflow:auto" id="boxUsers">
 <h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">DAFTAR USER</h3>
 <div style="display:flex;gap:6px;margin-bottom:12px">
-<input id="searchUser" oninput="renderUserList(true)" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
-<button onclick="copySemuaEmail()" style="padding:8px 10px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;font-size:11px">Copy Email</button>
+<input id="searchUser" oninput="window.renderUserList(true)" placeholder="Cari email / kota..." style="flex:1;padding:8px;background:#111;border:1px solid #333;border-radius:8px;color:#fff">
+<button onclick="window.copySemuaEmail()" style="padding:8px 10px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;font-size:11px">Copy Email</button>
 </div>
 <div id="listUsers" style="font-size:12px">Loading...</div>
-<br><button onclick="tutup('modalUsers')" style="width:100%;padding:12px;background:#333;color:#fff;border:none;border-radius:8px;font-weight:bold">TUTUP</button>
+<br><button onclick="window.tutup('modalUsers')" style="width:100%;padding:12px;background:#333;color:#fff;border:none;border-radius:8px;font-weight:bold">TUTUP</button>
 </div></div>
 
 <div id="modalBanned" class="modal"><div class="modal-box" style="text-align:left;max-width:400px">
 <h3 style="color:#e50914;text-align:center">DAFTAR AKUN TER-BAN</h3>
 <div id="listBanned" style="margin:10px 0;font-size:12px">Loading...</div>
-<br><button onclick="tutup('modalBanned')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
+<br><button onclick="window.tutup('modalBanned')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
 </div></div>
 
 <div id="modalKategori" class="modal"><div class="modal-box" style="text-align:left;max-width:400px">
@@ -120,19 +120,19 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <div id="listKategoriAdmin" style="margin:10px 0"></div>
 <div style="display:flex;gap:6px;margin-top:10px">
 <input id="inputKategoriBaru" placeholder="Nama kategori baru" style="flex:1;padding:8px;background:#111;color:#fff;border-radius:5px;border:1px solid #333">
-<button onclick="tambahKategoriBaru()" style="padding:8px 12px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">+ Tambah</button>
+<button onclick="window.tambahKategoriBaru()" style="padding:8px 12px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">+ Tambah</button>
 </div>
-<br><button onclick="tutup('modalKategori')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
+<br><button onclick="window.tutup('modalKategori')" style="width:100%;padding:10px;background:#333;color:#fff;border:none;border-radius:6px">Tutup</button>
 </div></div>
 
-<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><p id="teksBayar" style="font-size:12px;color:#aaa;margin:10px 0"></p><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
+<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><p id="teksBayar" style="font-size:12px;color:#aaa;margin:10px 0"></p><button onclick="window.playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="window.tutup('modalBayar')">Tutup</button></div></div>
 <div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
 <h3 id="judulPlayer"></h3>
 <div style="position:relative;width:100%;height:400px;background:#000">
 <div id="videoLoader"><div class="farel-spinner" style="width:70px;height:70px"></div><div class="farel-text" style="font-size:13px">FARELFLIX</div></div>
 <video id="myVideo" controls style="width:100%;height:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
-</div><br><button onclick="tutupPlayer()">Tutup</button></div></div>
-<div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="konfirmasiLogout()">Ya</button> <button onclick="tutup('modalLogout')">Batal</button></div></div>
+</div><br><button onclick="window.tutupPlayer()">Tutup</button></div></div>
+<div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="window.konfirmasiLogout()">Ya</button> <button onclick="window.tutup('modalLogout')">Batal</button></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -208,7 +208,6 @@ return { fullText: `${device} - ${os} - ${browser}`, model: model || "Desktop", 
 async function getLokasi(){
 try{ const res = await fetch("https://ipapi.co/json/"); const data = await res.json(); return { kota: data.city || "-", region: data.region || "-", negara: data.country_name || "-", ip: data.ip || "-", lokasiText: `${data.city || ""}, ${data.region || ""}`.replace(/^, /,"").trim() || data.country_name || "Tidak terdeteksi" }; }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
 }
-
 onAuthStateChanged(auth, async (user) => {
 if(!user){
   window.isGuest = true;
@@ -239,12 +238,10 @@ if(!user){
   });
   return;
 }
-
 window.isGuest = false;
 document.getElementById("userEmail").innerText=user.email;
 document.getElementById("btnLogin").style.display="none";
 document.getElementById("btnLogout").style.display="inline-block";
-
 try{
   const banSnap = await getDoc(doc(db, "bannedUsers", user.email));
   if(banSnap.exists()){
@@ -254,7 +251,6 @@ try{
     return;
   }
 }catch(e){}
-
 if(banListenerUnsub) banListenerUnsub();
 banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
   if(snap.exists()){
@@ -269,7 +265,6 @@ kickListenerUnsub = onSnapshot(doc(db, "kickedUsers", user.email), (snap)=>{
     signOut(auth).then(()=>{ window.location.href="login.html"; });
   }
 });
-
 document.getElementById("loadingScreen").style.display="none";
 currentUserDoc = doc(db, "users_log", user.uid);
 let loginVia = "Email/Password";
@@ -284,7 +279,6 @@ if(heartbeatTimer) clearInterval(heartbeatTimer);
 heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 15000);
 window.heartbeatTimer = heartbeatTimer;
 }catch(e){}
-
 onSnapshot(collection(db, "users_log"), (snap)=>{
 let online = 0;
 userListCache = [];
@@ -306,7 +300,6 @@ if(modal && modal.style.display==="flex"){
   if(!isSearching) window.renderUserList(true);
 }
 });
-
 if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
 document.getElementById("btnAdmin").style.display="inline-block";
 document.getElementById("btnUsers").style.display="inline-block";
@@ -315,7 +308,6 @@ document.getElementById("adminDashboard").style.display="flex";
 } else { window.isAdmin = false; }
 if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
 });
-
 window.renderUserList = function(fullRender = true){
 try{
 const list = document.getElementById("listUsers");
@@ -359,8 +351,7 @@ let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
 filtered.forEach(u=>{
 const safeEmail = (u.email || "no-email").toString();
 const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
-const diff = d? Math.floor((new Date() - d)/1000) : 99999;
-const online = u.isOnline && diff < 180;
+const online = u.isOnline && Math.floor((new Date() - d)/1000) < 180;
 const dot = online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
 const isAdminUser = safeEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase();
 html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
@@ -379,8 +370,8 @@ html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px
 <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
 </div>
 ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
-<button onclick="kickUser('${u.docId}','${safeEmail}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
-<button onclick="banUser('${u.docId}','${safeEmail}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
+<button onclick="window.kickUser('${u.docId}','${safeEmail}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
+<button onclick="window.banUser('${u.docId}','${safeEmail}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
 <button onclick="navigator.clipboard.writeText('${safeEmail}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
 </div>` : `<div style="margin-top:8px;font-size:10px;color:#facc15">Akun admin tidak bisa dihapus</div>`}
 </div>`;
@@ -416,7 +407,7 @@ window.bukaBanned = ()=>{
    let h="";
    snap.forEach(d=>{
      const data=d.data();
-     h+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px;border-radius:6px;margin:4px 0"><span style="word-break:break-all">${data.email}</span><button onclick="unbanUser('${data.email}')" style="background:#00ff88;color:#000;border:none;padding:3px 8px;border-radius:4px;font-size:10px;margin-left:6px">UNBAN</button></div>`;
+     h+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px;border-radius:6px;margin:4px 0"><span style="word-break:break-all">${data.email}</span><button onclick="window.unbanUser('${data.email}')" style="background:#00ff88;color:#000;border:none;padding:3px 8px;border-radius:4px;font-size:10px;margin-left:6px">UNBAN</button></div>`;
    });
    listDiv.innerHTML = h;
  });
@@ -465,23 +456,23 @@ window.dataFilm = saved? JSON.parse(saved) : {
 ],
 "TERBARU":[{judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}]
 };
-let aktifFile="",aktifType=""; window.isAdmin = false;
+window.aktifFile=""; window.aktifType=""; window.isAdmin = false;
 const container=document.getElementById("semuaKategori");
 window.renderFilm = function(data){
 container.innerHTML=""; let ada=false; let totalFilm=0; let katCount = 0;
 for(let kat in data){
 if(!data[kat]||data[kat].length==0) continue;
 ada=true; katCount++; totalFilm+=data[kat].length;
-let html=`<div class="kategori"><h2>${kat} <span style="font-size:12px;color:#666">(${data[kat].length})</span> ${window.isAdmin? `<button onclick="hapusKategori('${kat}')" style="background:#222;color:#ff4444;border:1px solid #ff4444;padding:2px 8px;border-radius:10px;font-size:10px;margin-left:8px">Hapus Kategori</button>`:''}</h2><div class="row">`;
+let html=`<div class="kategori"><h2>${kat} <span style="font-size:12px;color:#666">(${data[kat].length})</span> ${window.isAdmin? `<button onclick="window.hapusKategori('${kat}')" style="background:#222;color:#ff4444;border:1px solid #ff4444;padding:2px 8px;border-radius:10px;font-size:10px;margin-left:8px">Hapus Kategori</button>`:''}</h2><div class="row">`;
 data[kat].forEach((f, idx)=>{
-html+=`<div class="card ${window.isAdmin?'admin':''}" onclick="buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><div class="imgBox"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=${encodeURIComponent(f.judul)}'"><button class="btnHapus" onclick="event.stopPropagation(); hapusFilm('${kat}',${idx})">×</button></div><p>${f.judul}</p></div>`;
+html+=`<div class="card ${window.isAdmin?'admin':''}" onclick="window.buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><div class="imgBox"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=${encodeURIComponent(f.judul)}'"><button class="btnHapus" onclick="event.stopPropagation(); window.hapusFilm('${kat}',${idx})">×</button></div><p>${f.judul}</p></div>`;
 });
 html+=`</div></div>`; container.innerHTML+=html;
 }
 document.getElementById("noResult").style.display=ada?"none":"block";
 document.getElementById("statFilm").innerText = totalFilm;
 document.getElementById("statKat").innerText = katCount;
-let katBtnHtml=""; Object.keys(data).forEach(k=>{ if(k!=="ACTION" && k!=="TERBARU") katBtnHtml+=`<button onclick="filterKategori('${k}')" style="background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;margin-left:4px">${k}</button>`; });
+let katBtnHtml=""; Object.keys(data).forEach(k=>{ if(k!=="ACTION" && k!=="TERBARU") katBtnHtml+=`<button onclick="window.filterKategori('${k}')" style="background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;margin-left:4px">${k}</button>`; });
 const el = document.getElementById("btnKatDinamis"); if(el) el.innerHTML = katBtnHtml;
 }
 window.hapusFilm = function(kat, idx){
@@ -501,7 +492,7 @@ window.bukaKategoriManager = function(){
 document.getElementById("modalKategori").style.display="flex";
 let list = document.getElementById("listKategoriAdmin"); let html = "";
 Object.keys(window.dataFilm).forEach(k=>{
-html+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px 10px;border-radius:6px;margin:4px 0"><span>${k} (${window.dataFilm[k].length})</span><button onclick="hapusKategori('${k}');bukaKategoriManager()" style="background:#e50914;color:#fff;border:none;padding:3px 8px;border-radius:4px">Hapus</button></div>`;
+html+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px 10px;border-radius:6px;margin:4px 0"><span>${k} (${window.dataFilm[k].length})</span><button onclick="window.hapusKategori('${k}');window.bukaKategoriManager()" style="background:#e50914;color:#fff;border:none;padding:3px 8px;border-radius:4px">Hapus</button></div>`;
 });
 if(html==="") html="<div style='color:#888;font-size:12px'>Belum ada kategori</div>";
 list.innerHTML = html;
@@ -514,14 +505,14 @@ window.dataFilm[nama]=[];
 localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
 document.getElementById("inputKategoriBaru").value="";
 window.renderFilm(window.dataFilm);
-bukaKategoriManager();
+window.bukaKategoriManager();
 alert("Kategori "+nama+" ditambahkan!");
 }
 window.addEventListener("DOMContentLoaded",()=>{
 setTimeout(()=>{ window.renderFilm(window.dataFilm); document.getElementById("loadingScreen").style.display="none"; },500);
 });
-function bukaAdmin(){ document.getElementById("modalAdmin").style.display="flex"; }
-function simpanFilmAdmin(){
+window.bukaAdmin = function(){ document.getElementById("modalAdmin").style.display="flex"; }
+window.simpanFilmAdmin = function(){
 let kat=document.getElementById("adminKategori").value.toUpperCase().trim();
 let judul=document.getElementById("adminJudul").value.trim();
 let file=document.getElementById("adminFile").value.trim();
@@ -531,29 +522,43 @@ if(!window.dataFilm[kat]) window.dataFilm[kat]=[];
 window.dataFilm[kat].push({judul,file,type:"drive",gambar:gambar||"https://via.placeholder.com/140x210?text="+encodeURIComponent(judul)});
 localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
 window.renderFilm(window.dataFilm);
-tutup('modalAdmin');
+window.tutup('modalAdmin');
 document.getElementById("adminKategori").value=""; document.getElementById("adminJudul").value=""; document.getElementById("adminFile").value=""; document.getElementById("adminGambar").value="";
 alert("Berhasil tambah "+judul);
 }
-function goHome(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
-function filterKategori(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
-function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
-function buka(j,f,t){
- if(window.isGuest){
-   if(confirm("Login dulu untuk nonton "+j+"?")) window.location.href="login.html";
-   return;
- }
- aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j;
+window.goHome = function(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
+window.filterKategori = function(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
+window.cariFilm = function(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
+
+// FIX FINAL - TANPA CEK LOGIN DULU BIAR BISA KLIK
+window.buka = function(j,f,t){
+ console.log("KLIK BERHASIL:", j, f);
+ window.aktifFile=f; window.aktifType=t;
+ document.getElementById("judulBayar").innerText=j;
+ document.getElementById("judulPlayer").innerText=j;
  document.getElementById("teksBayar").innerText = "Siap nonton "+j+"?";
  document.getElementById("modalBayar").style.display="flex";
 }
-function playFilm(){
-document.getElementById("modalBayar").style.display="none"; document.getElementById("modalPlayer").style.display="flex";
-let v=document.getElementById("myVideo"); let i=document.getElementById("myIframe"); let loader=document.getElementById("videoLoader");
+window.playFilm = function(){
+document.getElementById("modalBayar").style.display="none";
+document.getElementById("modalPlayer").style.display="flex";
+let v=document.getElementById("myVideo");
+let i=document.getElementById("myIframe");
+let loader=document.getElementById("videoLoader");
 loader.style.display="flex";
-if(aktifType=="drive"){ v.style.display="none"; v.pause(); i.style.display="block"; i.src=aktifFile; i.onload=()=>{loader.style.display="none"}; setTimeout(()=>{loader.style.display="none"},2500); }
-else { i.style.display="none"; i.src=""; v.style.display="block"; v.src=aktifFile; v.play(); v.onplaying=()=>{loader.style.display="none"}; }
+if(window.aktifType=="drive"){
+  v.style.display="none"; v.pause();
+  i.style.display="block";
+  i.src=window.aktifFile;
+  i.onload=()=>{loader.style.display="none"};
+  setTimeout(()=>{loader.style.display="none"},2500);
+} else {
+  i.style.display="none"; i.src="";
+  v.style.display="block"; v.src=window.aktifFile;
+  v.play(); v.onplaying=()=>{loader.style.display="none"};
 }
-function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
-function tutup(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
-</script></body></html>
+}
+window.tutupPlayer = function(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
+window.tutup = function(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
+</script>
+</body></html>
