@@ -88,11 +88,20 @@ button{cursor:pointer!important;}
 <input id="adminGambar" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
 <div style="display:flex;gap:10px;margin-top:10px"><button onclick="tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
 </div></div>
-<div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:520px;width:95%;max-height:85vh;overflow:auto">
-<h3 style="color:#00d1ff;text-align:center;margin-bottom:15px">DAFTAR USER YANG LOGIN</h3>
+
+<div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:580px;width:95%;max-height:90vh;overflow:auto">
+<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">👑 ADMIN PANEL - USER CONTROL</h3>
+<input id="filterEmail" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="width:100%;padding:10px;margin-bottom:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
+<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+<button onclick="setUserFilter('all')" id="fAll" style="flex:1;padding:6px;background:#facc15;color:#000;border:none;border-radius:20px;font-size:11px;font-weight:bold">SEMUA</button>
+<button onclick="setUserFilter('online')" id="fOnline" style="flex:1;padding:6px;background:#222;color:#fff;border:1px solid #333;border-radius:20px;font-size:11px">ONLINE</button>
+<button onclick="setUserFilter('offline')" id="fOffline" style="flex:1;padding:6px;background:#222;color:#fff;border:1px solid #333;border-radius:20px;font-size:11px">OFFLINE</button>
+<button onclick="setUserFilter('banned')" id="fBanned" style="flex:1;padding:6px;background:#222;color:#fff;border:1px solid #333;border-radius:20px;font-size:11px">BANNED</button>
+</div>
 <div id="listUsers" style="font-size:12px">Loading lokasi...</div>
 <br><button onclick="tutup('modalUsers')" style="width:100%;padding:12px;background:#333;color:#fff;border:none;border-radius:8px;font-weight:bold">TUTUP</button>
 </div></div>
+
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
 <div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
 <h3 id="judulPlayer"></h3>
@@ -101,10 +110,11 @@ button{cursor:pointer!important;}
   <video id="myVideo" controls style="width:100%;height:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
 </div><br><button onclick="tutupPlayer()">Tutup</button></div></div>
 <div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="konfirmasiLogout()">Ya</button> <button onclick="tutup('modalLogout')">Batal</button></div></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, collection, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, setDoc, collection, serverTimestamp, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -114,6 +124,9 @@ let currentUserDoc = null;
 let userListCache = [];
 let liveTimer = null;
 let heartbeatTimer = null;
+let userFilterMode = 'all';
+let userSearch = '';
+
 function waktuLalu(date){
   if(!date) return "-";
   const diff = Math.floor((new Date() - date)/1000);
@@ -159,22 +172,32 @@ async function getLokasi(){
     const res = await fetch("https://ipapi.co/json/");
     const data = await res.json();
     return {
-      kota: data.city || "-",
-      region: data.region || "-",
-      negara: data.country_name || "-",
-      ip: data.ip || "-",
+      kota: data.city || "-", region: data.region || "-", negara: data.country_name || "-", ip: data.ip || "-",
       lokasiText: `${data.city || ""}, ${data.region || ""}`.replace(/^, /,"").trim() || data.country_name || "Tidak terdeteksi"
     };
-  }catch(e){
-    return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" };
-  }
+  }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
 }
+
 onAuthStateChanged(auth, async (user) => {
   if(!user){ window.location.href="login.html"; }
   else {
     document.getElementById("userEmail").innerText=user.email;
     document.getElementById("loadingScreen").style.display="none";
     currentUserDoc = doc(db, "users_log", user.uid);
+
+    // CEK BANNED
+    onSnapshot(currentUserDoc, (snap)=>{
+      if(snap.exists() && snap.data().isBanned){
+        alert("🚫 AKUN KAMU DI-BANNED ADMIN!");
+        signOut(auth).then(()=>window.location.href="login.html");
+      }
+      if(snap.exists() && snap.data().kicked){
+        alert("👢 KAMU DI-KICK ADMIN!");
+        setDoc(currentUserDoc, {kicked:false}, {merge:true});
+        signOut(auth).then(()=>window.location.href="login.html");
+      }
+    });
+
     let loginVia = "Email/Password";
     if(user.providerData && user.providerData[0]){
       const p = user.providerData[0].providerId;
@@ -190,23 +213,25 @@ onAuthStateChanged(auth, async (user) => {
       await setDoc(currentUserDoc, {
         email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid,
         loginVia: loginVia, device: dev.fullText, hp_model: dev.model, browser: dev.browser, os: dev.os,
-        situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip
+        situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip, isBanned:false, kicked:false
       }, {merge:true});
       if(heartbeatTimer) clearInterval(heartbeatTimer);
       heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
     }catch(e){ console.log(e); }
+
     onSnapshot(collection(db, "users_log"), (snap)=>{
       let online = 0; userListCache = [];
       snap.forEach(d=>{
-        const u=d.data();
+        const u=d.data(); u._id = d.id;
         const diff = u.lastActive?.toDate? Math.floor((new Date() - u.lastActive.toDate())/1000) : 9999;
-        if(u.isOnline && diff < 120) online++;
+        if(u.isOnline && diff < 120 &&!u.isBanned) online++;
         userListCache.push(u);
       });
       document.getElementById("statUserCount").innerText = snap.size;
       document.getElementById("statOnlineCount").innerText = online;
       if(document.getElementById("modalUsers").style.display=="flex") renderUserList();
     });
+
     if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
       document.getElementById("btnAdmin").style.display="inline-block";
       document.getElementById("btnUsers").style.display="inline-block";
@@ -216,32 +241,83 @@ onAuthStateChanged(auth, async (user) => {
     if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
   }
 });
+
+// ADMIN ACTIONS
+window.kickUser = async (uid,email)=>{
+  if(!confirm("KICK "+email+"? Dia akan logout paksa!")) return;
+  await setDoc(doc(db,"users_log",uid), {isOnline:false, kicked:true, lastActive: serverTimestamp()}, {merge:true});
+  alert("Berhasil KICK "+email);
+}
+window.banUser = async (uid,email)=>{
+  if(!confirm("BAN PERMANEN "+email+"?")) return;
+  await setDoc(doc(db,"users_log",uid), {isBanned:true, isOnline:false}, {merge:true});
+  alert("🚫 "+email+" DI-BANNED");
+}
+window.unbanUser = async (uid,email)=>{
+  await setDoc(doc(db,"users_log",uid), {isBanned:false}, {merge:true});
+  alert("✅ "+email+" UNBANNED");
+}
+window.resetPass = async (email)=>{
+  if(!confirm("Kirim link ganti password ke "+email+"?")) return;
+  try{ await sendPasswordResetEmail(auth, email); alert("📧 Link reset terkirim ke "+email); }
+  catch(e){ alert("Gagal: "+e.message); }
+}
+window.hapusUserLog = async (uid,email)=>{
+  if(!confirm("Hapus log "+email+"?")) return;
+  await deleteDoc(doc(db,"users_log",uid));
+  alert("Terhapus");
+}
+window.setUserFilter = (mode)=>{
+  userFilterMode=mode;
+  ['fAll','fOnline','fOffline','fBanned'].forEach(id=>{document.getElementById(id).style.background='#222'; document.getElementById(id).style.color='#fff';});
+  const map={all:'fAll',online:'fOnline',offline:'fOffline',banned:'fBanned'};
+  document.getElementById(map[mode]).style.background='#facc15'; document.getElementById(map[mode]).style.color='#000';
+  renderUserList();
+}
+window.filterUserEmail = ()=>{
+  userSearch = document.getElementById("filterEmail").value.toLowerCase();
+  renderUserList();
+}
+
 function renderUserList(){
   const list = document.getElementById("listUsers");
-  if(!userListCache.length){ list.innerHTML="Belum ada user"; return; }
-  userListCache.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
+  let filtered = [...userListCache];
+  if(userSearch){ filtered = filtered.filter(u=>u.email.toLowerCase().includes(userSearch)); }
+  if(userFilterMode==='online'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return u.isOnline && d<120 &&!u.isBanned; }); }
+  else if(userFilterMode==='offline'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return!(u.isOnline && d<120); }); }
+  else if(userFilterMode==='banned'){ filtered = filtered.filter(u=>u.isBanned); }
+
+  if(!filtered.length){ list.innerHTML="<div style='text-align:center;color:#888;padding:20px'>Tidak ada user</div>"; return; }
+  filtered.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
   let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
-  userListCache.forEach(u=>{
+  filtered.forEach(u=>{
     const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
     const diff = d? Math.floor((new Date() - d)/1000) : 99999;
-    const online = u.isOnline && diff < 120;
-    const dot = online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
+    const online = u.isOnline && diff < 120 &&!u.isBanned;
+    const dot = u.isBanned? `<b style="color:#ff4444">🚫 BANNED</b>` : online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
     html+=`
-    <div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
+    <div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${u.isBanned?'#ff4444':online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-        <div style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email}</div>
+        <div style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email} ${u.email===EMAIL_ADMIN?'<span style="color:#facc15">👑</span>':''}</div>
         <div style="font-size:11px;white-space:nowrap">${dot}</div>
       </div>
       <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
         <span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${u.loginVia||"Email"}</span>
         <span style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${waktuLalu(d)}</span>
-        <span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"Loading..."}</span>
+        <span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"..."}</span>
       </div>
       <div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
         <div>📱 <b style="color:#facc15">${u.hp_model||"Desktop"}</b> - ${u.browser||""} ${u.os||""}</div>
-        <div style="font-size:10px;color:#888;margin-top:2px">IP: ${u.ip||"-"} | Dari: ${u.datang_dari_media||"Langsung"} | Situs: ${u.situs_login||"-"}</div>
+        <div style="font-size:10px;color:#888;margin-top:2px">IP: ${u.ip||"-"} | Dari: ${u.datang_dari_media||"Langsung"}</div>
         <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
       </div>
+      ${u.email.toLowerCase()!==EMAIL_ADMIN.toLowerCase()?`
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="kickUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#ff9500;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">👢 KICK</button>
+        ${!u.isBanned?`<button onclick="banUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#ff4444;color:#fff;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN</button>`:`<button onclick="unbanUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#00ff88;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">✅ UNBAN</button>`}
+        <button onclick="resetPass('${u.email}')" style="flex:1;min-width:80px;background:#00d1ff;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">🔑 RESET PASS</button>
+        <button onclick="hapusUserLog('${u._id}','${u.email}')" style="background:#333;color:#aaa;border:none;padding:6px 10px;border-radius:6px;font-size:11px">🗑️</button>
+      </div>`: `<div style="margin-top:8px;color:#facc15;font-size:10px">👑 Admin tidak bisa di-kick</div>`}
     </div>`;
   });
   html+=`</div>`;
