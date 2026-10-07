@@ -90,7 +90,7 @@ button{cursor:pointer!important;}
 </div></div>
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:520px;width:95%;max-height:85vh;overflow:auto">
 <h3 style="color:#00d1ff;text-align:center;margin-bottom:15px">DAFTAR USER YANG LOGIN</h3>
-<div id="listUsers" style="font-size:12px">Loading lokasi...</div>
+<div id="listUsers" style="font-size:12px">Loading...</div>
 <br><button onclick="tutup('modalUsers')" style="width:100%;padding:12px;background:#333;color:#fff;border:none;border-radius:8px;font-weight:bold">TUTUP</button>
 </div></div>
 <div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
@@ -112,17 +112,8 @@ const db = getFirestore(app);
 const EMAIL_ADMIN = "farelinokolondam50@gmail.com";
 let currentUserDoc = null;
 let userListCache = [];
-let liveTimer = null;
 let heartbeatTimer = null;
-function waktuLalu(date){
-  if(!date) return "-";
-  const diff = Math.floor((new Date() - date)/1000);
-  if(diff < 5) return "baru saja";
-  if(diff < 60) return diff+" detik lalu";
-  if(diff < 3600) return Math.floor(diff/60)+" menit lalu";
-  if(diff < 86400) return Math.floor(diff/3600)+" jam lalu";
-  return Math.floor(diff/86400)+" hari lalu";
-}
+
 function getDeviceAndMedia(){
   const ua = navigator.userAgent;
   let model = "";
@@ -130,10 +121,6 @@ function getDeviceAndMedia(){
   if(androidM) model = androidM[1].trim();
   else if(/iPhone/i.test(ua)) model = "iPhone";
   else if(/iPad/i.test(ua)) model = "iPad";
-  let device = "💻 Desktop";
-  if(/Android/i.test(ua)) device = "📱 " + (model || "Android Phone");
-  else if(/iPhone/i.test(ua)) device = "📱 " + model;
-  else if(/iPad/i.test(ua)) device = "📱 iPad";
   let browser = "Browser";
   if(ua.includes("Chrome") &&!ua.includes("Edg")) browser = "Chrome";
   else if(ua.includes("Firefox")) browser = "Firefox";
@@ -152,22 +139,14 @@ function getDeviceAndMedia(){
   else if(ref.includes("whatsapp") || ref.includes("wa.me")) media = "WhatsApp";
   else if(ref.includes("t.me")) media = "Telegram";
   else if(ref!== "") { try{ media = new URL(ref).hostname; }catch(e){} }
-  return { fullText: `${device} - ${os} - ${browser}`, model: model || "Desktop", browser, os, media, ref, situs: window.location.hostname };
+  return { model: model || "Desktop", browser, os, media, situs: window.location.hostname };
 }
 async function getLokasi(){
   try{
     const res = await fetch("https://ipapi.co/json/");
     const data = await res.json();
-    return {
-      kota: data.city || "-",
-      region: data.region || "-",
-      negara: data.country_name || "-",
-      ip: data.ip || "-",
-      lokasiText: `${data.city || ""}, ${data.region || ""}`.replace(/^, /,"").trim() || data.country_name || "Tidak terdeteksi"
-    };
-  }catch(e){
-    return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" };
-  }
+    return { lokasiText: `${data.city||""}, ${data.region||""}`.replace(/^, /,"").trim() || data.country_name || "-", ip: data.ip || "-" };
+  }catch(e){ return { lokasiText:"-", ip:"-" }; }
 }
 onAuthStateChanged(auth, async (user) => {
   if(!user){ window.location.href="login.html"; }
@@ -175,37 +154,34 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("userEmail").innerText=user.email;
     document.getElementById("loadingScreen").style.display="none";
     currentUserDoc = doc(db, "users_log", user.uid);
-    let loginVia = "Email/Password";
+    let loginVia = "Email";
     if(user.providerData && user.providerData[0]){
       const p = user.providerData[0].providerId;
       if(p === "google.com") loginVia = "🔵 Google";
       else if(p === "facebook.com") loginVia = "🔵 Facebook";
       else if(p === "password") loginVia = "📧 Email";
-      else if(p === "phone") loginVia = "📱 No HP";
-      else loginVia = p;
     }
     const dev = getDeviceAndMedia();
     const lok = await getLokasi();
     try{
       await setDoc(currentUserDoc, {
         email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid,
-        loginVia: loginVia, device: dev.fullText, hp_model: dev.model, browser: dev.browser, os: dev.os,
-        situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip
+        loginVia: loginVia, hp_model: dev.model, browser: dev.browser, os: dev.os,
+        situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, ip: lok.ip
       }, {merge:true});
       if(heartbeatTimer) clearInterval(heartbeatTimer);
-      heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
+      heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 15000);
     }catch(e){ console.log(e); }
     onSnapshot(collection(db, "users_log"), (snap)=>{
       let online = 0; userListCache = [];
       snap.forEach(d=>{
         const u=d.data();
         const diff = u.lastActive?.toDate? Math.floor((new Date() - u.lastActive.toDate())/1000) : 9999;
-        if(u.isOnline && diff < 120) online++;
+        if(u.isOnline && diff < 180) online++;
         userListCache.push(u);
       });
       document.getElementById("statUserCount").innerText = snap.size;
       document.getElementById("statOnlineCount").innerText = online;
-      if(document.getElementById("modalUsers").style.display=="flex") renderUserList();
     });
     if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
       document.getElementById("btnAdmin").style.display="inline-block";
@@ -216,31 +192,29 @@ onAuthStateChanged(auth, async (user) => {
     if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
   }
 });
+// VERSI DIAM - TIDAK NAIK TURUN LAGI
 function renderUserList(){
   const list = document.getElementById("listUsers");
   if(!userListCache.length){ list.innerHTML="Belum ada user"; return; }
-  userListCache.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
   let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
   userListCache.forEach(u=>{
     const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
     const diff = d? Math.floor((new Date() - d)/1000) : 99999;
-    const online = u.isOnline && diff < 120;
+    const online = u.isOnline && diff < 180;
     const dot = online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
     html+=`
-    <div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
-      <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
+    <div style="background:#252525;border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
+      <div style="display:flex;justify-content:space-between;gap:8px">
         <div style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email}</div>
         <div style="font-size:11px;white-space:nowrap">${dot}</div>
       </div>
       <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-        <span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${u.loginVia||"Email"}</span>
-        <span style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${waktuLalu(d)}</span>
-        <span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"Loading..."}</span>
+        <span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${u.loginVia||"Google"}</span>
+        <span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||"-"}</span>
       </div>
-      <div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
+      <div style="margin-top:8px;font-size:11px;color:#ccc">
         <div>📱 <b style="color:#facc15">${u.hp_model||"Desktop"}</b> - ${u.browser||""} ${u.os||""}</div>
-        <div style="font-size:10px;color:#888;margin-top:2px">IP: ${u.ip||"-"} | Dari: ${u.datang_dari_media||"Langsung"} | Situs: ${u.situs_login||"-"}</div>
-        <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
+        <div style="font-size:10px;color:#777;margin-top:2px">IP: ${u.ip||"-"} | ${d? d.toLocaleString('id-ID'):''}</div>
       </div>
     </div>`;
   });
@@ -249,21 +223,16 @@ function renderUserList(){
 }
 window.bukaUsers = ()=>{
   document.getElementById("modalUsers").style.display="flex";
+  userListCache.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
   renderUserList();
-  if(liveTimer) clearInterval(liveTimer);
-  liveTimer = setInterval(()=>{ renderUserList(); }, 1000);
 }
 window.logout = ()=>{ document.getElementById("modalLogout").style.display="flex"; }
 window.konfirmasiLogout = async ()=>{
   try{ if(currentUserDoc){ await setDoc(currentUserDoc, { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); } }catch(e){}
-  if(liveTimer) clearInterval(liveTimer);
   if(heartbeatTimer) clearInterval(heartbeatTimer);
   signOut(auth).then(()=>{ window.location.href="login.html"; });
 }
-window.tutup = (id)=>{
-  document.getElementById(id).style.display="none";
-  if(id=='modalUsers' && liveTimer){ clearInterval(liveTimer); liveTimer=null; }
-}
+window.tutup = (id)=>{ document.getElementById(id).style.display="none"; }
 </script>
 <script>
 const saved = localStorage.getItem("farelFilm");
