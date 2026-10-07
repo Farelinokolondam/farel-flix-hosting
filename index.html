@@ -11,6 +11,7 @@ header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;ju
 #semuaKategori{padding:15px}.kategori{margin-bottom:25px}.kategori h2{color:#facc15}
 .row{display:flex;flex-wrap:wrap;gap:12px}
 #adminDashboard{display:none;background:#1f1f1f;border:1px solid #333;border-left:4px solid #facc15;padding:12px;margin:15px;border-radius:8px;gap:12px;align-items:center;flex-wrap:wrap}
+#fullGuestWall{display:none;min-height:80vh;flex-direction:column;align-items:center;justify-content:center;background:#141414;text-align:center;padding:30px}
 .card{width:140px;cursor:pointer;background:#222;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;position:relative;transition:0.3s}
 .imgBox{width:100%;height:210px;overflow:hidden;background:#000;position:relative}
 .imgBox img{width:100%;height:100%;object-fit:cover;display:block}
@@ -48,6 +49,15 @@ header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;ju
 </div>
 </header>
 <div id="adminDashboard"><div>👑 Mode Admin | Total Film: <b id="statFilm">0</b></div><div>Kategori: <b id="statKat">0</b></div></div>
+
+<div id="fullGuestWall">
+<div style="font-size:80px">🔒</div>
+<h1 style="color:#facc15;margin:10px 0">TAMPILAN DIKUNCI</h1>
+<p style="color:#ccc;font-size:14px">Tampilan yang kamu foto tadi dikunci.<br>Kamu mode Tamu - Login dulu untuk melihat film.</p>
+<button onclick="window.location.href='login.html'" style="padding:15px 40px;background:#00d1ff;color:#000;font-weight:bold;border:none;border-radius:10px;font-size:16px;margin-top:20px;cursor:pointer">LOGIN UNTUK BUKA KUNCI</button>
+<p style="font-size:11px;color:#555;margin-top:20px">FARELFLIX - Tamu tidak bisa lihat poster</p>
+</div>
+
 <div id="semuaKategori"></div>
 
 <div id="modalGuestBlock" class="modal"><div class="modal-box" style="border:1px solid #facc15"><h3 style="color:#facc15">🔒 LOGIN DULU</h3><p style="font-size:13px;color:#ccc">Kamu mode Tamu. Harus login dulu baru bisa nonton film.</p><button onclick="window.location.href='login.html'" style="width:100%;padding:12px;background:#00d1ff;color:#000;font-weight:bold;border:none;border-radius:8px">LOGIN SEKARANG</button><br><br><button onclick="window.tutup('modalGuestBlock')" style="width:100%;padding:10px;background:#222;color:#fff;border:none;border-radius:6px">Nanti dulu</button></div></div>
@@ -80,15 +90,25 @@ function esc(s){return s? s.toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'
 const saved=localStorage.getItem("farelFilm");
 window.dataFilm=saved? JSON.parse(saved):{"ACTION":[{"judul":"DIE HARD","file":"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/diehard2023.jpg"},{"judul":"JOHN WICK 3","file":"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/John_Wick_Chapter_3_Parabellum.png"},{"judul":"TERMINATOR DARK FATE","file":"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/terminator%20dark%20fate.jpg"}],"TERBARU":[{"judul":"JOHN WICK 4","file":"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview","type":"drive","gambar":"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}]};
 const container=document.getElementById("semuaKategori");
+const fullWall=document.getElementById("fullGuestWall");
 window.renderFilm=function(data){
+// KUNCI UTAMA - TAMPILAN YANG KAMU FOTO DIKUNCI DISINI
+if(window.isGuest){
+ fullWall.style.display="flex";
+ container.style.display="none";
+ document.getElementById("statFilm").innerText="0";
+ document.getElementById("statKat").innerText="0";
+ return;
+}else{
+ fullWall.style.display="none";
+ container.style.display="block";
+}
 container.innerHTML=""; let total=0;
 for(let kat in data){
 if(!data[kat]||data[kat].length==0) continue; total+=data[kat].length;
 let html=`<div class="kategori"><h2>${esc(kat)} (${data[kat].length})</h2><div class="row">`;
 data[kat].forEach((f,idx)=>{
-const lock=window.isGuest?`<div class="guest-lock"><span>🔒</span><b>LOGIN UNTUK NONTON</b></div>`:"";
-const gClass=window.isGuest?" guest":"";
-html+=`<div class="card${gClass} ${window.isAdmin?'admin':''}" onclick="window.buka('${esc(f.judul).replace(/'/g,"\\'")}','${esc(f.file)}','${esc(f.type)}')"><div class="imgBox"><img src="${esc(f.gambar)}">${lock}<button class="btnHapus" onclick="event.stopPropagation(); window.hapusFilm('${esc(kat)}',${idx})">×</button></div><p>${esc(f.judul)}</p></div>`;
+html+=`<div class="card ${window.isAdmin?'admin':''}" onclick="window.buka('${esc(f.judul).replace(/'/g,"\\'")}','${esc(f.file)}','${esc(f.type)}')"><div class="imgBox"><img src="${esc(f.gambar)}"><button class="btnHapus" onclick="event.stopPropagation(); window.hapusFilm('${esc(kat)}',${idx})">×</button></div><p>${esc(f.judul)}</p></div>`;
 });
 html+=`</div></div>`; container.innerHTML+=html;
 }
@@ -96,9 +116,8 @@ document.getElementById("statFilm").innerText=total;
 document.getElementById("statKat").innerText=Object.keys(data).length;
 };
 window.goHome=()=>{document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);};
-window.filterKategori=(kat)=>{ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); };
-window.cariFilm=()=>{ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); };
-// KUNCI UTAMA: TAMU TIDAK BISA NONTON
+window.filterKategori=(kat)=>{ if(window.isGuest) return; if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); };
+window.cariFilm=()=>{ if(window.isGuest) return; let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); };
 window.buka=function(j,f,t){
   if(window.isGuest){
     document.getElementById("modalGuestBlock").style.display="flex";
