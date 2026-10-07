@@ -17,18 +17,23 @@ body{height:100vh;overflow:hidden;background:#000;font-family:'Segoe UI',Arial;d
 .logo{font-size:40px;font-weight:900;letter-spacing:5px;color:#e50914}
 .logo span{color:#fff}
 .tagline{color:#aaa;font-size:13px;margin-top:10px}
-#btnLogin{width:100%;padding:14px;background:#fff;color:#000;border:none;border-radius:4px;font-weight:bold;font-size:15px;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:10px;margin-top:35px;transition:0.2s}
+#btnLogin{width:100%;padding:14px;background:#fff;color:#000;border:none;border-radius:4px;font-weight:bold;font-size:15px;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:10px;margin-top:20px;transition:0.2s}
 #btnLogin:hover{transform:scale(1.02);background:#e5e5e5}
 #btnLogin:disabled{opacity:0.7;cursor:not-allowed;transform:none}
 #error{color:#ffb3b3;background:rgba(229,9,20,0.15);border:1px solid rgba(229,9,20,0.3);padding:10px;border-radius:4px;font-size:13px;margin-top:15px;display:none}
 #error.show{display:block}
 .footer{position:fixed;bottom:15px;right:20px;z-index:30;color:#aaa;font-size:11px;background:rgba(0,0,0,0.6);padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(8px)}
-
-/* LOADING SPINNER BARU */
 .spinner{width:18px;height:18px;border:3px solid rgba(0,0,0,0.2);border-top:3px solid #000;border-radius:50%;animation:puter 0.8s linear infinite;display:none}
 #btnLogin.loading .spinner{display:block}
 #btnLogin.loading .icon-google{display:none}
 @keyframes puter{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+/* TAMBAHAN INPUT MANUAL */
+.divider{margin:22px 0;border:none;border-top:1px solid rgba(255,255,255,0.15);position:relative}
+.divider span{position:absolute;left:50%;top:-8px;transform:translateX(-50%);background:#0a0a0a;padding:0 12px;color:#666;font-size:11px}
+.input-gmail{width:100%;padding:12px 14px;background:#111;border:1px solid #333;border-radius:4px;color:#fff;margin-top:10px;outline:none}
+.input-gmail:focus{border-color:#e50914}
+#btnManual{width:100%;padding:12px;background:#e50914;color:#fff;border:none;border-radius:4px;font-weight:bold;font-size:14px;cursor:pointer;margin-top:12px;transition:0.2s}
+#btnManual:hover{background:#b81d24}
 </style>
 </head>
 <body>
@@ -38,11 +43,19 @@ body{height:100vh;overflow:hidden;background:#000;font-family:'Segoe UI',Arial;d
 <div class="box">
   <h1 class="logo">FAREL<span>FLIX</span></h1>
   <div class="tagline">Nonton Film Bioskop Gratis Tanpa Iklan</div>
+  
   <button id="btnLogin">
     <div class="spinner"></div>
     <img class="icon-google" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> 
     <span id="btnText">Login dengan Google</span>
   </button>
+
+  <div class="divider"><span>ATAU LOGIN MANUAL</span></div>
+
+  <input id="emailManual" class="input-gmail" type="email" placeholder="Email Gmail">
+  <input id="passManual" class="input-gmail" type="password" placeholder="Password Gmail (yang diganti di admin)">
+  <button id="btnManual">LOGIN PAKAI PASSWORD</button>
+
   <div id="error"></div>
 </div>
 <div class="footer">© 2026 FARELFLIX </div>
@@ -56,12 +69,12 @@ for(let i=0;i<30;i++){const d=document.createElement('div');d.className='p';d.st
 
 <script type="module">
 import { auth, provider } from "./firebase.js";
-import { signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { signInWithPopup, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 onAuthStateChanged(auth,u=>{if(u) location.href="index.html";});
 const btn=document.getElementById("btnLogin");
 const btnText=document.getElementById("btnText");
 const errBox=document.getElementById("error");
-function gagalLogin(){errBox.innerText="Gagal login, coba lagi ya";errBox.classList.add("show");setTimeout(()=>{errBox.classList.remove("show");},3000);}
+function gagalLogin(pesan){errBox.innerText=pesan || "Gagal login, coba lagi ya";errBox.classList.add("show");setTimeout(()=>{errBox.classList.remove("show");},4000);}
 
 btn.onclick=async()=>{
   btn.disabled=true; btn.classList.add("loading"); btnText.innerText="Menghubungkan..."; errBox.classList.remove("show");
@@ -72,7 +85,26 @@ btn.onclick=async()=>{
     setTimeout(()=>{ location.href="index.html"; },800);
   } catch(e){
     btn.disabled=false; btn.classList.remove("loading"); btnText.innerText="Login dengan Google";
-    gagalLogin(); console.log(e.code);
+    gagalLogin("Gagal login Google: "+e.code); console.log(e);
+  }
+};
+
+// LOGIN MANUAL PAKAI PASSWORD YANG DIGANTI TADI
+const btnManual=document.getElementById("btnManual");
+btnManual.onclick=async()=>{
+  const email=document.getElementById("emailManual").value.trim();
+  const pass=document.getElementById("passManual").value.trim();
+  if(!email || !pass){ gagalLogin("Isi email & password manual dulu!"); return; }
+  btnManual.innerText="Memeriksa..."; btnManual.disabled=true;
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+    btnManual.innerText="Berhasil! Masuk...";
+    setTimeout(()=>{ location.href="index.html"; },800);
+  }catch(e){
+    btnManual.innerText="LOGIN PAKAI PASSWORD"; btnManual.disabled=false;
+    if(e.code==="auth/wrong-password" || e.code==="auth/invalid-credential") gagalLogin("Password salah! Pakai password baru yang diganti tadi.");
+    else if(e.code==="auth/user-not-found") gagalLogin("Email tidak terdaftar");
+    else gagalLogin("Gagal: "+e.message);
   }
 };
 </script>
