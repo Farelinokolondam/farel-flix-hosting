@@ -59,13 +59,15 @@ button{cursor:pointer!important;}
 <button id="btnLogout" onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
 </div>
 </header>
+
 <div id="adminDashboard">
   <div class="stat">👑 Mode Admin Aktif | </div>
   <div class="stat">Total Film: <b id="statFilm">0</b></div>
   <div class="stat">Kategori: <b id="statKat">0</b></div>
-  <div class="stat" id="statUser" style="color:#00d1ff">User: <b id="statUserCount">0</b></div>
-  <div class="stat" style="margin-left:auto;font-size:11px;color:#aaa">Klik X merah di poster untuk hapus</div>
+  <div class="stat" style="color:#00d1ff">User: <b id="statUserCount">0</b></div>
+  <div class="stat" style="color:#00ff88">Online: <b id="statOnlineCount">0</b></div>
 </div>
+
 <div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
 <div id="modalAdmin" class="modal"><div class="modal-box" style="text-align:left">
 <h3 style="color:#facc15;text-align:center">TAMBAH FILM (ADMIN)</h3>
@@ -93,34 +95,38 @@ button{cursor:pointer!important;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, doc, setDoc, collection, getDocs, query, orderBy, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
 const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const EMAIL_ADMIN = "farelinokolondam50@gmail.com";
+let currentUserDoc = null;
 
 onAuthStateChanged(auth, async (user) => {
   if(!user){ window.location.href="login.html"; }
   else {
     document.getElementById("userEmail").innerText=user.email;
     document.getElementById("loadingScreen").style.display="none";
+    currentUserDoc = doc(db, "users_log", user.uid);
     try{
-      await setDoc(doc(db, "users_log", user.uid), {
+      await setDoc(currentUserDoc, {
         email: user.email,
         lastLogin: serverTimestamp(),
+        isOnline: true,
         uid: user.uid
       }, {merge:true});
-    }catch(e){ console.log("log error",e); }
+    }catch(e){ console.log(e); }
 
     if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
       document.getElementById("btnAdmin").style.display="inline-block";
       document.getElementById("btnUsers").style.display="inline-block";
       window.isAdmin = true;
       document.getElementById("adminDashboard").style.display="flex";
-      // AUTO TAMPIL JUMLAH USER REALTIME - TANPA KLIK
       onSnapshot(collection(db, "users_log"), (snap)=>{
+        let online = 0;
+        snap.forEach(d=>{ if(d.data().isOnline) online++; });
         document.getElementById("statUserCount").innerText = snap.size;
+        document.getElementById("statOnlineCount").innerText = online;
       });
     } else {
       window.isAdmin = false;
@@ -136,20 +142,26 @@ window.bukaUsers = async ()=>{
   try{
     const q = query(collection(db,"users_log"), orderBy("lastLogin","desc"));
     const snap = await getDocs(q);
-    let html = `<table style="width:100%;border-collapse:collapse"><tr style="background:#333"><th style="padding:8px;text-align:left">Email</th><th style="padding:8px">Login Terakhir</th></tr>`;
+    let html = `<table style="width:100%;border-collapse:collapse"><tr style="background:#333"><th style="padding:8px;text-align:left">Email</th><th style="padding:8px">Status</th><th style="padding:8px">Terakhir</th></tr>`;
     snap.forEach(d=>{
       const u = d.data();
-      const t = u.lastLogin?.toDate? u.lastLogin.toDate().toLocaleString('id-ID') : 'Baru saja';
-      html+=`<tr style="border-bottom:1px solid #333"><td style="padding:8px">${u.email}</td><td style="padding:8px;text-align:center;font-size:11px">${t}</td></tr>`;
+      const t = u.lastLogin?.toDate? u.lastLogin.toDate().toLocaleString('id-ID') : 'Baru';
+      const status = u.isOnline? '<b style="color:#00ff88">● ONLINE</b>' : '<span style="color:#888">○ OFFLINE</span>';
+      html+=`<tr style="border-bottom:1px solid #333"><td style="padding:8px">${u.email}</td><td style="padding:8px;text-align:center">${status}</td><td style="padding:8px;font-size:11px">${t}</td></tr>`;
     });
-    html+=`</table><p style="margin-top:10px;color:#aaa">Total user: ${snap.size} orang</p>`;
+    html+=`</table>`;
     list.innerHTML=html;
-  }catch(e){
-    list.innerHTML=`<div style="color:#ff5555">Error: ${e.message}<br><br>Pastikan Firestore Database sudah dibuat > Start in test mode</div>`;
-  }
+  }catch(e){ list.innerHTML="Error: "+e.message; }
 }
 window.logout = ()=>{ document.getElementById("modalLogout").style.display="flex"; }
-window.konfirmasiLogout = ()=>{ signOut(auth).then(()=>{ window.location.href="login.html"; }); }
+window.konfirmasiLogout = async ()=>{
+  try{
+    if(currentUserDoc){
+      await setDoc(currentUserDoc, { isOnline: false, lastLogout: serverTimestamp() }, {merge:true});
+    }
+  }catch(e){}
+  signOut(auth).then(()=>{ window.location.href="login.html"; });
+}
 window.tutup = (id)=>{ document.getElementById(id).style.display="none"; }
 </script>
 <script>
