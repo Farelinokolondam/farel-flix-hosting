@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FARELFLIX - FIX FINAL</title>
+<title>FARELFLIX - FIX FINAL ANTI ERROR</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
 *:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
@@ -150,6 +150,7 @@ let kickListenerUnsub = null;
 
 function sensorEmail(email){
 if(!email) return "-";
+email = email.toString();
 if(!sensorAktif) return email;
 const parts = email.split('@');
 if(parts.length!=2) return email;
@@ -162,7 +163,7 @@ sensorAktif =!sensorAktif;
 const btn = document.getElementById('btnSensor');
 btn.innerText = sensorAktif? "🛡️ Sensor: ON" : "🛡️ Sensor: OFF";
 btn.style.background = sensorAktif? "#00ff88" : "#555";
-renderUserList();
+window.renderUserList();
 }
 function waktuLalu(date){
 if(!date) return "-";
@@ -222,7 +223,7 @@ banListenerUnsub = onSnapshot(doc(db, "bannedUsers", user.email), (snap)=>{
     alert("🚫 KAMU DI-BAN PERMANEN OLEH ADMIN! Logout paksa!");
     signOut(auth).then(()=>{ window.location.href="login.html"; });
   }
-}, (err)=>{ console.log("ban listener error", err); });
+});
 
 if(kickListenerUnsub) kickListenerUnsub();
 kickListenerUnsub = onSnapshot(doc(db, "kickedUsers", user.email), (snap)=>{
@@ -230,7 +231,7 @@ kickListenerUnsub = onSnapshot(doc(db, "kickedUsers", user.email), (snap)=>{
     alert("⚠️ KAMU DI-KICK OLEH ADMIN! Silakan login lagi.");
     signOut(auth).then(()=>{ window.location.href="login.html"; });
   }
-}, (err)=>{ console.log("kick listener error", err); });
+});
 
 document.getElementById("loadingScreen").style.display="none";
 currentUserDoc = doc(db, "users_log", user.uid);
@@ -264,9 +265,6 @@ const modal = document.getElementById("modalUsers");
 if(modal && modal.style.display==="flex"){
   window.renderUserList();
 }
-}, (err)=>{
-  console.error("users_log error:", err);
-  document.getElementById("listUsers").innerHTML = "<div style='color:red'>Gagal load: "+err.message+"<br>Cek Rules Firestore</div>";
 });
 
 if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
@@ -278,37 +276,44 @@ document.getElementById("adminDashboard").style.display="flex";
 if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
 });
 
+// === FIX FINAL ANTI ERROR toLowerCase ===
 window.renderUserList = function(){
 try{
 const list = document.getElementById("listUsers");
 if(!list) return;
-const q = (document.getElementById("searchUser")?.value || "").toLowerCase();
+const q = (document.getElementById("searchUser")?.value || "").toString().toLowerCase();
 if(!userListCache || userListCache.length===0){
-  list.innerHTML="<div style='text-align:center;color:#facc15;padding:20px'>⏳ Memuat data user...<br><span style='font-size:11px;color:#888'>Jika tetap kosong, tutup buka lagi</span></div>";
+  list.innerHTML="<div style='text-align:center;color:#facc15;padding:20px'>⏳ Memuat data user...</div>";
   return;
 }
-let filtered = userListCache.filter(u =>!q || (u.email+" "+(u.lokasi||"")+" "+(u.kota||"")).toLowerCase().includes(q));
+let filtered = userListCache.filter(u =>{
+  const e = (u.email || "").toString().toLowerCase();
+  const l = (u.lokasi || "").toString().toLowerCase();
+  const k = (u.kota || "").toString().toLowerCase();
+  return!q || (e+" "+l+" "+k).includes(q);
+});
 filtered.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
 if(filtered.length===0){
-  list.innerHTML="<div style='text-align:center;color:#888'>Tidak ada hasil untuk '"+q+"'</div>";
+  list.innerHTML="<div style='text-align:center;color:#888'>Tidak ada hasil</div>";
   return;
 }
 let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
 filtered.forEach(u=>{
+const safeEmail = (u.email || "no-email").toString();
 const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
 const diff = d? Math.floor((new Date() - d)/1000) : 99999;
 const online = u.isOnline && diff < 120;
 const dot = online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
-const isAdminUser = u.email.toLowerCase() === EMAIL_ADMIN.toLowerCase();
+const isAdminUser = safeEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase();
 html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
 <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-<div style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${sensorEmail(u.email)} ${isAdminUser?'<span style="background:#facc15;color:#000;padding:2px 6px;border-radius:8px;font-size:9px;margin-left:4px">ADMIN</span>':''}</div>
+<div style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${sensorEmail(safeEmail)} ${isAdminUser?'<span style="background:#facc15;color:#000;padding:2px 6px;border-radius:8px;font-size:9px;margin-left:4px">ADMIN</span>':''}</div>
 <div style="font-size:11px;white-space:nowrap">${dot}</div>
 </div>
 <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
 <span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${u.loginVia||"Email"}</span>
 <span style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${waktuLalu(d)}</span>
-<span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"Loading..."}</span>
+<span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"-"}</span>
 </div>
 <div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
 <div>📱 <b style="color:#facc15">${u.hp_model||"Desktop"}</b> - ${u.browser||""} ${u.os||""}</div>
@@ -316,33 +321,32 @@ html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px
 <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
 </div>
 ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
-<button onclick="kickUser('${u.docId}','${u.email}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
-<button onclick="banUser('${u.docId}','${u.email}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
-<button onclick="navigator.clipboard.writeText('${u.email}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
+<button onclick="kickUser('${u.docId}','${safeEmail}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
+<button onclick="banUser('${u.docId}','${safeEmail}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
+<button onclick="navigator.clipboard.writeText('${safeEmail}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
 </div>` : `<div style="margin-top:8px;font-size:10px;color:#facc15">Akun admin tidak bisa dihapus</div>`}
 </div>`;
 });
 html+=`</div>`; list.innerHTML=html;
 }catch(e){
-console.error("renderUserList error", e);
-document.getElementById("listUsers").innerHTML = "<div style='color:red;padding:10px'>Error render: "+e.message+"</div>";
+console.error("render error", e);
+document.getElementById("listUsers").innerHTML = "<div style='color:orange;padding:10px'>Error: "+e.message+"</div>";
 }
 }
 
 window.kickUser = async (docId, email)=>{
-if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
-if(!confirm("KICK BIASA "+email+"?\nDia akan keluar sekarang tapi masih bisa login lagi nanti.")) return;
+if((email||"").toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
+if(!confirm("KICK BIASA "+email+"?")) return;
 try{
  await setDoc(doc(db, "kickedUsers", email), { email: email, kickedAt: serverTimestamp(), kickedBy: auth.currentUser.email });
  await deleteDoc(doc(db, "users_log", docId));
  setTimeout(async ()=>{ try{ await deleteDoc(doc(db, "kickedUsers", email)); }catch(e){} }, 15000);
- alert("✅ KICK BIASA berhasil! Dia bisa login lagi setelah 15 detik.");
+ alert("✅ KICK BIASA berhasil!");
 }catch(e){ alert("Gagal kick: "+e.message); }
 }
-
 window.banUser = async (docId, email)=>{
-if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa ban admin!");
-if(!confirm("BAN PERMANEN "+email+"?\nDia akan mental dan TIDAK BISA login lagi selamanya!")) return;
+if((email||"").toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa ban admin!");
+if(!confirm("BAN PERMANEN "+email+"?")) return;
 try{
  await setDoc(doc(db, "bannedUsers", email), { email: email, bannedAt: serverTimestamp(), bannedBy: auth.currentUser.email });
  await deleteDoc(doc(db, "users_log", docId));
@@ -350,7 +354,6 @@ try{
 }catch(e){ alert("Gagal ban: "+e.message); }
 }
 window.hapusUser = window.banUser;
-
 window.bukaBanned = ()=>{
  document.getElementById("modalBanned").style.display="flex";
  const listDiv = document.getElementById("listBanned");
@@ -365,17 +368,16 @@ window.bukaBanned = ()=>{
  });
 }
 window.unbanUser = async (email)=>{
- if(!confirm("Unban "+email+"? Dia bisa login lagi.")) return;
+ if(!confirm("Unban "+email+"?")) return;
  try{ await deleteDoc(doc(db, "bannedUsers", email)); alert("Berhasil unban "+email); }catch(e){ alert(e.message); }
 }
-
-window.copySemuaEmail = ()=>{ const txt = userListCache.map(u=>u.email).join(", "); navigator.clipboard.writeText(txt).then(()=>alert("Semua email tercopy!")); }
+window.copySemuaEmail = ()=>{ const txt = userListCache.map(u=>u.email||"").join(", "); navigator.clipboard.writeText(txt).then(()=>alert("Semua email tercopy!")); }
 window.bukaUsers = ()=>{
   const modal = document.getElementById("modalUsers");
   modal.style.display="flex";
   const listDiv = document.getElementById("listUsers");
   if(!userListCache || userListCache.length===0){
-    listDiv.innerHTML = "<div style='color:#facc15;text-align:center;padding:20px'>⏳ Memuat data user...<br><span style='font-size:10px;color:#888'>Tunggu 1-2 detik</span></div>";
+    listDiv.innerHTML = "<div style='color:#facc15;text-align:center;padding:20px'>⏳ Memuat data user... Tunggu 1 detik</div>";
   } else {
     window.renderUserList();
   }
