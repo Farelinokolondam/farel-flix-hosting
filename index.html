@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html><head><meta name="google-site-verification" content="5phTkppWJVjmIVYij1c6Gmxd97QzBnH4wFrFUOaVpq8" /><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FARELFLIX</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#141414;color:#fff;font-family:Arial}
@@ -68,12 +68,12 @@ window.tutup = (id)=>{ document.getElementById(id).style.display="none"; }
 const saved = localStorage.getItem("farelFilm");
 window.dataFilm = saved? JSON.parse(saved) : {
   "ACTION":[
-    {judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"https://via.placeholder.com/140x210?text=DIE+HARD"},
-    {judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"https://via.placeholder.com/140x210?text=JW3"},
-    {judul:"TERMINATOR DARK FATE",file:"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview",type:"drive",gambar:"https://via.placeholder.com/140x210?text=TERMINATOR"}
+    {judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/diehard2023.jpg"},
+    {judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/John_Wick_Chapter_3_Parabellum.png"},
+    {judul:"TERMINATOR DARK FATE",file:"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/terminator%20dark%20fate.jpg"}
   ],
   "TERBARU":[
-    {judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://via.placeholder.com/140x210?text=JW4"}
+    {judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}
   ]
 };
 
@@ -88,7 +88,7 @@ window.renderFilm = function(data){
     ada=true;
     let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;
     data[kat].forEach(f=>{
-      html+=`<div class="card" onclick="buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=No+Image'"><p>${f.judul}</p></div>`;
+      html+=`<div class="card" onclick="buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><img src="${f.gambar}" onerror="this.src='https://farel-flix-tambala.web.app/gambar/johnwick4.webpfirebase'"><p>${f.judul}</p></div>`;
     });
     html+=`</div></div>`;
     container.innerHTML+=html;
