@@ -27,6 +27,12 @@ header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;ju
 @media(max-width:600px){.card{width:calc(50% - 6px)}.imgBox{height:240px}}
 </style>
 </head><body>
+  <div id="fullGuestWall" style="position:fixed;top:0;left:0;width:100%;height:80vh;background:#141414;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px">
+<div style="font-size:80px">🔒</div>
+<h1 style="color:#facc15">FILM DIKUNCI UNTUK TAMU</h1>
+<p style="color:#aaa">ACTION (3) & TERBARU (1) di foto kamu dikunci.<br>Login dulu baru kebuka.</p>
+<a href="login.html" style="margin-top:20px;padding:14px 30px;background:#00d1ff;color:#000;font-weight:bold;border-radius:10px;text-decoration:none">LOGIN SEKARANG</a>
+</div>
 <div id="loadingScreen"><div class="farel-spinner"></div><div class="farel-text">FARELFLIX</div></div>
 <header>
 <div class="header-left">FARELFLIX 🛡️</div>
@@ -141,7 +147,14 @@ window.playFilm=function(){ document.getElementById("modalBayar").style.display=
 window.tutupPlayer=function(){ document.getElementById("modalPlayer").style.display="none"; document.getElementById("myIframe").src=""; };
 window.bukaAdmin=()=>{ if(!window.isAdmin) return alert("Hanya admin!"); document.getElementById("modalAdmin").style.display="flex"; };
 window.simpanFilmAdmin=()=>{ if(!window.isAdmin) return alert("Hanya admin!"); let kat=document.getElementById("adminKategori").value.toUpperCase().trim(); let judul=document.getElementById("adminJudul").value.trim(); let file=document.getElementById("adminFile").value.trim(); let gambar=document.getElementById("adminGambar").value.trim(); if(!kat||!judul||!file) return alert("Isi semua"); if(!window.dataFilm[kat]) window.dataFilm[kat]=[]; window.dataFilm[kat].push({judul,file,type:"drive",gambar}); localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm)); window.renderFilm(window.dataFilm); window.tutup('modalAdmin'); };
-window.hapusFilm=(kat,idx)=>{ if(!window.isAdmin) return alert("Hanya admin!"); if(!confirm("Hapus?")) return; window.dataFilm[kat].splice(idx,1); if(window.dataFilm[kat].length===0) delete window.dataFilm[kat]; localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm)); window.renderFilm(window.dataFilm); };
-})();
-</script>
-</body></html>
+onAuthStateChanged(auth, (user)=>{
+  document.getElementById("loadingScreen").style.display="none";
+  if(!user){
+    document.getElementById("fullGuestWall").style.display="flex";
+    document.getElementById("semuaKategori").style.display="none";
+    return;
+  }
+  document.getElementById("fullGuestWall").style.display="none";
+  document.getElementById("semuaKategori").style.display="block";
+  // ... kode admin kamu biarkan
+});
