@@ -3,6 +3,7 @@
 <title>FARELFLIX - Nonton Film Gratis</title>
 <meta name="description" content="FARELFLIX - Nonton Film Action Terbaru 2026 Gratis di Manado, Tondano, Minahasa">
 <meta name="robots" content="index, follow">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
 *:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
@@ -59,7 +60,7 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 </head><body>
 <div id="loadingScreen"><div class="farel-spinner"></div><div class="farel-text">FARELFLIX</div></div>
 <header>
-<div class="header-left">FARELFLIX</div>
+<div class="header-left">FARELFLIX 🛡️</div>
 <div class="header-center">
 <button onclick="window.goHome()">Home</button>
 <button onclick="window.filterKategori('ACTION')">Action</button>
@@ -130,7 +131,7 @@ span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:blo
 <h3 id="judulPlayer"></h3>
 <div style="position:relative;width:100%;height:400px;background:#000">
 <div id="videoLoader"><div class="farel-spinner" style="width:70px;height:70px"></div><div class="farel-text" style="font-size:13px">FARELFLIX</div></div>
-<video id="myVideo" controls style="width:100%;height:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
+<video id="myVideo" controls controlsList="nodownload" oncontextmenu="return false" style="width:100%;height:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
 </div><br><button onclick="window.tutupPlayer()">Tutup</button></div></div>
 <div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="window.konfirmasiLogout()">Ya</button> <button onclick="window.tutup('modalLogout')">Batal</button></div></div>
 
@@ -142,8 +143,10 @@ const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", auth
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const EMAIL_ADMIN = "farelinokolondam50@gmail.com";
+// LAPIS 1 - KUNCI ADMIN TUNGGAL
+const EMAIL_ADMIN = "farelinokolondm50@gmail.com";
 let currentUserDoc = null;
+let currentUserEmail = "";
 let userListCache = [];
 let liveTimer = null;
 let heartbeatTimer = null;
@@ -154,15 +157,20 @@ window.isGuest = true;
 window.liveTimer = null;
 window.heartbeatTimer = null;
 
+// LAPIS 2 - ANTI XSS - ESCAPE SEMUA INPUT
+function escapeHtml(str){
+  if(!str) return "";
+  return str.toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
 function sensorEmail(email){
 if(!email) return "-";
 email = email.toString();
-if(!sensorAktif) return email;
+if(!sensorAktif) return escapeHtml(email);
 const parts = email.split('@');
-if(parts.length!=2) return email;
+if(parts.length!=2) return escapeHtml(email);
 const nama = parts[0]; const domain = parts[1];
-if(nama.length<=2) return nama[0]+"***@"+domain;
-return nama.substring(0,2)+"***"+nama.slice(-1)+"@"+domain;
+if(nama.length<=2) return escapeHtml(nama[0]+"***@"+domain);
+return escapeHtml(nama.substring(0,2)+"***"+nama.slice(-1)+"@"+domain);
 }
 window.toggleSensor = ()=>{
 sensorAktif =!sensorAktif;
@@ -211,6 +219,7 @@ try{ const res = await fetch("https://ipapi.co/json/"); const data = await res.j
 onAuthStateChanged(auth, async (user) => {
 if(!user){
   window.isGuest = true;
+  currentUserEmail = "";
   document.getElementById("loadingScreen").style.display="none";
   document.getElementById("userEmail").innerText = "Tamu - Login untuk nonton";
   document.getElementById("btnLogin").style.display="inline-block";
@@ -218,28 +227,13 @@ if(!user){
   document.getElementById("btnAdmin").style.display="none";
   document.getElementById("btnUsers").style.display="none";
   document.getElementById("adminDashboard").style.display="none";
-  window.isAdmin = false;
+  window._isAdminReal = false;
   if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
-  onSnapshot(collection(db, "users_log"), (snap)=>{
-    let online = 0;
-    userListCache = [];
-    snap.forEach(d=>{
-      const u=d.data();
-      if(!u.email) return;
-      u.docId=d.id;
-      const last = u.lastActive?.toDate? u.lastActive.toDate() : null;
-      const diff = last? Math.floor((new Date() - last)/1000) : 9999;
-      if(u.isOnline && diff < 180) online++;
-      userListCache.push(u);
-    });
-    const el1=document.getElementById("statUserCount"); if(el1) el1.innerText=snap.size;
-    const el2=document.getElementById("statOnlineCount"); if(el2) el2.innerText=online;
-    const el3=document.getElementById("badgeOnline"); if(el3) el3.innerText=online;
-  });
   return;
 }
 window.isGuest = false;
-document.getElementById("userEmail").innerText=user.email;
+currentUserEmail = user.email || "";
+document.getElementById("userEmail").innerText=escapeHtml(user.email);
 document.getElementById("btnLogin").style.display="none";
 document.getElementById("btnLogout").style.display="inline-block";
 try{
@@ -300,18 +294,25 @@ if(modal && modal.style.display==="flex"){
   if(!isSearching) window.renderUserList(true);
 }
 });
+// LAPIS 1 - CEK ADMIN REAL, BUKAN DARI LOCALSTORAGE
 if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
 document.getElementById("btnAdmin").style.display="inline-block";
 document.getElementById("btnUsers").style.display="inline-block";
-window.isAdmin = true;
+window._isAdminReal = true;
 document.getElementById("adminDashboard").style.display="flex";
-} else { window.isAdmin = false; }
+} else { window._isAdminReal = false; }
 if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
+});
+// LAPIS 1 LANJUTAN - isAdmin TIDAK BISA DIUBAH DARI CONSOLE
+Object.defineProperty(window, 'isAdmin', {
+  get(){ return window._isAdminReal === true && currentUserEmail.toLowerCase() === EMAIL_ADMIN.toLowerCase(); },
+  set(v){ console.warn("🛡️ Ditolak: isAdmin tidak bisa diubah manual!"); }
 });
 window.renderUserList = function(fullRender = true){
 try{
 const list = document.getElementById("listUsers");
 if(!list) return;
+if(!window.isAdmin) return; // LAPIS 3 - CUMA ADMIN BISA LIHAT USER
 const box = document.getElementById("boxUsers");
 const saveScroll = box? box.scrollTop : 0;
 const q = (document.getElementById("searchUser")?.value || "").toString().toLowerCase();
@@ -360,19 +361,19 @@ html+=`<div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px
 <div style="font-size:11px;white-space:nowrap">${dot}</div>
 </div>
 <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-<span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${u.loginVia||"Email"}</span>
-<span class="waktu-lalu" data-time="${d?d.getTime():0}" style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${waktuLalu(d)}</span>
-<span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"-"}</span>
+<span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${escapeHtml(u.loginVia||"Email")}</span>
+<span class="waktu-lalu" data-time="${d?d.getTime():0}" style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${escapeHtml(waktuLalu(d))}</span>
+<span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${escapeHtml(u.lokasi||u.kota||"-")}</span>
 </div>
 <div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
-<div>📱 <b style="color:#facc15">${u.hp_model||"Desktop"}</b> - ${u.browser||""} ${u.os||""}</div>
-<div style="font-size:10px;color:#888;margin-top:2px">IP: ${u.ip||"-"} | Dari: ${u.datang_dari_media||"Langsung"}</div>
+<div>📱 <b style="color:#facc15">${escapeHtml(u.hp_model||"Desktop")}</b> - ${escapeHtml(u.browser||"")} ${escapeHtml(u.os||"")}</div>
+<div style="font-size:10px;color:#888;margin-top:2px">IP: ${escapeHtml(u.ip||"-")} | Dari: ${escapeHtml(u.datang_dari_media||"Langsung")}</div>
 <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
 </div>
 ${!isAdminUser? `<div style="margin-top:10px;display:flex;gap:6px">
-<button onclick="window.kickUser('${u.docId}','${safeEmail}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
-<button onclick="window.banUser('${u.docId}','${safeEmail}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
-<button onclick="navigator.clipboard.writeText('${safeEmail}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
+<button onclick="window.kickUser('${escapeHtml(u.docId)}','${escapeHtml(safeEmail)}')" style="flex:1;background:#ff9800;color:#000;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">⚠️ KICK BIASA</button>
+<button onclick="window.banUser('${escapeHtml(u.docId)}','${escapeHtml(safeEmail)}')" style="flex:1;background:#e50914;color:#fff;border:none;padding:8px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN LANGSUNG</button>
+<button onclick="navigator.clipboard.writeText('${escapeHtml(safeEmail)}')" style="background:#222;color:#fff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px">Copy</button>
 </div>` : `<div style="margin-top:8px;font-size:10px;color:#facc15">Akun admin tidak bisa dihapus</div>`}
 </div>`;
 });
@@ -381,25 +382,28 @@ if(box) box.scrollTop = saveScroll;
 }catch(e){}
 }
 window.kickUser = async (docId, email)=>{
+if(!window.isAdmin) return alert("🛡️ Ditolak! Bukan admin");
 if((email||"").toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa kick admin!");
 if(!confirm("KICK BIASA "+email+"?")) return;
 try{
- await setDoc(doc(db, "kickedUsers", email), { email: email, kickedAt: serverTimestamp(), kickedBy: auth.currentUser.email });
+ await setDoc(doc(db, "kickedUsers", email), { email: email, kickedAt: serverTimestamp(), kickedBy: currentUserEmail });
  await deleteDoc(doc(db, "users_log", docId));
  setTimeout(async ()=>{ try{ await deleteDoc(doc(db, "kickedUsers", email)); }catch(e){} }, 15000);
  alert("✅ KICK BIASA berhasil!");
 }catch(e){ alert("Gagal kick: "+e.message); }
 }
 window.banUser = async (docId, email)=>{
+if(!window.isAdmin) return alert("🛡️ Ditolak! Bukan admin");
 if((email||"").toLowerCase() === EMAIL_ADMIN.toLowerCase()) return alert("Tidak bisa ban admin!");
 if(!confirm("BAN PERMANEN "+email+"?")) return;
 try{
- await setDoc(doc(db, "bannedUsers", email), { email: email, bannedAt: serverTimestamp(), bannedBy: auth.currentUser.email });
+ await setDoc(doc(db, "bannedUsers", email), { email: email, bannedAt: serverTimestamp(), bannedBy: currentUserEmail });
  await deleteDoc(doc(db, "users_log", docId));
  alert("✅ BAN PERMANEN berhasil!");
 }catch(e){ alert("Gagal ban: "+e.message); }
 }
 window.bukaBanned = ()=>{
+ if(!window.isAdmin) return alert("🛡️ Hanya admin!");
  document.getElementById("modalBanned").style.display="flex";
  const listDiv = document.getElementById("listBanned");
  onSnapshot(collection(db, "bannedUsers"), (snap)=>{
@@ -407,17 +411,19 @@ window.bukaBanned = ()=>{
    let h="";
    snap.forEach(d=>{
      const data=d.data();
-     h+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px;border-radius:6px;margin:4px 0"><span style="word-break:break-all">${data.email}</span><button onclick="window.unbanUser('${data.email}')" style="background:#00ff88;color:#000;border:none;padding:3px 8px;border-radius:4px;font-size:10px;margin-left:6px">UNBAN</button></div>`;
+     h+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px;border-radius:6px;margin:4px 0"><span style="word-break:break-all">${escapeHtml(data.email)}</span><button onclick="window.unbanUser('${escapeHtml(data.email)}')" style="background:#00ff88;color:#000;border:none;padding:3px 8px;border-radius:4px;font-size:10px;margin-left:6px">UNBAN</button></div>`;
    });
    listDiv.innerHTML = h;
  });
 }
 window.unbanUser = async (email)=>{
+ if(!window.isAdmin) return;
  if(!confirm("Unban "+email+"?")) return;
  try{ await deleteDoc(doc(db, "bannedUsers", email)); alert("Berhasil unban "+email); }catch(e){ alert(e.message); }
 }
-window.copySemuaEmail = ()=>{ const txt = userListCache.map(u=>u.email||"").join(", "); navigator.clipboard.writeText(txt).then(()=>alert("Semua email tercopy!")); }
+window.copySemuaEmail = ()=>{ if(!window.isAdmin) return; const txt = userListCache.map(u=>u.email||"").join(", "); navigator.clipboard.writeText(txt).then(()=>alert("Semua email tercopy!")); }
 window.bukaUsers = ()=>{
+  if(!window.isAdmin) return alert("🛡️ Hanya admin!");
   const modal = document.getElementById("modalUsers");
   modal.style.display="flex";
   const listDiv = document.getElementById("listUsers");
@@ -431,6 +437,7 @@ window.bukaUsers = ()=>{
   window.liveTimer = liveTimer;
 }
 window.gantiPasswordAdmin = async ()=>{
+if(!window.isAdmin) return;
 const user = auth.currentUser; if(!user) return;
 let baru = prompt("Password baru admin (min 6 karakter):");
 if(!baru || baru.length < 6) return alert("Min 6 karakter");
@@ -447,118 +454,138 @@ signOut(auth).then(()=>{ window.location.href="login.html"; });
 window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
 </script>
 <script>
-const saved = localStorage.getItem("farelFilm");
-window.dataFilm = saved? JSON.parse(saved) : {
-"ACTION":[
-{judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/diehard2023.jpg"},
-{judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/John_Wick_Chapter_3_Parabellum.png"},
-{judul:"TERMINATOR DARK FATE",file:"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/terminator%20dark%20fate.jpg"}
-],
-"TERBARU":[{judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}]
-};
-window.aktifFile=""; window.aktifType=""; window.isAdmin = false;
-const container=document.getElementById("semuaKategori");
-window.renderFilm = function(data){
-container.innerHTML=""; let ada=false; let totalFilm=0; let katCount = 0;
-for(let kat in data){
-if(!data[kat]||data[kat].length==0) continue;
-ada=true; katCount++; totalFilm+=data[kat].length;
-let html=`<div class="kategori"><h2>${kat} <span style="font-size:12px;color:#666">(${data[kat].length})</span> ${window.isAdmin? `<button onclick="window.hapusKategori('${kat}')" style="background:#222;color:#ff4444;border:1px solid #ff4444;padding:2px 8px;border-radius:10px;font-size:10px;margin-left:8px">Hapus Kategori</button>`:''}</h2><div class="row">`;
-data[kat].forEach((f, idx)=>{
-html+=`<div class="card ${window.isAdmin?'admin':''}" onclick="window.buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><div class="imgBox"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=${encodeURIComponent(f.judul)}'"><button class="btnHapus" onclick="event.stopPropagation(); window.hapusFilm('${kat}',${idx})">×</button></div><p>${f.judul}</p></div>`;
-});
-html+=`</div></div>`; container.innerHTML+=html;
-}
-document.getElementById("noResult").style.display=ada?"none":"block";
-document.getElementById("statFilm").innerText = totalFilm;
-document.getElementById("statKat").innerText = katCount;
-let katBtnHtml=""; Object.keys(data).forEach(k=>{ if(k!=="ACTION" && k!=="TERBARU") katBtnHtml+=`<button onclick="window.filterKategori('${k}')" style="background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;margin-left:4px">${k}</button>`; });
-const el = document.getElementById("btnKatDinamis"); if(el) el.innerHTML = katBtnHtml;
-}
-window.hapusFilm = function(kat, idx){
-if(!confirm("Hapus film "+window.dataFilm[kat][idx].judul+"?")) return;
-window.dataFilm[kat].splice(idx,1);
-if(window.dataFilm[kat].length===0) delete window.dataFilm[kat];
-localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-window.renderFilm(window.dataFilm);
-}
-window.hapusKategori = function(kat){
-if(!confirm("Hapus kategori "+kat+" beserta semua filmnya?")) return;
-delete window.dataFilm[kat];
-localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-window.renderFilm(window.dataFilm);
-}
-window.bukaKategoriManager = function(){
-document.getElementById("modalKategori").style.display="flex";
-let list = document.getElementById("listKategoriAdmin"); let html = "";
-Object.keys(window.dataFilm).forEach(k=>{
-html+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px 10px;border-radius:6px;margin:4px 0"><span>${k} (${window.dataFilm[k].length})</span><button onclick="window.hapusKategori('${k}');window.bukaKategoriManager()" style="background:#e50914;color:#fff;border:none;padding:3px 8px;border-radius:4px">Hapus</button></div>`;
-});
-if(html==="") html="<div style='color:#888;font-size:12px'>Belum ada kategori</div>";
-list.innerHTML = html;
-}
-window.tambahKategoriBaru = function(){
-let nama = document.getElementById("inputKategoriBaru").value.toUpperCase().trim();
-if(!nama) return alert("Isi nama kategori");
-if(window.dataFilm[nama]) return alert("Sudah ada");
-window.dataFilm[nama]=[];
-localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-document.getElementById("inputKategoriBaru").value="";
-window.renderFilm(window.dataFilm);
-window.bukaKategoriManager();
-alert("Kategori "+nama+" ditambahkan!");
-}
-window.addEventListener("DOMContentLoaded",()=>{
-setTimeout(()=>{ window.renderFilm(window.dataFilm); document.getElementById("loadingScreen").style.display="none"; },500);
-});
-window.bukaAdmin = function(){ document.getElementById("modalAdmin").style.display="flex"; }
-window.simpanFilmAdmin = function(){
-let kat=document.getElementById("adminKategori").value.toUpperCase().trim();
-let judul=document.getElementById("adminJudul").value.trim();
-let file=document.getElementById("adminFile").value.trim();
-let gambar=document.getElementById("adminGambar").value.trim();
-if(!kat||!judul||!file){ alert("Isi kategori, judul, file!"); return; }
-if(!window.dataFilm[kat]) window.dataFilm[kat]=[];
-window.dataFilm[kat].push({judul,file,type:"drive",gambar:gambar||"https://via.placeholder.com/140x210?text="+encodeURIComponent(judul)});
-localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
-window.renderFilm(window.dataFilm);
-window.tutup('modalAdmin');
-document.getElementById("adminKategori").value=""; document.getElementById("adminJudul").value=""; document.getElementById("adminFile").value=""; document.getElementById("adminGambar").value="";
-alert("Berhasil tambah "+judul);
-}
-window.goHome = function(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
-window.filterKategori = function(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
-window.cariFilm = function(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
+// LAPIS 4 - ANTI TAMPER LOCALSTORAGE
+(function(){
+  const EMAIL_ADMIN = "farelinokolondm50@gmail.com";
+  function esc(s){ return s? s.toString().replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : ""; }
+  const saved = localStorage.getItem("farelFilm");
+  window.dataFilm = saved? JSON.parse(saved) : {
+  "ACTION":[
+  {judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/diehard2023.jpg"},
+  {judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/John_Wick_Chapter_3_Parabellum.png"},
+  {judul:"TERMINATOR DARK FATE",file:"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/terminator%20dark%20fate.jpg"}
+  ],
+  "TERBARU":[{judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}]
+  };
+  window.aktifFile=""; window.aktifType="";
+  const container=document.getElementById("semuaKategori");
+  window.renderFilm = function(data){
+  container.innerHTML=""; let ada=false; let totalFilm=0; let katCount = 0;
+  for(let kat in data){
+  if(!data[kat]||data[kat].length==0) continue;
+  ada=true; katCount++; totalFilm+=data[kat].length;
+  let html=`<div class="kategori"><h2>${esc(kat)} <span style="font-size:12px;color:#666">(${data[kat].length})</span> ${window.isAdmin? `<button onclick="window.hapusKategori('${esc(kat)}')" style="background:#222;color:#ff4444;border:1px solid #ff4444;padding:2px 8px;border-radius:10px;font-size:10px;margin-left:8px">Hapus Kategori</button>`:''}</h2><div class="row">`;
+  data[kat].forEach((f, idx)=>{
+  html+=`<div class="card ${window.isAdmin?'admin':''}" onclick="window.buka('${esc(f.judul).replace(/'/g,"\\'")}','${esc(f.file)}','${esc(f.type)}')"><div class="imgBox"><img src="${esc(f.gambar)}" onerror="this.src='https://via.placeholder.com/140x210?text=${encodeURIComponent(f.judul)}'"><button class="btnHapus" onclick="event.stopPropagation(); window.hapusFilm('${esc(kat)}',${idx})">×</button></div><p>${esc(f.judul)}</p></div>`;
+  });
+  html+=`</div></div>`; container.innerHTML+=html;
+  }
+  document.getElementById("noResult").style.display=ada?"none":"block";
+  document.getElementById("statFilm").innerText = totalFilm;
+  document.getElementById("statKat").innerText = katCount;
+  let katBtnHtml=""; Object.keys(data).forEach(k=>{ if(k!=="ACTION" && k!=="TERBARU") katBtnHtml+=`<button onclick="window.filterKategori('${esc(k)}')" style="background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;margin-left:4px">${esc(k)}</button>`; });
+  const el = document.getElementById("btnKatDinamis"); if(el) el.innerHTML = katBtnHtml;
+  }
+  // LAPIS 3 - CEK ADMIN LAGI SEBELUM HAPUS/TAMBAH
+  window.hapusFilm = function(kat, idx){
+  if(!window.isAdmin) return alert("🛡️ Ditolak! Hanya admin bisa hapus");
+  if(!confirm("Hapus film "+esc(window.dataFilm[kat][idx].judul)+"?")) return;
+  window.dataFilm[kat].splice(idx,1);
+  if(window.dataFilm[kat].length===0) delete window.dataFilm[kat];
+  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
+  window.renderFilm(window.dataFilm);
+  }
+  window.hapusKategori = function(kat){
+  if(!window.isAdmin) return alert("🛡️ Ditolak!");
+  if(!confirm("Hapus kategori "+esc(kat)+" beserta semua filmnya?")) return;
+  delete window.dataFilm[kat];
+  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
+  window.renderFilm(window.dataFilm);
+  }
+  window.bukaKategoriManager = function(){
+  if(!window.isAdmin) return;
+  document.getElementById("modalKategori").style.display="flex";
+  let list = document.getElementById("listKategoriAdmin"); let html = "";
+  Object.keys(window.dataFilm).forEach(k=>{
+  html+=`<div style="display:flex;justify-content:space-between;background:#222;padding:8px 10px;border-radius:6px;margin:4px 0"><span>${esc(k)} (${window.dataFilm[k].length})</span><button onclick="window.hapusKategori('${esc(k)}');window.bukaKategoriManager()" style="background:#e50914;color:#fff;border:none;padding:3px 8px;border-radius:4px">Hapus</button></div>`;
+  });
+  if(html==="") html="<div style='color:#888;font-size:12px'>Belum ada kategori</div>";
+  list.innerHTML = html;
+  }
+  window.tambahKategoriBaru = function(){
+  if(!window.isAdmin) return;
+  let nama = document.getElementById("inputKategoriBaru").value.toUpperCase().trim();
+  if(!nama) return alert("Isi nama kategori");
+  if(window.dataFilm[nama]) return alert("Sudah ada");
+  window.dataFilm[nama]=[];
+  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
+  document.getElementById("inputKategoriBaru").value="";
+  window.renderFilm(window.dataFilm);
+  window.bukaKategoriManager();
+  alert("Kategori "+nama+" ditambahkan!");
+  }
+  window.addEventListener("DOMContentLoaded",()=>{
+  setTimeout(()=>{ window.renderFilm(window.dataFilm); document.getElementById("loadingScreen").style.display="none"; },500);
+  });
+  window.bukaAdmin = function(){ if(!window.isAdmin) return alert("🛡️ Hanya admin!"); document.getElementById("modalAdmin").style.display="flex"; }
+  window.simpanFilmAdmin = function(){
+  if(!window.isAdmin) return alert("🛡️ Ditolak! Bukan admin");
+  let kat=document.getElementById("adminKategori").value.toUpperCase().trim();
+  let judul=document.getElementById("adminJudul").value.trim();
+  let file=document.getElementById("adminFile").value.trim();
+  let gambar=document.getElementById("adminGambar").value.trim();
+  if(!kat||!judul||!file){ alert("Isi kategori, judul, file!"); return; }
+  // LAPIS 2 - VALIDASI LINK
+  if(!file.includes("drive.google.com") &&!file.includes("https://")) return alert("Link file harus https://");
+  if(!window.dataFilm[kat]) window.dataFilm[kat]=[];
+  window.dataFilm[kat].push({judul:judul,file,type:"drive",gambar:gambar||"https://via.placeholder.com/140x210?text="+encodeURIComponent(judul)});
+  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
+  window.renderFilm(window.dataFilm);
+  window.tutup('modalAdmin');
+  document.getElementById("adminKategori").value=""; document.getElementById("adminJudul").value=""; document.getElementById("adminFile").value=""; document.getElementById("adminGambar").value="";
+  alert("Berhasil tambah "+judul);
+  }
+  window.goHome = function(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
+  window.filterKategori = function(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
+  window.cariFilm = function(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
+  window.buka = function(j,f,t){
+   window.aktifFile=f; window.aktifType=t;
+   document.getElementById("judulBayar").innerText=esc(j);
+   document.getElementById("judulPlayer").innerText=esc(j);
+   document.getElementById("teksBayar").innerText = "Siap nonton "+esc(j)+"?";
+   document.getElementById("modalBayar").style.display="flex";
+  }
+  window.playFilm = function(){
+  document.getElementById("modalBayar").style.display="none";
+  document.getElementById("modalPlayer").style.display="flex";
+  let v=document.getElementById("myVideo");
+  let i=document.getElementById("myIframe");
+  let loader=document.getElementById("videoLoader");
+  loader.style.display="flex";
+  if(window.aktifType=="drive"){
+    v.style.display="none"; v.pause();
+    i.style.display="block";
+    i.src=window.aktifFile;
+    i.onload=()=>{loader.style.display="none"};
+    setTimeout(()=>{loader.style.display="none"},2500);
+  } else {
+    i.style.display="none"; i.src="";
+    v.style.display="block"; v.src=window.aktifFile;
+    v.play(); v.onplaying=()=>{loader.style.display="none"};
+  }
+  }
+  window.tutupPlayer = function(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
+  window.tutup = function(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
 
-// FIX FINAL - TANPA CEK LOGIN DULU BIAR BISA KLIK
-window.buka = function(j,f,t){
- console.log("KLIK BERHASIL:", j, f);
- window.aktifFile=f; window.aktifType=t;
- document.getElementById("judulBayar").innerText=j;
- document.getElementById("judulPlayer").innerText=j;
- document.getElementById("teksBayar").innerText = "Siap nonton "+j+"?";
- document.getElementById("modalBayar").style.display="flex";
-}
-window.playFilm = function(){
-document.getElementById("modalBayar").style.display="none";
-document.getElementById("modalPlayer").style.display="flex";
-let v=document.getElementById("myVideo");
-let i=document.getElementById("myIframe");
-let loader=document.getElementById("videoLoader");
-loader.style.display="flex";
-if(window.aktifType=="drive"){
-  v.style.display="none"; v.pause();
-  i.style.display="block";
-  i.src=window.aktifFile;
-  i.onload=()=>{loader.style.display="none"};
-  setTimeout(()=>{loader.style.display="none"},2500);
-} else {
-  i.style.display="none"; i.src="";
-  v.style.display="block"; v.src=window.aktifFile;
-  v.play(); v.onplaying=()=>{loader.style.display="none"};
-}
-}
-window.tutupPlayer = function(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
-window.tutup = function(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
+  // LAPIS 4 - BLOKIR KLIK KANAN & CONSOLE UNTUK TAMU
+  document.addEventListener('contextmenu', e => {
+    if(!window.isAdmin){ e.preventDefault(); return false; }
+  });
+  document.addEventListener('keydown', e=>{
+    if(!window.isAdmin && (e.key==='F12' || (e.ctrlKey && e.shiftKey && (e.key==='I' || e.key==='J' || e.key==='C')))){
+      e.preventDefault(); alert("🛡️ Mode tamu: Inspect dimatikan");
+    }
+  });
+})();
 </script>
 </body></html>
