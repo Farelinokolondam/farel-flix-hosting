@@ -13,29 +13,41 @@ header{background:#000;padding:10px 15px;display:flex;justify-content:space-betw
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:999}
 .modal-box{background:#1f1f1f;padding:20px;border-radius:10px;width:90%;max-width:400px;text-align:center}
 #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#141414;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:15px}
-
-/* ANIMASI BARU FARELFLIX */
-.farel-spinner{
-  width:90px;height:90px;
-  border:3px solid rgba(255,204,0,0.15);
-  border-top:4px solid #facc15;
-  border-right:4px solid #facc15;
-  border-radius:50%;
-  animation: spin 0.8s linear infinite;
-  box-shadow:0 0 20px rgba(250,204,21,0.4);
-}
-.farel-text{
-  color:#facc15;font-weight:bold;letter-spacing:3px;font-size:16px;
-  animation: pulse 1.2s ease-in-out infinite;
-}
+.farel-spinner{width:90px;height:90px;border:3px solid rgba(255,204,0,0.15);border-top:4px solid #facc15;border-right:4px solid #facc15;border-radius:50%;animation: spin 0.8s linear infinite;box-shadow:0 0 20px rgba(250,204,21,0.4)}
+.farel-text{color:#facc15;font-weight:bold;letter-spacing:3px;font-size:16px;animation: pulse 1.2s ease-in-out infinite}
 @keyframes spin{ to{ transform:rotate(360deg); } }
 @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:0.5} }
+#videoLoader{position:absolute;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;gap:15px}
 
-#videoLoader{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  background:#000;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;z-index:5;gap:15px
+/* === FIX 1: HILANGKAN GARIS PUTIH PAS KLIK POSTER (YANG DI VIDEO) === */
+*{ -webkit-tap-highlight-color: transparent; }
+.card,.card:focus,.card:active, button:focus, button:active{
+  outline: none!important;
+  box-shadow: none!important;
+  -webkit-tap-highlight-color: transparent;
 }
+.card{
+  user-select: none;
+  -webkit-user-select: none;
+}
+.card img{
+  pointer-events: none;
+}
+
+/* === FIX 2: LOGOUT JADI JARI TELUNJUK + ANIMASI KLIK === */
+#btnLogout{
+  cursor: pointer!important;
+  transition: all 0.2s ease!important;
+}
+#btnLogout:hover{
+  background: #ff1a25!important;
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(229,9,20,0.7);
+}
+#btnLogout:active{
+  transform: scale(0.85) rotate(2deg)!important;
+}
+button{ cursor: pointer!important; }
 </style>
 </head><body>
 
@@ -50,7 +62,7 @@ header{background:#000;padding:10px 15px;display:flex;justify-content:space-betw
 <div>
 <span id="userEmail" style="font-size:11px;color:#fff;margin-right:10px"></span>
 <button id="btnAdmin" onclick="bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">+ TAMBAH FILM</button>
-<button onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px">Logout</button>
+<button id="btnLogout" onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
 </div>
 </header>
 <div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
@@ -116,10 +128,8 @@ window.dataFilm = saved? JSON.parse(saved) : {
     {judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}
   ]
 };
-
 let aktifFile="",aktifType="";
 const container=document.getElementById("semuaKategori");
-
 window.renderFilm = function(data){
   container.innerHTML=""; let ada=false;
   for(let kat in data){
@@ -140,7 +150,6 @@ window.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("loadingScreen").style.display="none";
   },500);
 });
-
 function bukaAdmin(){ document.getElementById("modalAdmin").style.display="flex"; }
 function simpanFilmAdmin(){
   let kat=document.getElementById("adminKategori").value.toUpperCase().trim();
@@ -163,7 +172,6 @@ function goHome(){document.getElementById("searchBox").value="";window.renderFil
 function filterKategori(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
 function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
 function buka(j,f,t){ aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j; document.getElementById("modalBayar").style.display="flex"; }
-
 function playFilm(){
   document.getElementById("modalBayar").style.display="none";
   document.getElementById("modalPlayer").style.display="flex";
@@ -171,7 +179,6 @@ function playFilm(){
   let i=document.getElementById("myIframe");
   let loader=document.getElementById("videoLoader");
   loader.style.display="flex";
-
   if(aktifType=="drive"){
     v.style.display="none"; v.pause();
     i.style.display="block";
@@ -184,6 +191,5 @@ function playFilm(){
     v.onplaying = ()=>{ loader.style.display="none"; }
   }
 }
-
 function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
 </script></body></html>
