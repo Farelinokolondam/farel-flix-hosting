@@ -150,7 +150,9 @@ let heartbeatTimer = null;
 let sensorAktif = true;
 let banListenerUnsub = null;
 let kickListenerUnsub = null;
-let isGuest = true;
+window.isGuest = true;
+window.liveTimer = null;
+window.heartbeatTimer = null;
 
 function sensorEmail(email){
 if(!email) return "-";
@@ -207,10 +209,9 @@ async function getLokasi(){
 try{ const res = await fetch("https://ipapi.co/json/"); const data = await res.json(); return { kota: data.city || "-", region: data.region || "-", negara: data.country_name || "-", ip: data.ip || "-", lokasiText: `${data.city || ""}, ${data.region || ""}`.replace(/^, /,"").trim() || data.country_name || "Tidak terdeteksi" }; }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
 }
 
-// === FIX GOOGLEBOT - TIDAK REDIRECT LAGI ===
 onAuthStateChanged(auth, async (user) => {
 if(!user){
-  isGuest = true;
+  window.isGuest = true;
   document.getElementById("loadingScreen").style.display="none";
   document.getElementById("userEmail").innerText = "Tamu - Login untuk nonton";
   document.getElementById("btnLogin").style.display="inline-block";
@@ -220,7 +221,6 @@ if(!user){
   document.getElementById("adminDashboard").style.display="none";
   window.isAdmin = false;
   if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
-  // Ambil data user count saja untuk Google bisa lihat, tanpa butuh login
   onSnapshot(collection(db, "users_log"), (snap)=>{
     let online = 0;
     userListCache = [];
@@ -240,7 +240,7 @@ if(!user){
   return;
 }
 
-isGuest = false;
+window.isGuest = false;
 document.getElementById("userEmail").innerText=user.email;
 document.getElementById("btnLogin").style.display="none";
 document.getElementById("btnLogout").style.display="inline-block";
@@ -282,6 +282,7 @@ try{
 await setDoc(currentUserDoc, { email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid, loginVia: loginVia, device: dev.fullText, hp_model: dev.model, browser: dev.browser, os: dev.os, situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip }, {merge:true});
 if(heartbeatTimer) clearInterval(heartbeatTimer);
 heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 15000);
+window.heartbeatTimer = heartbeatTimer;
 }catch(e){}
 
 onSnapshot(collection(db, "users_log"), (snap)=>{
@@ -315,7 +316,6 @@ document.getElementById("adminDashboard").style.display="flex";
 if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
 });
 
-// === FIX ANTI NAIK TURUN + ANTI ERROR ===
 window.renderUserList = function(fullRender = true){
 try{
 const list = document.getElementById("listUsers");
@@ -437,6 +437,7 @@ window.bukaUsers = ()=>{
   }
   if(liveTimer) clearInterval(liveTimer);
   liveTimer = setInterval(()=>{ window.renderUserList(false); }, 3000);
+  window.liveTimer = liveTimer;
 }
 window.gantiPasswordAdmin = async ()=>{
 const user = auth.currentUser; if(!user) return;
@@ -452,7 +453,7 @@ if(banListenerUnsub) banListenerUnsub();
 if(kickListenerUnsub) kickListenerUnsub();
 signOut(auth).then(()=>{ window.location.href="login.html"; });
 }
-window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id=='modalUsers' && liveTimer){ clearInterval(liveTimer); liveTimer=null; } }
+window.tutup = (id)=>{ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
 </script>
 <script>
 const saved = localStorage.getItem("farelFilm");
@@ -538,7 +539,7 @@ function goHome(){document.getElementById("searchBox").value="";window.renderFil
 function filterKategori(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
 function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
 function buka(j,f,t){
- if(isGuest){
+ if(window.isGuest){
    if(confirm("Login dulu untuk nonton "+j+"?")) window.location.href="login.html";
    return;
  }
@@ -554,5 +555,5 @@ if(aktifType=="drive"){ v.style.display="none"; v.pause(); i.style.display="bloc
 else { i.style.display="none"; i.src=""; v.style.display="block"; v.src=aktifFile; v.play(); v.onplaying=()=>{loader.style.display="none"}; }
 }
 function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
-function tutup(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && liveTimer){ clearInterval(liveTimer); liveTimer=null; } }
+function tutup(id){ document.getElementById(id).style.display="none"; if(id=='modalUsers' && window.liveTimer){ clearInterval(window.liveTimer); window.liveTimer=null; } }
 </script></body></html>
