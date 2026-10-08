@@ -80,7 +80,6 @@ body{background:#000;overflow:hidden}
 .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .shake{animation:shake 0.3s ease-in-out}
-@keyframes ping-slow{0%{transform:scale(1);opacity:0.6}100%{transform:scale(1.5);opacity:0}}
 .loading-ring{
   width:80px;height:80px;
   border:4px solid rgba(255,255,255,0.08);
@@ -98,6 +97,8 @@ body{background:#000;overflow:hidden}
   border-radius:50%;
   animation: spin 1.2s linear infinite reverse;
 }
+.close-x{cursor:pointer; user-select:none; padding:2px 6px; border-radius:4px; transition:0.15s}
+.close-x:hover{background:rgba(229,9,20,0.2); color:#fff; transform:scale(1.15)}
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -110,13 +111,14 @@ body{background:#000;overflow:hidden}
   <div class="w-full max-w-[450px] bg-black/68 backdrop-blur-xl rounded-md p-[28px] md:p-[48px] border border-white/15 shadow-[0_0_100px_rgba(0,0,0,0.9)]">
     <h2 class="text-[32px] font-bold text-white mb-7">Masuk</h2>
     <form id="manualForm" class="space-y-4">
-      <div id="errorGeneral" class="hidden bg-[#E50914]/20 border border-[#E50914]/50 text-white p-3 rounded-[4px] text-[14px] font-medium flex items-center gap-2 cursor-pointer">
-        <span class="text-[#E50914] text-[18px]">ⓧ</span> <span id="errorGeneralText">Login gagal, silakan coba lagi</span>
-      </div>
+      <!-- INI SUDAH AKU UBAH JADI TULISAN SAJA, TANPA KOTAK, X BISA DI KLIK -->
+      <p id="errorGeneral" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 mb-1">
+        <span id="xGmail" class="close-x">ⓧ</span> <span id="errorGeneralText">kamu salah memasukkan gmail</span>
+      </p>
       <input id="email" type="email" placeholder="Email atau nomor telepon" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
       <div class="space-y-1">
-        <p id="errorPassword" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 mb-1 cursor-pointer">
-          <span>ⓧ</span> Password salah, silakan coba lagi
+        <p id="errorPassword" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 mb-1">
+          <span id="xPass" class="close-x">ⓧ</span> Password salah, silakan coba lagi
         </p>
         <input id="password" type="password" placeholder="Kata sandi" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
       </div>
@@ -135,7 +137,7 @@ body{background:#000;overflow:hidden}
     </div>
   </div>
   <div class="mt-8 flex flex-col items-center">
-    <p class="text-yellow-400 font-black text-[24px] tracking-[0.25em] animate-pulse drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]" style="animation: logoFlicker 1.5s infinite alternate">FARELFLIX</p>
+    <p class="text-yellow-400 font-black text-[24px] tracking-[0.25em] animate-pulse">FARELFLIX</p>
     <div class="flex gap-1 mt-3">
       <span class="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce"></span>
       <span class="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style="animation-delay:0.1s"></span>
@@ -181,69 +183,54 @@ function resetErrors(){
 function showGmailError(){
   errorGeneralText.innerText = "kamu salah memasukkan gmail";
   errorGeneral.classList.remove('hidden');
+  errorGeneral.classList.add('flex');
   emailInput.classList.add('error','shake');
   passwordInput.classList.remove('error','shake');
   errorPassword.classList.add('hidden');
-  // HAPUS SHAKE BIAR GAK NGUNCI, BISA KETIK LAGI
   setTimeout(()=>{ emailInput.classList.remove('shake'); }, 400);
 }
 
 function showPasswordError(){
   errorPassword.classList.remove('hidden');
+  errorPassword.classList.add('flex');
   passwordInput.classList.add('error','shake');
   errorGeneral.classList.add('hidden');
   emailInput.classList.remove('error','shake');
   setTimeout(()=>{ passwordInput.classList.remove('shake'); }, 400);
 }
 
-// FIX UTAMA BIAR MERAH HILANG PAS KLIK / KETIK LAGI
 ['input','focus','click','keydown'].forEach(evt=>{
   emailInput.addEventListener(evt, resetErrors);
   passwordInput.addEventListener(evt, resetErrors);
 });
-errorGeneral.addEventListener('click', resetErrors);
-errorPassword.addEventListener('click', resetErrors);
+
+// X BISA DI KLIK
+document.getElementById('xGmail').addEventListener('click', (e)=>{ e.stopPropagation(); resetErrors(); emailInput.focus(); });
+document.getElementById('xPass').addEventListener('click', (e)=>{ e.stopPropagation(); resetErrors(); passwordInput.focus(); });
 
 document.getElementById('manualForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   resetErrors();
   showLoading(btnManual, btnManualText);
   const emailVal = emailInput.value.trim().toLowerCase();
-
   try{
     await auth.signInWithEmailAndPassword(emailVal, passwordInput.value);
     successAnim();
   }catch(err){
     hideLoading(btnManual, btnManualText, 'Masuk');
     console.log("LOGIN ERROR:", err.code);
-
-    // CEK APAKAH GMAIL TERDAFTAR
     try{
       const methods = await auth.fetchSignInMethodsForEmail(emailVal);
-      console.log("METHODS:", methods);
-      if(!methods || methods.length === 0){
-        showGmailError(); // GMAIL SALAH - INI YANG KAMU MAU
-      } else {
-        showPasswordError(); // GMAIL BENER, PASSWORD SALAH
-      }
+      if(!methods || methods.length === 0){ showGmailError(); }
+      else { showPasswordError(); }
       return;
     }catch(checkErr){
-      console.log("check methods fail:", checkErr.code);
       if(checkErr.code === 'auth/invalid-email' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found'){
-        showGmailError();
-        return;
+        showGmailError(); return;
       }
-      // Semua invalid-credential dianggap gmail salah kalau methods gagal
-      if(err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials'){
-        showGmailError();
-        return;
+      if(err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/wrong-password'){
+        showGmailError(); return;
       }
-      if(err.code === 'auth/wrong-password'){
-        showPasswordError();
-        return;
-      }
-      errorGeneralText.innerText = "Login gagal: " + err.message;
-      errorGeneral.classList.remove('hidden');
     }
   }
 });
@@ -259,10 +246,6 @@ btnGoogle.addEventListener('click', async ()=>{
     successAnim();
   }catch(err){
     hideLoading(btnGoogle, btnGoogleText, 'Masuk dengan Google');
-    if(err.code!== 'auth/popup-closed-by-user'){
-      errorGeneralText.innerText = "Login Google gagal";
-      errorGeneral.classList.remove('hidden');
-    }
   }
 });
 
