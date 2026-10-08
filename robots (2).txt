@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://farel-flix-hosting-m3c5.vercel.app/sitemap.xml
