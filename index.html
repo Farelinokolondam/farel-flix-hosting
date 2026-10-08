@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html><head><meta name="google-site-verification" content="5phTkppWJVjmIVYij1c6Gmxd97QzBnH4wFrFUOaVpq8" /><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FARELFLIX</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color: transparent!important;outline: none!important;}
+*:focus, *:focus-visible, *:active{outline: none!important;box-shadow: none!important;}
+html,body,div,img,button{outline:none!important;}
+body{margin:0;background:#141414;color:#fff;font-family:Arial}
+header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100; border-bottom:1px solid #222;}
+.header-left{color:#ff4500;font-weight:bold;font-size:18px;letter-spacing:1px}
+.header-center{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.header-center button{background:#222;color:#fff;border:1px solid #333;padding:7px 14px;border-radius:20px;cursor:pointer;transition:0.2s}
+.header-center button:hover{background:#facc15;color:#000;border-color:#facc15}
+.header-center input{padding:7px 14px;border-radius:20px;border:1px solid #333;background:#1a1a1a;color:#fff;width:160px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#semuaKategori{padding:15px;display:block;width:100%;max-width:100vw}
+.kategori{margin-bottom:25px}.kategori h2{color:#facc15;margin:10px 0}
+.row{display:flex;flex-wrap:wrap;gap:12px}
+#adminDashboard{display:none;background:linear-gradient(90deg,#1f1f1f,#2a2a1a);border:1px solid #333;border-left:4px solid #facc15;padding:12px 18px;margin:15px;border-radius:8px;gap:12px 20px;align-items:center;flex-wrap:wrap}
+#adminDashboard b{color:#facc15}
+#adminDashboard b.online{color:#00ff88}
+.stat{font-size:13px}
+.card{width:140px;cursor:pointer;background:#222;border-radius:6px;overflow:hidden;border: none!important; outline: none!important;user-select: none; -webkit-user-select: none;display:flex; flex-direction:column; position:relative;transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)!important;transform-origin: center bottom;}
+.imgBox{width:100%; height:210px; overflow:hidden; background:#000; flex-shrink:0; position:relative;}
+.imgBox img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;transition: transform 0.4s ease, filter 0.4s ease!important;}
+.card p{text-align:center;font-size:11px;padding:8px 5px;margin:0;background:#222;position:relative; z-index:2; width:100%;transition: all 0.3s ease;}
+.card:hover{transform: scale(1.08) translateY(-10px)!important;box-shadow: 0 15px 35px rgba(0,0,0,0.85), 0 0 18px rgba(250,204,21,0.35)!important;z-index: 10;}
+.card:hover.imgBox img{transform: scale(1.18)!important;filter: brightness(1.25) contrast(1.1);}
+.card:hover p{color:#facc15;font-weight:bold;}
+.card:active{transform: scale(0.95)!important;}
+.btnHapus{position:absolute;top:5px;right:5px;z-index:10;background:#e50914;color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:14px;font-weight:bold;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.7)}
+.card.admin.btnHapus{display:flex}
+.btnHapus:hover{background:#ff1a25;transform:scale(1.15)}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:999;padding:10px}
+.modal-box{background:#1f1f1f;padding:20px;border-radius:10px;width:90%;max-width:400px;text-align:center}
+#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#141414;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:15px}
+.farel-spinner{width:90px;height:90px;border:3px solid rgba(255,204,0,0.15);border-top:4px solid #facc15;border-right:4px solid #facc15;border-radius:50%;animation: spin 0.8s linear infinite;box-shadow:0 0 20px rgba(250,204,21,0.4)}
+.farel-text{color:#facc15;font-weight:bold;letter-spacing:3px;font-size:16px;animation: pulse 1.2s ease-in-out infinite}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:0.5} }
+#videoLoader{position:absolute;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;gap:15px}
+#btnLogout{cursor:pointer!important;transition: all 0.2s ease!important;}
+#btnLogout:hover{background:#ff1a25!important;transform:scale(1.08);box-shadow:0 0 12px rgba(229,9,20,0.7);}
+button{cursor:pointer!important;}
+.blurred{filter:blur(7px);user-select:none;transition:0.2s}
+.blurred:hover{filter:blur(0)}
+@media(max-width:600px){
+  header{padding:10px;gap:8px}
+.header-left{width:100%;font-size:16px;text-align:center}
+.header-center{width:100%;justify-content:center}
+.header-center input{width:100%;margin-top:4px}
+.header-right{width:100%;justify-content:space-between;margin-top:6px;background:#111;padding:8px;border-radius:8px;border:1px solid #222}
+  span#userEmail{width:100%;font-size:9px!important;margin-bottom:8px;display:block;text-align:center;background:#000;padding:4px;border-radius:4px}
+  #btnUsers, #btnAdmin, #btnLogout{flex:1;font-size:11px;padding:8px 6px!important}
+  #adminDashboard{margin:10px;padding:10px 12px;gap:8px 14px;font-size:11px}
+.card{width:calc(50% - 6px)}
+.imgBox{height:220px}
+  #semuaKategori{padding:10px}
+  #modalUsers.modal-box{width:98%!important;max-width:98%!important;padding:12px!important;max-height:92vh!important}
+}
+</style>
+</head><body>
+<div id="loadingScreen"><div class="farel-spinner"></div><div class="farel-text">FARELFLIX</div></div>
+<header>
+<div class="header-left">FARELFLIX-tambala</div>
+<div class="header-center">
+<button onclick="goHome()">Home</button>
+<button onclick="filterKategori('ACTION')">Action</button>
+<button onclick="filterKategori('TERBARU')">Terbaru</button>
+<input id="searchBox" autocomplete="off" oninput="cariFilm()" placeholder="Cari film...">
+</div>
+<div class="header-right">
+<span id="userEmail" style="font-size:11px;color:#aaa;margin-right:6px"></span>
+<button id="btnUsers" onclick="bukaUsers()" style="display:none;background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">👥 USER</button>
+<button id="btnAdmin" onclick="bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">+ TAMBAH FILM</button>
+<button id="btnLogout" onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
+</div>
+</header>
+<div id="adminDashboard">
+  <div class="stat">👑 Mode Admin Aktif | </div>
+  <div class="stat">Total Film: <b id="statFilm">0</b></div>
+  <div class="stat">Kategori: <b id="statKat">0</b></div>
+  <div class="stat" style="color:#00d1ff">User: <b id="statUserCount">0</b></div>
+  <div class="stat" style="color:#00ff88">Online: <b id="statOnlineCount" class="online">0</b></div>
+</div>
+<div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
+<div id="modalAdmin" class="modal"><div class="modal-box" style="text-align:left">
+<h3 style="color:#facc15;text-align:center">TAMBAH FILM (ADMIN)</h3>
+<input id="adminKategori" autocomplete="off" placeholder="Kategori: ACTION / TERBARU" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<input id="adminJudul" autocomplete="off" placeholder="Judul film" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<input id="adminFile" autocomplete="off" placeholder="Link Drive https://.../preview" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<input id="adminGambar" autocomplete="off" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<div style="display:flex;gap:10px;margin-top:10px"><button onclick="tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
+</div></div>
+
+<div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:580px;width:95%;max-height:90vh;overflow:auto">
+<h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">👑 ADMIN PANEL - USER CONTROL</h3>
+<div style="display:flex;gap:6px;margin-bottom:8px">
+<input id="filterEmail" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="flex:1;padding:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
+<button id="btnBlur" onclick="toggleBlur()" style="padding:10px 14px;background:#222;color:#facc15;border:1px solid #facc15;border-radius:8px;font-size:12px;font-weight:bold;white-space:nowrap">👁️ BLUR: OFF</button>
+</div>
+<div style="background:linear-gradient(90deg,#111,#0f1a1f);border:1px solid #00d1ff33;border-radius:8px;padding:8px;display:flex;gap:6px;margin-bottom:10px">
+  <input id="resetEmailInput" type="search" autocomplete="off" data-lpignore="true" data-form-type="other" placeholder="📧 Email user..." style="flex:1;padding:8px;background:#000;color:#fff;border:1px solid #333;border-radius:6px;font-size:12px">
+  <input id="resetPassInput" type="text" autocomplete="new-password" data-lpignore="true" data-form-type="other" placeholder="Password baru..." style="flex:1;padding:8px;background:#000;color:#facc15;border:1px solid #facc15;border-radius:6px;font-size:12px">
+  <button onclick="resetPassManualTop()" style="padding:8px 12px;background:#facc15;color:#000;border:none;border-radius:6px;font-size:11px;font-weight:bold">RESET LANGSUNG</button>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+<button onclick="setUserFilter('all')" id="fAll" style="flex:1;padding:6px;background:#facc15;color:#000;border:none;border-radius:20px;font-size:11px;font-weight:bold">SEMUA</button>
+<button onclick="setUserFilter('online')" id="fOnline" style="flex:1;padding:6px;background:#222;color:#fff;border:1px solid #333;border-radius:20px;font-size:11px">ONLINE</button>
+<button onclick="setUserFilter('offline')" id="fOffline" style="flex:1;padding:6px;background:#222;color:#fff;border:1px solid #333;border-radius:20px;font-size:11px">OFFLINE</button>
+<button onclick="setUserFilter('banned')" id="fBanned" style="flex:1;padding:6px;background:#222;color:#fff;border:1px solid #333;border-radius:20px;font-size:11px">BANNED</button>
+</div>
+<div id="listUsers" style="font-size:12px">Loading lokasi...</div>
+<br><button onclick="tutup('modalUsers')" style="width:100%;padding:12px;background:#333;color:#fff;border:none;border-radius:8px;font-weight:bold">TUTUP</button>
+</div></div>
+
+<div id="modalBayar" class="modal"><div class="modal-box"><h3 id="judulBayar"></h3><button onclick="playFilm()" style="width:100%;padding:10px;background:#facc15;border:none;border-radius:5px">TONTON SEKARANG</button><br><br><button onclick="tutup('modalBayar')">Tutup</button></div></div>
+<div id="modalPlayer" class="modal"><div class="modal-box" style="max-width:800px;width:95%;position:relative;overflow:hidden">
+<h3 id="judulPlayer"></h3>
+<div style="position:relative;width:100%;height:400px;background:#000">
+  <div id="videoLoader"><div class="farel-spinner" style="width:70px;height:70px"></div><div class="farel-text" style="font-size:13px">FARELFLIX</div></div>
+  <video id="myVideo" controls style="width:100%;height:100%;display:none"></video><iframe id="myIframe" style="width:100%;height:100%;display:none" allowfullscreen></iframe>
+</div><br><button onclick="tutupPlayer()">Tutup</button></div></div>
+<div id="modalLogout" class="modal"><div class="modal-box"><p>Yakin logout?</p><button onclick="konfirmasiLogout()">Ya</button> <button onclick="tutup('modalLogout')">Batal</button></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, setDoc, collection, serverTimestamp, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const EMAIL_ADMIN = "farelinokolondam50@gmail.com";
+let currentUserDoc = null;
+let userListCache = [];
+let liveTimer = null;
+let heartbeatTimer = null;
+let userFilterMode = 'all';
+let userSearch = '';
+let isBlurOn = false;
+function waktuLalu(date){
+  if(!date) return "-";
+  const diff = Math.floor((new Date() - date)/1000);
+  if(diff < 5) return "baru saja";
+  if(diff < 60) return diff+" detik lalu";
+  if(diff < 3600) return Math.floor(diff/60)+" menit lalu";
+  if(diff < 86400) return Math.floor(diff/3600)+" jam lalu";
+  return Math.floor(diff/86400)+" hari lalu";
+}
+function getDeviceAndMedia(){
+  const ua = navigator.userAgent;
+  let model = "";
+  const androidM = ua.match(/Android.?;\s([^;\)]+)\s*Build/i);
+  if(androidM) model = androidM[1].trim();
+  else if(/iPhone/i.test(ua)) model = "iPhone";
+  else if(/iPad/i.test(ua)) model = "iPad";
+  let device = "💻 Desktop";
+  if(/Android/i.test(ua)) device = "📱 " + (model || "Android Phone");
+  else if(/iPhone/i.test(ua)) device = "📱 " + model;
+  else if(/iPad/i.test(ua)) device = "📱 iPad";
+  let browser = "Browser";
+  if(ua.includes("Chrome") &&!ua.includes("Edg")) browser = "Chrome";
+  else if(ua.includes("Firefox")) browser = "Firefox";
+  else if(ua.includes("Safari") &&!ua.includes("Chrome")) browser = "Safari";
+  else if(ua.includes("Edg")) browser = "Edge";
+  let os = "";
+  if(ua.includes("Android")) os = "Android";
+  else if(ua.includes("Windows")) os = "Windows";
+  else if(ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
+  else if(ua.includes("Mac")) os = "MacOS";
+  let ref = document.referrer || "";
+  let media = "Langsung";
+  if(ref.includes("facebook.com") || ref.includes("fb.com")) media = "Facebook";
+  else if(ref.includes("instagram.com")) media = "Instagram";
+  else if(ref.includes("google.com")) media = "Google";
+  else if(ref.includes("whatsapp") || ref.includes("wa.me")) media = "WhatsApp";
+  else if(ref.includes("t.me")) media = "Telegram";
+  else if(ref!== "") { try{ media = new URL(ref).hostname; }catch(e){} }
+  return { fullText: `${device} - ${os} - ${browser}`, model: model || "Desktop", browser, os, media, ref, situs: window.location.hostname };
+}
+async function getLokasi(){
+  try{
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
+    return {
+      kota: data.city || "-", region: data.region || "-", negara: data.country_name || "-", ip: data.ip || "-",
+      lokasiText: `${(data.city || "") + (data.region? ", " + data.region : "") || data.country_name || "Tidak terdeteksi"}`
+    };
+  }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
+}
+onAuthStateChanged(auth, async (user) => {
+  if(!user){ window.location.href="login.html"; }
+  else {
+    document.getElementById("userEmail").innerText=user.email;
+    document.getElementById("loadingScreen").style.display="none";
+    currentUserDoc = doc(db, "users_log", user.uid);
+    onSnapshot(currentUserDoc, async (snap)=>{
+      if(snap.exists() && snap.data().isBanned){
+        alert("🚫 AKUN KAMU DI-BANNED ADMIN!");
+        signOut(auth).then(()=>window.location.href="login.html");
+      }
+      if(snap.exists() && snap.data().kicked){
+        alert("👢 KAMU DI-KICK ADMIN!");
+        setDoc(currentUserDoc, {kicked:false}, {merge:true});
+        signOut(auth).then(()=>window.location.href="login.html");
+      }
+      if(snap.exists() && snap.data().needPassUpdate && snap.data().adminResetPassword){
+        try{
+          await updatePassword(user, snap.data().adminResetPassword);
+          await setDoc(currentUserDoc, { needPassUpdate: false }, {merge:true});
+          alert(`🔑 PASSWORD KAMU DI-RESET ADMIN!\nPassword baru: ${snap.data().adminResetPassword}`);
+        }catch(err){
+          console.log("Perlu login ulang untuk update pass", err);
+        }
+      }
+    });
+    let loginVia = "Email/Password";
+    if(user.providerData && user.providerData[0]){
+      const p = user.providerData[0].providerId;
+      if(p === "google.com") loginVia = "🔵 Google";
+      else if(p === "facebook.com") loginVia = "🔵 Facebook";
+      else if(p === "password") loginVia = "📧 Email";
+      else if(p === "phone") loginVia = "📱 No HP";
+      else loginVia = p;
+    }
+    const dev = getDeviceAndMedia();
+    const lok = await getLokasi();
+    try{
+      await setDoc(currentUserDoc, {
+        email: user.email, lastLogin: serverTimestamp(), lastActive: serverTimestamp(), isOnline: true, uid: user.uid,
+        loginVia: loginVia, device: dev.fullText, hp_model: dev.model, browser: dev.browser, os: dev.os,
+        situs_login: dev.situs, datang_dari_media: dev.media, lokasi: lok.lokasiText, kota: lok.kota, region: lok.region, ip: lok.ip, isBanned:false, kicked:false
+      }, {merge:true});
+      if(heartbeatTimer) clearInterval(heartbeatTimer);
+      heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive: serverTimestamp(), isOnline: true }, {merge:true}); }, 10000);
+    }catch(e){ console.log(e); }
+    onSnapshot(collection(db, "users_log"), (snap)=>{
+      let online = 0; userListCache = [];
+      snap.forEach(d=>{
+        const u=d.data(); u._id = d.id;
+        const diff = u.lastActive?.toDate? Math.floor((new Date() - u.lastActive.toDate())/1000) : 9999;
+        if(u.isOnline && diff < 120 &&!u.isBanned) online++;
+        userListCache.push(u);
+      });
+      document.getElementById("statUserCount").innerText = snap.size;
+      document.getElementById("statOnlineCount").innerText = online;
+      if(document.getElementById("modalUsers").style.display=="flex") renderUserList();
+    });
+    if(user.email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
+      document.getElementById("btnAdmin").style.display="inline-block";
+      document.getElementById("btnUsers").style.display="inline-block";
+      window.isAdmin = true;
+      document.getElementById("adminDashboard").style.display="flex";
+    } else { window.isAdmin = false; }
+    if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
+  }
+});
+window.kickUser = async (uid,email)=>{
+  if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase() || uid === auth.currentUser?.uid){
+    return alert("🤣 GABISA KICK AKUN ADMIN SENDIRI!");
+  }
+  if(!confirm("KICK "+email+"? Dia akan logout paksa!")) return;
+  await setDoc(doc(db,"users_log",uid), {isOnline:false, kicked:true, lastActive: serverTimestamp()}, {merge:true});
+  alert("Berhasil KICK "+email);
+}
+window.banUser = async (uid,email)=>{
+  if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
+    return alert("🤣 GABISA BAN AKUN ADMIN SENDIRI!");
+  }
+  if(!confirm("BAN PERMANEN "+email+"?")) return;
+  await setDoc(doc(db,"users_log",uid), {isBanned:true, isOnline:false}, {merge:true});
+  alert("🚫 "+email+" DI-BANNED");
+}
+window.unbanUser = async (uid,email)=>{
+  await setDoc(doc(db,"users_log",uid), {isBanned:false}, {merge:true});
+  alert("✅ "+email+" UNBANNED");
+}
+window.resetPass = async (email)=>{
+  const isSelf = email.toLowerCase() === auth.currentUser.email.toLowerCase();
+  const passBaru = prompt(`🔑 RESET PASSWORD LANGSUNG\n\nMasukkan password BARU untuk:\n${email}\n\nMinimal 6 karakter:`);
+  if(!passBaru) return;
+  if(passBaru.length < 6) return alert("Password minimal 6 karakter!");
+  if(!confirm(`Yakin ganti password\n${email}\nmenjadi:\n${passBaru}?`)) return;
+  try{
+    const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
+    if(!target) return alert("User tidak ditemukan di database!");
+    if(isSelf){
+      await updatePassword(auth.currentUser, passBaru);
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: passBaru,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email
+      }, {merge:true});
+      alert(`✅ PASSWORD ADMIN DIGANTI!\n${email}\nPassword: ${passBaru}`);
+    } else {
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: passBaru,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email,
+        kicked: true,
+        isOnline: false,
+        needPassUpdate: true
+      }, {merge:true});
+      alert(`✅ RESET BERHASIL!\n${email}\nPassword: ${passBaru}`);
+    }
+  }catch(e){
+    if(e.code === 'auth/requires-recent-login'){
+      alert("Kamu harus logout lalu login lagi dulu, baru ganti password (aturan Firebase).");
+    } else {
+      alert("Gagal: " + e.message);
+    }
+  }
+}
+window.resetPassManualTop = async ()=>{
+  const email = document.getElementById("resetEmailInput").value.trim();
+  let newPass = document.getElementById("resetPassInput").value.trim();
+  const isSelf = email.toLowerCase() === auth.currentUser.email.toLowerCase();
+  if(!email) return alert("Isi email dulu!");
+  if(!newPass){
+    newPass = prompt(`Masukkan password baru untuk ${email}:`);
+    if(!newPass) return;
+  }
+  if(newPass.length < 6) return alert("Password minimal 6 karakter!");
+  try{
+    const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
+    if(!target){ alert("User tidak ada di list. Pindah ke tab SEMUA / BANNED dulu."); return; }
+    if(isSelf){
+      await updatePassword(auth.currentUser, newPass);
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: newPass,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email
+      }, {merge:true});
+      alert(`✅ PASSWORD ADMIN DIGANTI!\n${email}\nPassword: ${newPass}`);
+    } else {
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: newPass,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email,
+        kicked: true,
+        isOnline: false,
+        needPassUpdate: true
+      }, {merge:true});
+      alert(`✅ RESET BERHASIL!\n${email}\nPassword: ${newPass}`);
+    }
+    document.getElementById("resetEmailInput").value="";
+    document.getElementById("resetPassInput").value="";
+  }catch(e){
+    if(e.code === 'auth/requires-recent-login'){
+      alert("Logout dulu lalu login lagi baru bisa ganti password admin.");
+    } else {
+      alert("Gagal: "+e.message);
+    }
+  }
+}
+window.hapusUserLog = async (uid,email)=>{
+  if(!confirm("Hapus log "+email+"?")) return;
+  await deleteDoc(doc(db,"users_log",uid));
+  alert("Terhapus");
+}
+window.setUserFilter = (mode)=>{
+  userFilterMode=mode;
+  ['fAll','fOnline','fOffline','fBanned'].forEach(id=>{document.getElementById(id).style.background='#222'; document.getElementById(id).style.color='#fff';});
+  const map={all:'fAll',online:'fOnline',offline:'fOffline',banned:'fBanned'};
+  document.getElementById(map[mode]).style.background='#facc15'; document.getElementById(map[mode]).style.color='#000';
+  renderUserList();
+}
+window.filterUserEmail = ()=>{
+  userSearch = document.getElementById("filterEmail").value.toLowerCase();
+  renderUserList();
+}
+window.toggleBlur = ()=>{
+  isBlurOn =!isBlurOn;
+  document.getElementById("btnBlur").innerText = isBlurOn? "🙈 BLUR: ON" : "👁️ BLUR: OFF";
+  document.getElementById("btnBlur").style.background = isBlurOn? "#facc15" : "#222";
+  document.getElementById("btnBlur").style.color = isBlurOn? "#000" : "#facc15";
+  renderUserList();
+}
+function renderUserList(){
+  const list = document.getElementById("listUsers");
+  let filtered = [...userListCache];
+  if(userSearch){ filtered = filtered.filter(u=>u.email.toLowerCase().includes(userSearch)); }
+  if(userFilterMode==='all'){ filtered = filtered.filter(u=>!u.isBanned); }
+  else if(userFilterMode==='online'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return u.isOnline && d<120 &&!u.isBanned; }); }
+  else if(userFilterMode==='offline'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return!(u.isOnline && d<120) &&!u.isBanned; }); }
+  else if(userFilterMode==='banned'){ filtered = filtered.filter(u=>u.isBanned); }
+  if(!filtered.length){ list.innerHTML="<div style='text-align:center;color:#888;padding:20px'>Tidak ada user</div>"; return; }
+  filtered.sort((a,b)=> (b.lastActive?.seconds||0) - (a.lastActive?.seconds||0));
+  let html = `<div style="display:flex;flex-direction:column;gap:10px">`;
+  filtered.forEach(u=>{
+    const d = u.lastActive?.toDate? u.lastActive.toDate() : null;
+    const diff = d? Math.floor((new Date() - d)/1000) : 99999;
+    const online = u.isOnline && diff < 120 &&!u.isBanned;
+    const dot = u.isBanned? `<b style="color:#ff4444">🚫 BANNED</b>` : online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
+    const blurClass = isBlurOn? "blurred" : "";
+    let actionButtons = "";
+    if(u.email.toLowerCase()!== EMAIL_ADMIN.toLowerCase()){
+      if(u.isBanned){
+        actionButtons = `
+        <div style="margin-top:10px;display:flex;gap:6px">
+          <button onclick="unbanUser('${u._id}','${u.email}')" style="flex:1;background:#00ff88;color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold">✅ UNBAN</button>
+          <button onclick="resetPass('${u.email}')" style="flex:1;background:#facc15;color:#000;border:none;padding:10px;border-radius:8px;font-size:11px;font-weight:bold">🔑 RESET</button>
+        </div>`;
+      } else {
+        actionButtons = `
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="kickUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#ff9500;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">👢 KICK</button>
+          <button onclick="banUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#ff4444;color:#fff;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN</button>
+          <button onclick="resetPass('${u.email}')" style="flex:1;min-width:80px;background:#facc15;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">🔑 RESET</button>
+          <button onclick="hapusUserLog('${u._id}','${u.email}')" style="background:#333;color:#aaa;border:none;padding:6px 10px;border-radius:6px;font-size:11px">🗑️</button>
+        </div>`;
+      }
+    } else {
+      actionButtons = `<div style="margin-top:8px;color:#facc15;font-size:10px">👑 Admin</div>`;
+    }
+    const lastResetInfo = u.adminResetPassword? `<div style="margin-top:6px;background:#facc1522;border:1px dashed #facc15;padding:4px 8px;border-radius:6px;font-size:10px;color:#facc15">🔑 Pass terakhir di-reset: <b>${u.adminResetPassword}</b></div>` : "";
+    html+=`
+    <div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${u.isBanned?'#ff4444':online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
+        <div class="${blurClass}" style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email} ${u.email.toLowerCase()===EMAIL_ADMIN.toLowerCase()?'<span style="color:#facc15">👑</span>':''}</div>
+        <div style="font-size:11px;white-space:nowrap">${dot}</div>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:#00d1ff22;border:1px solid #00d1ff44;color:#00d1ff;padding:3px 8px;border-radius:12px;font-size:10px">${u.loginVia||"Email"}</span>
+        <span style="background:#facc1522;border:1px solid #facc1544;color:#facc15;padding:3px 8px;border-radius:12px;font-size:10px">${waktuLalu(d)}</span>
+        <span style="background:#00ff8822;border:1px solid #00ff8844;color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px">📍 ${u.lokasi||u.kota||"..."}</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
+        <div>📱 <b style="color:#facc15">${u.hp_model||"Desktop"}</b> - ${u.browser||""} ${u.os||""}</div>
+        <div style="font-size:10px;color:#888;margin-top:2px">IP: <span class="${blurClass}">${u.ip||"-"}</span> | Dari: ${u.datang_dari_media||"Langsung"}</div>
+        <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
+      </div>
+      ${lastResetInfo}
+      ${actionButtons}
+    </div>`;
+  });
+  html+=`</div>`;
+  list.innerHTML=html;
+}
+window.bukaUsers = ()=>{
+  document.getElementById("modalUsers").style.display="flex";
+  renderUserList();
+  if(liveTimer) clearInterval(liveTimer);
+  liveTimer = setInterval(()=>{ renderUserList(); }, 1000);
+}
+window.logout = ()=>{ document.getElementById("modalLogout").style.display="flex"; }
+window.konfirmasiLogout = async ()=>{
+  try{ if(currentUserDoc){ await setDoc(currentUserDoc, { isOnline: false, lastActive: serverTimestamp() }, {merge:true}); } }catch(e){}
+  if(liveTimer) clearInterval(liveTimer);
+  if(heartbeatTimer) clearInterval(heartbeatTimer);
+  signOut(auth).then(()=>{ window.location.href="login.html"; });
+}
+window.tutup = (id)=>{
+  document.getElementById(id).style.display="none";
+  if(id=='modalUsers' && liveTimer){ clearInterval(liveTimer); liveTimer=null; }
+}
+</script>
+<script>
+const saved = localStorage.getItem("farelFilm");
+window.dataFilm = saved? JSON.parse(saved) : {
+  "ACTION":[
+    {judul:"DIE HARD",file:"https://drive.google.com/file/d/15HSk3mEn9UDUP372LikPRNNod3W1oRsR/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/diehard2023.jpg"},
+    {judul:"JOHN WICK 3",file:"https://drive.google.com/file/d/1LP1fanmcoKYm5wQaD4zLnxXwm4rLh41V/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/John_Wick_Chapter_3_Parabellum.png"},
+    {judul:"TERMINATOR DARK FATE",file:"https://drive.google.com/file/d/1QikQrqaFpwpd80it7B7YA0AlpnqvlyXW/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/terminator%20dark%20fate.jpg"}
+  ],
+  "TERBARU":[{judul:"JOHN WICK 4",file:"https://drive.google.com/file/d/1KgoY2XGeEvY4TKY10CU0vkWARyMfrfVV/preview",type:"drive",gambar:"https://farel-flix-tambala.web.app/gambar/johnwick4.webp"}]
+};
+let aktifFile="",aktifType="";
+window.isAdmin = false;
+const container=document.getElementById("semuaKategori");
+window.renderFilm = function(data){
+  container.innerHTML=""; let ada=false; let totalFilm=0; let katCount = 0;
+  for(let kat in data){
+    if(!data[kat]||data[kat].length==0) continue;
+    ada=true; katCount++; totalFilm+=data[kat].length;
+    let html=`<div class="kategori"><h2>${kat}</h2><div class="row">`;
+    data[kat].forEach((f, idx)=>{
+      html+=`<div class="card ${window.isAdmin?'admin':''}" onclick="buka('${f.judul.replace(/'/g,"\\'")}','${f.file}','${f.type}')"><div class="imgBox"><img src="${f.gambar}" onerror="this.src='https://via.placeholder.com/140x210?text=${encodeURIComponent(f.judul)}'"><button class="btnHapus" onclick="event.stopPropagation(); hapusFilm('${kat}',${idx})">×</button></div><p>${f.judul}</p></div>`;
+    });
+    html+=`</div></div>`;
+    container.innerHTML+=html;
+  }
+  document.getElementById("noResult").style.display=ada?"none":"block";
+  document.getElementById("statFilm").innerText = totalFilm;
+  document.getElementById("statKat").innerText = katCount;
+}
+window.hapusFilm = function(kat, idx){
+  if(!confirm("Hapus film "+window.dataFilm[kat][idx].judul+"?")) return;
+  window.dataFilm[kat].splice(idx,1);
+  if(window.dataFilm[kat].length===0) delete window.dataFilm[kat];
+  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
+  window.renderFilm(window.dataFilm);
+}
+window.addEventListener("DOMContentLoaded",()=>{
+  setTimeout(()=>{
+    window.renderFilm(window.dataFilm);
+    document.getElementById("loadingScreen").style.display="none";
+  },800);
+});
+function bukaAdmin(){ document.getElementById("modalAdmin").style.display="flex"; }
+function simpanFilmAdmin(){
+  let kat=document.getElementById("adminKategori").value.toUpperCase().trim();
+  let judul=document.getElementById("adminJudul").value.trim();
+  let file=document.getElementById("adminFile").value.trim();
+  let gambar=document.getElementById("adminGambar").value.trim();
+  if(!kat||!judul||!file){ alert("Isi kategori, judul, file!"); return; }
+  if(!window.dataFilm[kat]) window.dataFilm[kat]=[];
+  window.dataFilm[kat].push({judul,file,type:"drive",gambar:gambar||"https://via.placeholder.com/140x210?text="+encodeURIComponent(judul)});
+  localStorage.setItem("farelFilm", JSON.stringify(window.dataFilm));
+  window.renderFilm(window.dataFilm);
+  tutup('modalAdmin');
+  document.getElementById("adminKategori").value=""; document.getElementById("adminJudul").value=""; document.getElementById("adminFile").value=""; document.getElementById("adminGambar").value="";
+  alert("Berhasil tambah "+judul);
+}
+function goHome(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
+function filterKategori(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
+function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
+function buka(j,f,t){ aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j; document.getElementById("modalBayar").style.display="flex"; }
+function playFilm(){
+  document.getElementById("modalBayar").style.display="none"; document.getElementById("modalPlayer").style.display="flex";
+  let v=document.getElementById("myVideo"); let i=document.getElementById("myIframe"); let loader=document.getElementById("videoLoader");
+  loader.style.display="flex";
+  if(aktifType=="drive"){ v.style.display="none"; v.pause(); i.style.display="block"; i.src=aktifFile; i.onload=()=>{loader.style.display="none"}; setTimeout(()=>{loader.style.display="none"},2500); }
+  else { i.style.display="none"; i.src=""; v.style.display="block"; v.src=aktifFile; v.play(); v.onplaying=()=>{loader.style.display="none"}; }
+}
+function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
+</script>
+<script>
+// FAILSAFE ANTI MUTER - paksa tutup loading
+setTimeout(()=>{
+  const ls = document.getElementById('loadingScreen');
+  if(ls) ls.style.display='none';
+}, 1500);
+window.addEventListener('error', ()=>{
+  const ls = document.getElementById('loadingScreen');
+  if(ls) ls.style.display='none';
+});
+</script>
+</body></html>
