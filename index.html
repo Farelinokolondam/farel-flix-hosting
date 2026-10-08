@@ -95,7 +95,6 @@ button{cursor:pointer!important;}
 
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:580px;width:95%;max-height:90vh;overflow:auto">
 <h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">👑 ADMIN PANEL - USER CONTROL</h3>
-<!-- FIX AUTOCOMPLETE DOBEL -->
 <div style="display:flex;gap:6px;margin-bottom:8px">
 <input id="filterEmail" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="flex:1;padding:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
 <button id="btnBlur" onclick="toggleBlur()" style="padding:10px 14px;background:#222;color:#facc15;border:1px solid #facc15;border-radius:8px;font-size:12px;font-weight:bold;white-space:nowrap">👁️ BLUR: OFF</button>
@@ -254,11 +253,17 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 window.kickUser = async (uid,email)=>{
+  if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase() || uid === auth.currentUser?.uid){
+    return alert("🤣 GABISA KICK AKUN ADMIN SENDIRI!");
+  }
   if(!confirm("KICK "+email+"? Dia akan logout paksa!")) return;
   await setDoc(doc(db,"users_log",uid), {isOnline:false, kicked:true, lastActive: serverTimestamp()}, {merge:true});
   alert("Berhasil KICK "+email);
 }
 window.banUser = async (uid,email)=>{
+  if(email.toLowerCase() === EMAIL_ADMIN.toLowerCase()){
+    return alert("🤣 GABISA BAN AKUN ADMIN SENDIRI!");
+  }
   if(!confirm("BAN PERMANEN "+email+"?")) return;
   await setDoc(doc(db,"users_log",uid), {isBanned:true, isOnline:false}, {merge:true});
   alert("🚫 "+email+" DI-BANNED");
@@ -269,6 +274,7 @@ window.unbanUser = async (uid,email)=>{
 }
 
 window.resetPass = async (email)=>{
+  const isSelf = email.toLowerCase() === auth.currentUser.email.toLowerCase();
   const passBaru = prompt(`🔑 RESET PASSWORD LANGSUNG\n\nMasukkan password BARU untuk:\n${email}\n\nMinimal 6 karakter:`);
   if(!passBaru) return;
   if(passBaru.length < 6) return alert("Password minimal 6 karakter!");
@@ -276,20 +282,30 @@ window.resetPass = async (email)=>{
   try{
     const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
     if(!target) return alert("User tidak ditemukan di database!");
-    await setDoc(doc(db,"users_log",target._id), {
-      adminResetPassword: passBaru,
-      lastResetAt: serverTimestamp(),
-      lastResetBy: auth.currentUser.email,
-      kicked: true,
-      isOnline: false
-    }, {merge:true});
-    alert(`✅ BERHASIL RESET LANGSUNG!\n\nEmail: ${email}\nPassword baru: ${passBaru}\n\nUser sudah di-KICK.`);
+    if(isSelf){
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: passBaru,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email
+      }, {merge:true});
+      alert(`✅ PASSWORD ADMIN DIGANTI!\n\nPassword baru: ${passBaru}\nKamu tidak ke-kick.`);
+    } else {
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: passBaru,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email,
+        kicked: true,
+        isOnline: false
+      }, {merge:true});
+      alert(`✅ BERHASIL RESET LANGSUNG!\n\nEmail: ${email}\nPassword baru: ${passBaru}\n\nUser sudah di-KICK.`);
+    }
   }catch(e){ alert("Gagal: " + e.message); }
 }
 
 window.resetPassManualTop = async ()=>{
   const email = document.getElementById("resetEmailInput").value.trim();
   let newPass = document.getElementById("resetPassInput").value.trim();
+  const isSelf = email.toLowerCase() === auth.currentUser.email.toLowerCase();
   if(!email) return alert("Isi email dulu!");
   if(!newPass){
     newPass = prompt(`Masukkan password baru untuk ${email}:`);
@@ -299,14 +315,23 @@ window.resetPassManualTop = async ()=>{
   try{
     const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
     if(!target){ alert("User tidak ada di list. Pindah ke tab SEMUA / BANNED dulu."); return; }
-    await setDoc(doc(db,"users_log",target._id), {
-      adminResetPassword: newPass,
-      lastResetAt: serverTimestamp(),
-      lastResetBy: auth.currentUser.email,
-      kicked: true,
-      isOnline: false
-    }, {merge:true});
-    alert(`✅ RESET BERHASIL!\n${email}\nPassword: ${newPass}`);
+    if(isSelf){
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: newPass,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email
+      }, {merge:true});
+      alert(`✅ PASSWORD ADMIN DIGANTI!\n${email}\nPassword: ${newPass}\nTidak ke-kick.`);
+    } else {
+      await setDoc(doc(db,"users_log",target._id), {
+        adminResetPassword: newPass,
+        lastResetAt: serverTimestamp(),
+        lastResetBy: auth.currentUser.email,
+        kicked: true,
+        isOnline: false
+      }, {merge:true});
+      alert(`✅ RESET BERHASIL!\n${email}\nPassword: ${newPass}`);
+    }
     document.getElementById("resetEmailInput").value="";
     document.getElementById("resetPassInput").value="";
   }catch(e){ alert("Gagal: "+e.message); }
@@ -373,7 +398,7 @@ function renderUserList(){
         </div>`;
       }
     } else {
-      actionButtons = `<div style="margin-top:8px;color:#facc15;font-size:10px">👑 Admin tidak bisa di-kick</div>`;
+      actionButtons = `<div style="margin-top:8px;color:#facc15;font-size:10px">👑 Admin tidak bisa di-kick - tapi bisa reset password sendiri tanpa logout</div>`;
     }
 
     const lastResetInfo = u.adminResetPassword? `<div style="margin-top:6px;background:#facc1522;border:1px dashed #facc15;padding:4px 8px;border-radius:6px;font-size:10px;color:#facc15">🔑 Pass terakhir di-reset: <b>${u.adminResetPassword}</b></div>` : "";
@@ -381,7 +406,7 @@ function renderUserList(){
     html+=`
     <div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${u.isBanned?'#ff4444':online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-        <div class="${blurClass}" style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email} ${u.email===EMAIL_ADMIN?'<span style="color:#facc15">👑</span>':''}</div>
+        <div class="${blurClass}" style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email} ${u.email.toLowerCase()===EMAIL_ADMIN.toLowerCase()?'<span style="color:#facc15">👑</span>':''}</div>
         <div style="font-size:11px;white-space:nowrap">${dot}</div>
       </div>
       <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
