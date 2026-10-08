@@ -110,17 +110,16 @@ body{background:#000;overflow:hidden}
   <div class="w-full max-w-[450px] bg-black/68 backdrop-blur-xl rounded-md p-[28px] md:p-[48px] border border-white/15 shadow-[0_0_100px_rgba(0,0,0,0.9)]">
     <h2 class="text-[32px] font-bold text-white mb-7">Masuk</h2>
     <form id="manualForm" class="space-y-4">
-      <div id="errorGeneral" class="hidden bg-[#E50914]/20 border border-[#E50914]/50 text-white p-3 rounded-[4px] text-[14px] font-medium flex items-center gap-2">
+      <div id="errorGeneral" class="hidden bg-[#E50914]/20 border border-[#E50914]/50 text-white p-3 rounded-[4px] text-[14px] font-medium flex items-center gap-2 cursor-pointer">
         <span class="text-[#E50914] text-[18px]">ⓧ</span> <span id="errorGeneralText">Login gagal, silakan coba lagi</span>
       </div>
       <input id="email" type="email" placeholder="Email atau nomor telepon" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
       <div class="space-y-1">
-        <p id="errorPassword" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 mb-1">
+        <p id="errorPassword" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 mb-1 cursor-pointer">
           <span>ⓧ</span> Password salah, silakan coba lagi
         </p>
         <input id="password" type="password" placeholder="Kata sandi" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
       </div>
-      <p id="errorMsg" class="text-[#E50914] text-[13px] hidden"></p>
       <button id="btnManual" type="submit" class="btn-netflix w-full py-[12px] rounded-[4px] text-white font-bold text-[16px] mt-2 flex items-center justify-center gap-2"><span id="btnManualText">Masuk</span></button>
     </form>
     <div class="flex items-center gap-3 my-6"><div class="h-[1px] flex-1 bg-white/20"></div><span class="text-white/50 text-[14px]">ATAU</span><div class="h-[1px] flex-1 bg-white/20"></div></div>
@@ -157,7 +156,6 @@ const firebaseConfig = {
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore();
 const btnManual = document.getElementById('btnManual');
 const btnManualText = document.getElementById('btnManualText');
 const btnGoogle = document.getElementById('btnGoogle');
@@ -172,67 +170,71 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading(btn, textEl){ textEl.innerHTML = '<span class="spinner"></span> Memuat...'; btn.disabled = true; btn.style.opacity="0.7"; }
 function hideLoading(btn, textEl, txt){ textEl.innerHTML = txt; btn.disabled = false; btn.style.opacity="1"; }
 function successAnim(){ loadingOverlay.classList.remove('hidden'); setTimeout(()=>{ window.location.href = "index.html"; }, 1500); }
+
 function resetErrors(){
   errorGeneral.classList.add('hidden');
   errorPassword.classList.add('hidden');
   emailInput.classList.remove('error','shake');
   passwordInput.classList.remove('error','shake');
 }
+
 function showGmailError(){
   errorGeneralText.innerText = "kamu salah memasukkan gmail";
   errorGeneral.classList.remove('hidden');
   emailInput.classList.add('error','shake');
   passwordInput.classList.remove('error','shake');
   errorPassword.classList.add('hidden');
+  // HAPUS SHAKE BIAR GAK NGUNCI, BISA KETIK LAGI
+  setTimeout(()=>{ emailInput.classList.remove('shake'); }, 400);
 }
+
 function showPasswordError(){
   errorPassword.classList.remove('hidden');
   passwordInput.classList.add('error','shake');
   errorGeneral.classList.add('hidden');
   emailInput.classList.remove('error','shake');
+  setTimeout(()=>{ passwordInput.classList.remove('shake'); }, 400);
 }
 
-emailInput.addEventListener('input', resetErrors);
-passwordInput.addEventListener('input', resetErrors);
+// FIX UTAMA BIAR MERAH HILANG PAS KLIK / KETIK LAGI
+['input','focus','click','keydown'].forEach(evt=>{
+  emailInput.addEventListener(evt, resetErrors);
+  passwordInput.addEventListener(evt, resetErrors);
+});
+errorGeneral.addEventListener('click', resetErrors);
+errorPassword.addEventListener('click', resetErrors);
 
 document.getElementById('manualForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   resetErrors();
   showLoading(btnManual, btnManualText);
   const emailVal = emailInput.value.trim().toLowerCase();
-  const passVal = passwordInput.value;
 
   try{
-    await auth.signInWithEmailAndPassword(emailVal, passVal);
+    await auth.signInWithEmailAndPassword(emailVal, passwordInput.value);
     successAnim();
   }catch(err){
     hideLoading(btnManual, btnManualText, 'Masuk');
     console.log("LOGIN ERROR:", err.code);
 
-    // FIX FINAL - CEK APAKAH GMAIL INI MEMANG TERDAFTAR
+    // CEK APAKAH GMAIL TERDAFTAR
     try{
       const methods = await auth.fetchSignInMethodsForEmail(emailVal);
       console.log("METHODS:", methods);
       if(!methods || methods.length === 0){
-        // GMAIL TIDAK ADA DI AUTH
-        showGmailError();
-        return;
+        showGmailError(); // GMAIL SALAH - INI YANG KAMU MAU
       } else {
-        // GMAIL ADA, BERARTI PASSWORD YANG SALAH
-        showPasswordError();
-        return;
+        showPasswordError(); // GMAIL BENER, PASSWORD SALAH
       }
+      return;
     }catch(checkErr){
-      console.log("cek methods error:", checkErr.code);
-      // Kalau fetch gagal, fallback pakai error code asli
+      console.log("check methods fail:", checkErr.code);
       if(checkErr.code === 'auth/invalid-email' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found'){
         showGmailError();
         return;
       }
-      // Firebase baru semua jadi invalid-credential
+      // Semua invalid-credential dianggap gmail salah kalau methods gagal
       if(err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials'){
-        // Untuk kasus foto kamu farelinokolondam51@gmail.com ini gmail salah, bukan password
-        // Jadi kita paksa tampil gmail salah kalau fetch methods kosong
         showGmailError();
         return;
       }
@@ -240,6 +242,8 @@ document.getElementById('manualForm').addEventListener('submit', async (e)=>{
         showPasswordError();
         return;
       }
+      errorGeneralText.innerText = "Login gagal: " + err.message;
+      errorGeneral.classList.remove('hidden');
     }
   }
 });
