@@ -99,10 +99,10 @@ button{cursor:pointer!important;}
 <input id="filterEmail" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="flex:1;padding:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
 <button id="btnBlur" onclick="toggleBlur()" style="padding:10px 14px;background:#222;color:#facc15;border:1px solid #facc15;border-radius:8px;font-size:12px;font-weight:bold;white-space:nowrap">👁️ BLUR: OFF</button>
 </div>
-<!-- FITUR BARU: RESET PASSWORD MANUAL -->
 <div style="background:linear-gradient(90deg,#111,#0f1a1f);border:1px solid #00d1ff33;border-radius:8px;padding:8px;display:flex;gap:6px;margin-bottom:10px">
-  <input id="resetEmailInput" placeholder="📧 Email untuk reset password..." style="flex:1;padding:8px;background:#000;color:#fff;border:1px solid #333;border-radius:6px;font-size:12px">
-  <button onclick="resetPassManualTop()" style="padding:8px 12px;background:#00d1ff;color:#000;border:none;border-radius:6px;font-size:11px;font-weight:bold;cursor:pointer">KIRIM RESET</button>
+  <input id="resetEmailInput" placeholder="📧 Email user..." style="flex:1;padding:8px;background:#000;color:#fff;border:1px solid #333;border-radius:6px;font-size:12px">
+  <input id="resetPassInput" type="text" placeholder="Password baru..." style="flex:1;padding:8px;background:#000;color:#facc15;border:1px solid #facc15;border-radius:6px;font-size:12px">
+  <button onclick="resetPassManualTop()" style="padding:8px 12px;background:#facc15;color:#000;border:none;border-radius:6px;font-size:11px;font-weight:bold">RESET LANGSUNG</button>
 </div>
 <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
 <button onclick="setUserFilter('all')" id="fAll" style="flex:1;padding:6px;background:#facc15;color:#000;border:none;border-radius:20px;font-size:11px;font-weight:bold">SEMUA</button>
@@ -125,7 +125,7 @@ button{cursor:pointer!important;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, doc, setDoc, collection, serverTimestamp, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 const firebaseConfig = { apiKey: "AIzaSyDwKg7g0JzwVkCQ6pskhtEg8dZrs6hAasU", authDomain: "farel-flix-tambala.firebaseapp.com", projectId: "farel-flix-tambala", storageBucket: "farel-flix-tambala.firebasestorage.app", messagingSenderId: "265996924707", appId: "1:265996924707:web:e824c8cd3a195a9f8b3e96" };
 const app = initializeApp(firebaseConfig);
@@ -197,7 +197,6 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("userEmail").innerText=user.email;
     document.getElementById("loadingScreen").style.display="none";
     currentUserDoc = doc(db, "users_log", user.uid);
-
     onSnapshot(currentUserDoc, (snap)=>{
       if(snap.exists() && snap.data().isBanned){
         alert("🚫 AKUN KAMU DI-BANNED ADMIN!");
@@ -209,7 +208,6 @@ onAuthStateChanged(auth, async (user) => {
         signOut(auth).then(()=>window.location.href="login.html");
       }
     });
-
     let loginVia = "Email/Password";
     if(user.providerData && user.providerData[0]){
       const p = user.providerData[0].providerId;
@@ -268,22 +266,63 @@ window.unbanUser = async (uid,email)=>{
   await setDoc(doc(db,"users_log",uid), {isBanned:false}, {merge:true});
   alert("✅ "+email+" UNBANNED");
 }
+
+// ===== FITUR BARU: RESET LANGSUNG TANPA LINK =====
 window.resetPass = async (email)=>{
-  if(!confirm("Kirim link ganti password ke "+email+"?")) return;
-  try{ await sendPasswordResetEmail(auth, email); alert("📧 Link reset terkirim ke "+email); }
-  catch(e){ alert("Gagal: "+e.message); }
+  const passBaru = prompt(`🔑 RESET PASSWORD LANGSUNG\n\nMasukkan password BARU untuk:\n${email}\n\nMinimal 6 karakter:`);
+  if(!passBaru) return;
+  if(passBaru.length < 6) return alert("Password minimal 6 karakter!");
+  if(!confirm(`Yakin ganti password\n${email}\nmenjadi:\n${passBaru}?`)) return;
+
+  try{
+    const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
+    if(!target) return alert("User tidak ditemukan di database!");
+
+    // Simpan password baru ke Firestore - nanti login.html akan baca ini
+    await setDoc(doc(db,"users_log",target._id), {
+      adminResetPassword: passBaru,
+      lastResetAt: serverTimestamp(),
+      lastResetBy: auth.currentUser.email,
+      kicked: true,
+      isOnline: false
+    }, {merge:true});
+
+    alert(`✅ BERHASIL RESET LANGSUNG!\n\nEmail: ${email}\nPassword baru: ${passBaru}\n\nUser sudah di-KICK.\nSuruh user login pakai password baru itu.\n\nPassword tersimpan di database.`);
+  }catch(e){
+    alert("Gagal: " + e.message);
+  }
 }
-// FITUR BARU: RESET DARI INPUT ATAS
+
 window.resetPassManualTop = async ()=>{
   const email = document.getElementById("resetEmailInput").value.trim();
+  let newPass = document.getElementById("resetPassInput").value.trim();
   if(!email) return alert("Isi email dulu!");
-  if(!confirm("Kirim link reset password ke "+email+"?")) return;
+  if(!newPass){
+    newPass = prompt(`Masukkan password baru untuk ${email}:`);
+    if(!newPass) return;
+  }
+  if(newPass.length < 6) return alert("Password minimal 6 karakter!");
+
   try{
-    await sendPasswordResetEmail(auth, email);
-    alert("✅ Link reset terkirim ke "+email);
+    const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
+    if(!target){
+      // kalau email tidak ada di list, coba cari langsung
+      alert("User tidak ada di list SEMUA (mungkin karena BANNED). Pindah ke tab BANNED atau SEMUA dulu, atau ketik email persis.");
+      return;
+    }
+    await setDoc(doc(db,"users_log",target._id), {
+      adminResetPassword: newPass,
+      lastResetAt: serverTimestamp(),
+      lastResetBy: auth.currentUser.email,
+      kicked: true,
+      isOnline: false
+    }, {merge:true});
+    alert(`✅ RESET BERHASIL!\n${email}\nPassword: ${newPass}`);
     document.getElementById("resetEmailInput").value="";
+    document.getElementById("resetPassInput").value="";
   }catch(e){ alert("Gagal: "+e.message); }
 }
+
 window.hapusUserLog = async (uid,email)=>{
   if(!confirm("Hapus log "+email+"?")) return;
   await deleteDoc(doc(db,"users_log",uid));
@@ -312,7 +351,6 @@ function renderUserList(){
   const list = document.getElementById("listUsers");
   let filtered = [...userListCache];
   if(userSearch){ filtered = filtered.filter(u=>u.email.toLowerCase().includes(userSearch)); }
-
   if(userFilterMode==='all'){ filtered = filtered.filter(u=>!u.isBanned); }
   else if(userFilterMode==='online'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return u.isOnline && d<120 &&!u.isBanned; }); }
   else if(userFilterMode==='offline'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return!(u.isOnline && d<120) &&!u.isBanned; }); }
@@ -331,24 +369,25 @@ function renderUserList(){
     let actionButtons = "";
     if(u.email.toLowerCase()!== EMAIL_ADMIN.toLowerCase()){
       if(u.isBanned){
-        // DI BANNED: CUMA UNBAN + RESET PASS (KICK HILANG)
         actionButtons = `
         <div style="margin-top:10px;display:flex;gap:6px">
           <button onclick="unbanUser('${u._id}','${u.email}')" style="flex:1;background:#00ff88;color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold">✅ UNBAN</button>
-          <button onclick="resetPass('${u.email}')" style="flex:1;background:#00d1ff;color:#000;border:none;padding:10px;border-radius:8px;font-size:11px;font-weight:bold">🔑 RESET</button>
+          <button onclick="resetPass('${u.email}')" style="flex:1;background:#facc15;color:#000;border:none;padding:10px;border-radius:8px;font-size:11px;font-weight:bold">🔑 RESET</button>
         </div>`;
       } else {
         actionButtons = `
         <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
           <button onclick="kickUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#ff9500;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">👢 KICK</button>
           <button onclick="banUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#ff4444;color:#fff;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">🚫 BAN</button>
-          <button onclick="resetPass('${u.email}')" style="flex:1;min-width:80px;background:#00d1ff;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">🔑 RESET PASS</button>
+          <button onclick="resetPass('${u.email}')" style="flex:1;min-width:80px;background:#facc15;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">🔑 RESET</button>
           <button onclick="hapusUserLog('${u._id}','${u.email}')" style="background:#333;color:#aaa;border:none;padding:6px 10px;border-radius:6px;font-size:11px">🗑️</button>
         </div>`;
       }
     } else {
       actionButtons = `<div style="margin-top:8px;color:#facc15;font-size:10px">👑 Admin tidak bisa di-kick</div>`;
     }
+
+    const lastResetInfo = u.adminResetPassword? `<div style="margin-top:6px;background:#facc1522;border:1px dashed #facc15;padding:4px 8px;border-radius:6px;font-size:10px;color:#facc15">🔑 Pass terakhir di-reset: <b>${u.adminResetPassword}</b></div>` : "";
 
     html+=`
     <div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${u.isBanned?'#ff4444':online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
@@ -366,6 +405,7 @@ function renderUserList(){
         <div style="font-size:10px;color:#888;margin-top:2px">IP: <span class="${blurClass}">${u.ip||"-"}</span> | Dari: ${u.datang_dari_media||"Langsung"}</div>
         <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
       </div>
+      ${lastResetInfo}
       ${actionButtons}
     </div>`;
   });
