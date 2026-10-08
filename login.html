@@ -12,7 +12,6 @@
 *{font-family:'Inter',sans-serif}
 body{background:#000;overflow:hidden}
 
-/* BACKGROUND SAMAR TAPI JELAS - LEBIH TERANG */
 .bg-netflix{
   position:fixed;inset:0;
   background:
@@ -24,7 +23,6 @@ body{background:#000;overflow:hidden}
 }
 @keyframes zoomSlow{0%{transform:scale(1)}100%{transform:scale(1.12)}}
 
-/* ===== ANIMASI API NETFLIX DARI BAWAH ===== */
 .fire-container{
   position:fixed;bottom:0;left:0;right:0;height:45%;pointer-events:none;z-index:2;overflow:hidden
 }
@@ -60,9 +58,25 @@ body{background:#000;overflow:hidden}
   100%{transform: translateX(100%)}
 }
 
-/* Logo Kuning */
-.netflix-logo{color:#FACC15;letter-spacing:-1px;text-shadow:0 0 25px rgba(250,204,21,0.7), 0 0 50px rgba(229,9,20,0.4)}
+/* ===== PERCIKAN API BARU ===== */
+.sparks{
+  position:fixed;bottom:0;left:0;right:0;height:50%;pointer-events:none;z-index:3;overflow:hidden
+}
+.spark{
+  position:absolute;bottom:-10px;
+  width:3px;height:3px;
+  background:#facc15;
+  border-radius:50%;
+  box-shadow:0 0 6px #facc15, 0 0 12px #ff8c00;
+  animation: sparkUp linear infinite;
+}
+@keyframes sparkUp{
+  0%{transform: translateY(0) translateX(0) scale(1); opacity:1}
+  20%{opacity:1}
+  100%{transform: translateY(-600px) translateX(var(--x)) scale(0); opacity:0}
+}
 
+.netflix-logo{color:#FACC15;letter-spacing:-1px;text-shadow:0 0 25px rgba(250,204,21,0.7), 0 0 50px rgba(229,9,20,0.4)}
 .input-netflix{background:rgba(22,22,22,0.85);border:1px solid rgba(255,255,255,0.25);transition:all 0.2s;backdrop-filter:blur(5px)}
 .input-netflix:focus{border-color:#FACC15;background:rgba(35,35,35,0.95);box-shadow:0 0 10px rgba(250,204,21,0.2);outline:none}
 .input-netflix.error{border-color:#E50914!important;background:rgba(229,9,20,0.1)}
@@ -78,12 +92,14 @@ body{background:#000;overflow:hidden}
 <body class="min-h-screen flex flex-col">
 <div class="bg-netflix"></div>
 
-<!-- API DARI BAWAH -->
 <div class="fire-container">
   <div class="fire"></div>
   <div class="fire-2"></div>
   <div class="fire-3"></div>
 </div>
+
+<!-- CONTAINER PERCIKAN API -->
+<div class="sparks" id="sparks"></div>
 
 <div class="relative z-10 p-6 md:p-8 flex justify-between items-center">
   <h1 class="text-[28px] md:text-[34px] font-black netflix-logo">FARELFLIX</h1>
@@ -111,7 +127,6 @@ body{background:#000;overflow:hidden}
   </div>
 </div>
 
-<!-- LOADING KUNING -->
 <div id="loadingOverlay" class="hidden fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center">
   <div class="relative">
     <div class="w-[70px] h-[70px] rounded-full border-[4px] border-white/10"></div>
@@ -150,6 +165,7 @@ const errorPassword = document.getElementById('errorPassword');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const loadingOverlay = document.getElementById('loadingOverlay');
+
 function showLoading(btn, textEl){ textEl.innerHTML = '<span class="spinner"></span> Memuat...'; btn.disabled = true; btn.style.opacity="0.7"; }
 function hideLoading(btn, textEl, txt){ textEl.innerHTML = txt; btn.disabled = false; btn.style.opacity="1"; }
 function successAnim(){ loadingOverlay.classList.remove('hidden'); setTimeout(()=>{ window.location.href = "index.html"; }, 1500); }
@@ -162,6 +178,7 @@ function resetErrors(){
 }
 emailInput.addEventListener('input', resetErrors);
 passwordInput.addEventListener('input', resetErrors);
+
 document.getElementById('manualForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const email = emailInput.value.trim();
@@ -197,6 +214,29 @@ btnGoogle.addEventListener('click', async ()=>{
     }
   }
 });
+
+// ===== SCRIPT PERCIKAN API =====
+const sparksContainer = document.getElementById('sparks');
+function createSpark(){
+  const spark = document.createElement('div');
+  spark.className = 'spark';
+  spark.style.left = Math.random()*100 + '%';
+  spark.style.setProperty('--x', (Math.random()*100 - 50) + 'px');
+  spark.style.animationDuration = (Math.random()*2 + 2) + 's';
+  spark.style.animationDelay = Math.random()*1 + 's';
+  const size = Math.random()*3 + 2;
+  spark.style.width = size + 'px';
+  spark.style.height = size + 'px';
+  // Warna random kuning - orange - merah
+  const colors = ['#facc15','#fbbf24','#ff8c00','#ff4500','#E50914'];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  spark.style.background = color;
+  spark.style.boxShadow = `0 0 6px ${color}, 0 0 12px ${color}`;
+  sparksContainer.appendChild(spark);
+  setTimeout(()=> spark.remove(), 4000);
+}
+setInterval(createSpark, 80);
+for(let i=0;i<25;i++) setTimeout(createSpark, i*100);
 </script>
 </body>
 </html>
