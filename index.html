@@ -58,9 +58,18 @@ button{cursor:pointer!important;}
   #semuaKategori{padding:10px}
   #modalUsers.modal-box{width:98%!important;max-width:98%!important;padding:12px!important;max-height:92vh!important}
 }
+/* === MODE TAMU SEO TAMBAHAN - GOOGLE BISA LIHAT FILM === */
+#guestBar{display:none; position:sticky; top:0; z-index:99999; background:linear-gradient(90deg,#e50914,#b0060f); color:white; padding:12px; text-align:center; font-size:13px; border-bottom:2px solid #ff0000}
+#guestBar a{background:white; color:#e50914; padding:6px 16px; border-radius:20px; text-decoration:none; font-weight:bold; margin-left:10px; display:inline-block}
+#guestModal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100000; justify-content:center; align-items:center;}
+.guest-mode.card::after{content:"🔒 LOGIN UNTUK NONTON"; position:absolute; bottom:30px; left:0; right:0; background:rgba(229,9,20,0.9); color:white; font-size:10px; text-align:center; padding:5px; font-weight:bold; z-index:5; letter-spacing:0.5px}
 </style>
 </head><body>
 <div id="loadingScreen"><div class="farel-spinner"></div><div class="farel-text">FARELFLIX</div></div>
+<!-- BANNER & POPUP MODE TAMU - UNTUK GOOGLE -->
+<div id="guestBar">🔓 Mode Tamu - Google bisa lihat semua film, login gratis untuk nonton full <a href="/login.html">LOGIN GRATIS</a></div>
+<div id="guestModal"><div style="background:#1f1f1f; color:white; padding:24px; border-radius:12px; max-width:340px; width:90%; text-align:center; border:1px solid #333"><div style="font-size:40px">🔒</div><h3 style="margin:0 0 8px; color:#facc15">Login Untuk Nonton</h3><p style="font-size:13px; color:#aaa">Film ini khusus member FARELFLIX.<br>Daftar gratis 10 detik.</p><a href="/login.html" style="display:block; background:#e50914; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold; margin-top:14px;">LOGIN / DAFTAR SEKARANG</a><button onclick="document.getElementById('guestModal').style.display='none'" style="margin-top:12px; background:none; border:none; color:#888; cursor:pointer;">Lanjut lihat-lihat</button></div></div>
+
 <header>
 <div class="header-left">FARELFLIX-tambala</div>
 <div class="header-center">
@@ -74,6 +83,7 @@ button{cursor:pointer!important;}
 <button id="btnUsers" onclick="bukaUsers()" style="display:none;background:#00d1ff;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">👥 USER</button>
 <button id="btnAdmin" onclick="bukaAdmin()" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">+ TAMBAH FILM</button>
 <button id="btnLogout" onclick="logout()" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer">Logout</button>
+<button id="btnLoginGuest" onclick="window.location.href='/login.html'" style="display:none;background:#facc15;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold">Login</button>
 </div>
 </header>
 <div id="adminDashboard">
@@ -190,10 +200,32 @@ async function getLokasi(){
   }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
 }
 onAuthStateChanged(auth, async (user) => {
- if(!user){ window.location.href = "/login.html"; }
-  else {
+  const guestBar = document.getElementById('guestBar');
+  const btnLoginGuest = document.getElementById('btnLoginGuest');
+  const btnLogout = document.getElementById('btnLogout');
+  const userEmailEl = document.getElementById('userEmail');
+
+  // MATIKAN LOADING DULU BIAR GAK MUTER
+  document.getElementById("loadingScreen").style.display="none";
+
+  if(!user){
+    // ====== MODE TAMU - INI YANG DILIHAT GOOGLE ======
+    window.isGuestMode = true;
+    guestBar.style.display="block";
+    document.body.classList.add('guest-mode');
+    btnLogout.style.display="none";
+    btnLoginGuest.style.display="inline-block";
+    userEmailEl.innerText="Mode Tamu - Login untuk nonton";
+    if(window.renderFilm && window.dataFilm){ window.renderFilm(window.dataFilm); }
+    console.log("Mode Tamu Aktif - Google bisa index");
+  } else {
+    // ====== MODE LOGIN - SEMUA FITUR ASLI KAMU TETAP ADA ======
+    window.isGuestMode = false;
+    guestBar.style.display="none";
+    document.body.classList.remove('guest-mode');
+    btnLogout.style.display="inline-block";
+    btnLoginGuest.style.display="none";
     document.getElementById("userEmail").innerText=user.email;
-    document.getElementById("loadingScreen").style.display="none";
     currentUserDoc = doc(db, "users_log", user.uid);
     onSnapshot(currentUserDoc, async (snap)=>{
       if(snap.exists() && snap.data().isBanned){
@@ -516,8 +548,20 @@ function simpanFilmAdmin(){
 function goHome(){document.getElementById("searchBox").value="";window.renderFilm(window.dataFilm);}
 function filterKategori(kat){ if(kat==='all'){window.renderFilm(window.dataFilm);return;} let f={}; if(window.dataFilm[kat]) f[kat]=window.dataFilm[kat]; window.renderFilm(f); }
 function cariFilm(){ let q=document.getElementById("searchBox").value.toLowerCase(); if(!q){window.renderFilm(window.dataFilm);return;} let h={}; for(let kat in window.dataFilm){ let c=window.dataFilm[kat].filter(x=>x.judul.toLowerCase().includes(q)); if(c.length>0)h[kat]=c; } window.renderFilm(h); }
-function buka(j,f,t){ aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j; document.getElementById("modalBayar").style.display="flex"; }
+// === MODE TAMU - KUNCI PLAY BIAR GOOGLE BISA LIHAT TAPI GAK BISA KLIK ===
+function buka(j,f,t){
+  if(window.isGuestMode){
+    document.getElementById('guestModal').style.display='flex';
+    return;
+  }
+  aktifFile=f;aktifType=t; document.getElementById("judulBayar").innerText=j; document.getElementById("judulPlayer").innerText=j; document.getElementById("modalBayar").style.display="flex";
+}
 function playFilm(){
+  if(window.isGuestMode){
+    document.getElementById('modalBayar').style.display='none';
+    document.getElementById('guestModal').style.display='flex';
+    return;
+  }
   document.getElementById("modalBayar").style.display="none"; document.getElementById("modalPlayer").style.display="flex";
   let v=document.getElementById("myVideo"); let i=document.getElementById("myIframe"); let loader=document.getElementById("videoLoader");
   loader.style.display="flex";
@@ -527,7 +571,7 @@ function playFilm(){
 function tutupPlayer(){ document.getElementById("modalPlayer").style.display="none"; let v=document.getElementById("myVideo"); v.pause(); v.src=""; let i=document.getElementById("myIframe"); i.src=""; document.getElementById("videoLoader").style.display="none"; }
 </script>
 <script>
-// FAILSAFE ANTI MUTER - paksa tutup loading
+// FAILSAFE ANTI MUTER
 setTimeout(()=>{
   const ls = document.getElementById('loadingScreen');
   if(ls) ls.style.display='none';
