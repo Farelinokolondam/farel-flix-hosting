@@ -97,8 +97,32 @@ body{background:#000;overflow:hidden}
   border-radius:50%;
   animation: spin 1.2s linear infinite reverse;
 }
-.close-x{cursor:pointer; user-select:none; padding:2px 6px; border-radius:4px; transition:0.15s}
-.close-x:hover{background:rgba(229,9,20,0.2); color:#fff; transform:scale(1.15)}
+/* FIX X BISA DI KLIK - HIT AREA BESAR */
+.close-x{
+  cursor:pointer;
+  user-select:none;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  width:32px; height:32px;
+  font-size:18px;
+  font-weight:bold;
+  border-radius:6px;
+  background:transparent;
+  border:none;
+  color:#E50914;
+  position:relative;
+  z-index:99;
+  pointer-events:auto!important;
+  -webkit-tap-highlight-color: transparent;
+}
+.close-x:hover{background:rgba(229,9,20,0.25); color:#fff;}
+.close-x:active{transform:scale(0.85);}
+#errorGeneral, #errorPassword{
+  pointer-events:auto!important;
+  position:relative;
+  z-index:30;
+}
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -111,14 +135,16 @@ body{background:#000;overflow:hidden}
   <div class="w-full max-w-[450px] bg-black/68 backdrop-blur-xl rounded-md p-[28px] md:p-[48px] border border-white/15 shadow-[0_0_100px_rgba(0,0,0,0.9)]">
     <h2 class="text-[32px] font-bold text-white mb-7">Masuk</h2>
     <form id="manualForm" class="space-y-4">
-      <!-- INI SUDAH AKU UBAH JADI TULISAN SAJA, TANPA KOTAK, X BISA DI KLIK -->
-      <p id="errorGeneral" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 mb-1">
-        <span id="xGmail" class="close-x">ⓧ</span> <span id="errorGeneralText">kamu salah memasukkan gmail</span>
+      <!-- FIX FINAL: CUMA TULISAN + X BUTTON 32px BISA DI KLIK -->
+      <p id="errorGeneral" class="hidden text-[#E50914] text-[13px] font-medium items-center gap-1 mb-1">
+        <button type="button" id="xGmail" class="close-x" onclick="window.resetErrors(); document.getElementById('email').focus();">ⓧ</button>
+        <span id="errorGeneralText">kamu salah memasukkan gmail</span>
       </p>
       <input id="email" type="email" placeholder="Email atau nomor telepon" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
       <div class="space-y-1">
-        <p id="errorPassword" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 mb-1">
-          <span id="xPass" class="close-x">ⓧ</span> Password salah, silakan coba lagi
+        <p id="errorPassword" class="hidden text-[#E50914] text-[13px] font-medium items-center gap-1 mb-1">
+          <button type="button" id="xPass" class="close-x" onclick="window.resetErrors(); document.getElementById('password').focus();">ⓧ</button>
+          Password salah, silakan coba lagi
         </p>
         <input id="password" type="password" placeholder="Kata sandi" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
       </div>
@@ -138,11 +164,6 @@ body{background:#000;overflow:hidden}
   </div>
   <div class="mt-8 flex flex-col items-center">
     <p class="text-yellow-400 font-black text-[24px] tracking-[0.25em] animate-pulse">FARELFLIX</p>
-    <div class="flex gap-1 mt-3">
-      <span class="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce"></span>
-      <span class="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style="animation-delay:0.1s"></span>
-      <span class="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style="animation-delay:0.2s"></span>
-    </div>
   </div>
 </div>
 
@@ -173,9 +194,11 @@ function showLoading(btn, textEl){ textEl.innerHTML = '<span class="spinner"></s
 function hideLoading(btn, textEl, txt){ textEl.innerHTML = txt; btn.disabled = false; btn.style.opacity="1"; }
 function successAnim(){ loadingOverlay.classList.remove('hidden'); setTimeout(()=>{ window.location.href = "index.html"; }, 1500); }
 
-function resetErrors(){
+window.resetErrors = function(){
   errorGeneral.classList.add('hidden');
+  errorGeneral.classList.remove('flex');
   errorPassword.classList.add('hidden');
+  errorPassword.classList.remove('flex');
   emailInput.classList.remove('error','shake');
   passwordInput.classList.remove('error','shake');
 }
@@ -187,6 +210,7 @@ function showGmailError(){
   emailInput.classList.add('error','shake');
   passwordInput.classList.remove('error','shake');
   errorPassword.classList.add('hidden');
+  errorPassword.classList.remove('flex');
   setTimeout(()=>{ emailInput.classList.remove('shake'); }, 400);
 }
 
@@ -195,22 +219,23 @@ function showPasswordError(){
   errorPassword.classList.add('flex');
   passwordInput.classList.add('error','shake');
   errorGeneral.classList.add('hidden');
+  errorGeneral.classList.remove('flex');
   emailInput.classList.remove('error','shake');
   setTimeout(()=>{ passwordInput.classList.remove('shake'); }, 400);
 }
 
-['input','focus','click','keydown'].forEach(evt=>{
-  emailInput.addEventListener(evt, resetErrors);
-  passwordInput.addEventListener(evt, resetErrors);
+// KETIK / FOKUS LANGSUNG HILANG
+['input','focus','keydown'].forEach(evt=>{
+  emailInput.addEventListener(evt, window.resetErrors);
+  passwordInput.addEventListener(evt, window.resetErrors);
 });
-
-// X BISA DI KLIK
-document.getElementById('xGmail').addEventListener('click', (e)=>{ e.stopPropagation(); resetErrors(); emailInput.focus(); });
-document.getElementById('xPass').addEventListener('click', (e)=>{ e.stopPropagation(); resetErrors(); passwordInput.focus(); });
+// KLIK DI AREA ERROR JUGA HILANG
+errorGeneral.addEventListener('click', window.resetErrors);
+errorPassword.addEventListener('click', window.resetErrors);
 
 document.getElementById('manualForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  resetErrors();
+  window.resetErrors();
   showLoading(btnManual, btnManualText);
   const emailVal = emailInput.value.trim().toLowerCase();
   try{
@@ -239,7 +264,7 @@ btnGoogle.addEventListener('click', async ()=>{
   btnGoogle.classList.add('animating');
   btnGoogleText.innerHTML = '<span class="spinner" style="border-top-color:black; width:16px; height:16px;"></span> Menghubungkan...';
   setTimeout(()=> btnGoogle.classList.remove('animating'), 600);
-  resetErrors();
+  window.resetErrors();
   try{
     const provider = new firebase.auth.GoogleAuthProvider();
     await auth.signInWithPopup(provider);
