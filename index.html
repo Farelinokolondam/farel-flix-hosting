@@ -31,7 +31,7 @@ header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;ju
 .btnHapus{position:absolute;top:5px;right:5px;z-index:10;background:#e50914;color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:14px;font-weight:bold;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.7)}
 .card.admin.btnHapus{display:flex}
 .btnHapus:hover{background:#ff1a25;transform:scale(1.15)}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:999}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:999;padding:10px}
 .modal-box{background:#1f1f1f;padding:20px;border-radius:10px;width:90%;max-width:400px;text-align:center}
 #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#141414;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:15px}
 .farel-spinner{width:90px;height:90px;border:3px solid rgba(255,204,0,0.15);border-top:4px solid #facc15;border-right:4px solid #facc15;border-radius:50%;animation: spin 0.8s linear infinite;box-shadow:0 0 20px rgba(250,204,21,0.4)}
@@ -42,17 +42,22 @@ header{background:#000;padding:12px 15px;display:flex;flex-wrap:wrap;gap:10px;ju
 #btnLogout{cursor:pointer!important;transition: all 0.2s ease!important;}
 #btnLogout:hover{background:#ff1a25!important;transform:scale(1.08);box-shadow:0 0 12px rgba(229,9,20,0.7);}
 button{cursor:pointer!important;}
+/* BLUR EMAIL FITUR BARU */
+.blurred{filter:blur(7px);user-select:none;transition:0.2s}
+.blurred:hover{filter:blur(0)}
 @media(max-width:600px){
   header{padding:10px;gap:8px}
-.header-left{width:100%;font-size:16px}
-.header-center{width:100%}
-.header-center input{width:100%;margin-top:4px}
-.header-right{width:100%;justify-content:flex-start;margin-top:6px}
-  span#userEmail{width:100%;font-size:10px!important;margin-bottom:6px;display:block}
-  #adminDashboard{margin:10px;padding:10px 12px;gap:8px 14px}
-.card{width:calc(50% - 6px)}
-.imgBox{height:240px}
+ .header-left{width:100%;font-size:16px;text-align:center}
+ .header-center{width:100%;justify-content:center}
+ .header-center input{width:100%;margin-top:4px}
+ .header-right{width:100%;justify-content:space-between;margin-top:6px;background:#111;padding:8px;border-radius:8px;border:1px solid #222}
+  span#userEmail{width:100%;font-size:9px!important;margin-bottom:8px;display:block;text-align:center;background:#000;padding:4px;border-radius:4px}
+  #btnUsers, #btnAdmin, #btnLogout{flex:1;font-size:11px;padding:8px 6px!important}
+  #adminDashboard{margin:10px;padding:10px 12px;gap:8px 14px;font-size:11px}
+ .card{width:calc(50% - 6px)}
+ .imgBox{height:220px}
   #semuaKategori{padding:10px}
+  #modalUsers.modal-box{width:98%!important;max-width:98%!important;padding:12px!important;max-height:92vh!important}
 }
 </style>
 </head><body>
@@ -91,7 +96,10 @@ button{cursor:pointer!important;}
 
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:580px;width:95%;max-height:90vh;overflow:auto">
 <h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">👑 ADMIN PANEL - USER CONTROL</h3>
-<input id="filterEmail" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="width:100%;padding:10px;margin-bottom:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
+<div style="display:flex;gap:6px;margin-bottom:8px">
+<input id="filterEmail" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="flex:1;padding:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
+<button id="btnBlur" onclick="toggleBlur()" style="padding:10px 14px;background:#222;color:#facc15;border:1px solid #facc15;border-radius:8px;font-size:12px;font-weight:bold;white-space:nowrap">👁️ BLUR: OFF</button>
+</div>
 <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
 <button onclick="setUserFilter('all')" id="fAll" style="flex:1;padding:6px;background:#facc15;color:#000;border:none;border-radius:20px;font-size:11px;font-weight:bold">SEMUA</button>
 <button onclick="setUserFilter('online')" id="fOnline" style="flex:1;padding:6px;background:#222;color:#fff;border:1px solid #333;border-radius:20px;font-size:11px">ONLINE</button>
@@ -126,6 +134,7 @@ let liveTimer = null;
 let heartbeatTimer = null;
 let userFilterMode = 'all';
 let userSearch = '';
+let isBlurOn = false;
 
 function waktuLalu(date){
   if(!date) return "-";
@@ -276,13 +285,23 @@ window.filterUserEmail = ()=>{
   userSearch = document.getElementById("filterEmail").value.toLowerCase();
   renderUserList();
 }
+window.toggleBlur = ()=>{
+  isBlurOn =!isBlurOn;
+  document.getElementById("btnBlur").innerText = isBlurOn? "🙈 BLUR: ON" : "👁️ BLUR: OFF";
+  document.getElementById("btnBlur").style.background = isBlurOn? "#facc15" : "#222";
+  document.getElementById("btnBlur").style.color = isBlurOn? "#000" : "#facc15";
+  renderUserList();
+}
 
 function renderUserList(){
   const list = document.getElementById("listUsers");
   let filtered = [...userListCache];
   if(userSearch){ filtered = filtered.filter(u=>u.email.toLowerCase().includes(userSearch)); }
-  if(userFilterMode==='online'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return u.isOnline && d<120 &&!u.isBanned; }); }
-  else if(userFilterMode==='offline'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return!(u.isOnline && d<120); }); }
+
+  // FIX: BANNED HANYA DI BANNED, TIDAK DI OFFLINE / SEMUA
+  if(userFilterMode==='all'){ filtered = filtered.filter(u=>!u.isBanned); }
+  else if(userFilterMode==='online'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return u.isOnline && d<120 &&!u.isBanned; }); }
+  else if(userFilterMode==='offline'){ filtered = filtered.filter(u=>{ const d=u.lastActive?.toDate?Math.floor((new Date()-u.lastActive.toDate())/1000):9999; return!(u.isOnline && d<120) &&!u.isBanned; }); }
   else if(userFilterMode==='banned'){ filtered = filtered.filter(u=>u.isBanned); }
 
   if(!filtered.length){ list.innerHTML="<div style='text-align:center;color:#888;padding:20px'>Tidak ada user</div>"; return; }
@@ -293,18 +312,16 @@ function renderUserList(){
     const diff = d? Math.floor((new Date() - d)/1000) : 99999;
     const online = u.isOnline && diff < 120 &&!u.isBanned;
     const dot = u.isBanned? `<b style="color:#ff4444">🚫 BANNED</b>` : online? `<span style="background:#00ff88;width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px #00ff88"></span> <b style="color:#00ff88">ONLINE</b>` : `<span style="background:#555;width:9px;height:9px;border-radius:50%;display:inline-block"></span> <span style="color:#888">OFFLINE</span>`;
+    const blurClass = isBlurOn? "blurred" : "";
 
-    // === LOGIKA BARU: KALAU BANNED CUMA UNBAN SAJA ===
     let actionButtons = "";
     if(u.email.toLowerCase()!== EMAIL_ADMIN.toLowerCase()){
       if(u.isBanned){
-        // DI HALAMAN BANNED -> CUMA UNBAN
         actionButtons = `
         <div style="margin-top:10px;display:flex;gap:6px">
           <button onclick="unbanUser('${u._id}','${u.email}')" style="width:100%;background:#00ff88;color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold;box-shadow:0 0 12px rgba(0,255,136,0.4)">✅ UNBAN</button>
         </div>`;
       } else {
-        // DI SEMUA / ONLINE / OFFLINE -> TETAP ADA KICK BAN RESET
         actionButtons = `
         <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
           <button onclick="kickUser('${u._id}','${u.email}')" style="flex:1;min-width:60px;background:#ff9500;color:#000;border:none;padding:6px;border-radius:6px;font-size:11px;font-weight:bold">👢 KICK</button>
@@ -320,7 +337,7 @@ function renderUserList(){
     html+=`
     <div style="background:linear-gradient(135deg,#252525,#1e1e1e);border:1px solid ${u.isBanned?'#ff4444':online?'#00ff8844':'#333'};border-radius:12px;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-        <div style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email} ${u.email===EMAIL_ADMIN?'<span style="color:#facc15">👑</span>':''}</div>
+        <div class="${blurClass}" style="font-weight:bold;color:#fff;word-break:break-all;font-size:13px">${u.email} ${u.email===EMAIL_ADMIN?'<span style="color:#facc15">👑</span>':''}</div>
         <div style="font-size:11px;white-space:nowrap">${dot}</div>
       </div>
       <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
@@ -330,7 +347,7 @@ function renderUserList(){
       </div>
       <div style="margin-top:8px;font-size:11px;color:#ccc;line-height:1.4">
         <div>📱 <b style="color:#facc15">${u.hp_model||"Desktop"}</b> - ${u.browser||""} ${u.os||""}</div>
-        <div style="font-size:10px;color:#888;margin-top:2px">IP: ${u.ip||"-"} | Dari: ${u.datang_dari_media||"Langsung"}</div>
+        <div style="font-size:10px;color:#888;margin-top:2px">IP: <span class="${blurClass}">${u.ip||"-"}</span> | Dari: ${u.datang_dari_media||"Langsung"}</div>
         <div style="font-size:9px;color:#555;margin-top:2px">${d? d.toLocaleString('id-ID'):''}</div>
       </div>
       ${actionButtons}
