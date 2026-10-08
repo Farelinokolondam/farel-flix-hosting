@@ -190,7 +190,7 @@ async function getLokasi(){
   }catch(e){ return { kota:"-", region:"-", negara:"-", ip:"-", lokasiText:"Lokasi off" }; }
 }
 onAuthStateChanged(auth, async (user) => {
-  193 if(!user){ window.location.href = "/login.html"; }
+ if(!user){ window.location.href = "/login.html"; }
   else {
     document.getElementById("userEmail").innerText=user.email;
     document.getElementById("loadingScreen").style.display="none";
