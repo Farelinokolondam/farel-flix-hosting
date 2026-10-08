@@ -15,10 +15,13 @@ body{background:#000;overflow:hidden}
 .netflix-logo{color:#E50914;letter-spacing:-1px}
 .input-netflix{background:rgba(22,22,22,0.9);border:1px solid rgba(255,255,255,0.2);transition:all 0.2s}
 .input-netflix:focus{border-color:white;background:rgba(35,35,35,0.95);outline:none}
+.input-netflix.error{border-color:#E50914!important;background:rgba(229,9,20,0.1)}
 .btn-netflix{background:#E50914;transition:all 0.3s}
 .btn-netflix:hover{background:#F40612;transform:scale(1.01)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:shake 0.3s ease-in-out}
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -27,12 +30,27 @@ body{background:#000;overflow:hidden}
 <div class="relative z-10 flex-1 flex items-center justify-center px-4 pb-20">
   <div class="w-full max-w-[450px] bg-black/75 backdrop-blur-md rounded-md p-[28px] md:p-[48px] border border-white/10">
     <h2 class="text-[32px] font-bold text-white mb-7">Masuk</h2>
+
     <form id="manualForm" class="space-y-4">
+      <!-- ERROR UMUM: Login gagal -->
+      <div id="errorGeneral" class="hidden bg-[#E50914]/20 border border-[#E50914]/50 text-white p-3 rounded-[4px] text-[14px] font-medium flex items-center gap-2">
+        <span class="text-[#E50914] text-[18px]">ⓧ</span> Login gagal, silakan coba lagi
+      </div>
+
       <input id="email" type="email" placeholder="Email atau nomor telepon" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
-      <input id="password" type="password" placeholder="Kata sandi" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
-      <p id="errorMsg" class="text-[#E50914] text-[13px] mt-2 hidden"></p>
+
+      <!-- ERROR KHUSUS PASSWORD: di atas kata sandi -->
+      <div class="space-y-1">
+        <p id="errorPassword" class="hidden text-[#E50914] text-[13px] font-medium flex items-center gap-1 -mt-1 mb-1">
+          <span>ⓧ</span> Password salah, silakan coba lagi
+        </p>
+        <input id="password" type="password" placeholder="Kata sandi" required class="input-netflix w-full px-4 py-[14px] rounded-[4px] text-white placeholder:text-white/60 text-[16px]">
+      </div>
+
+      <p id="errorMsg" class="text-[#E50914] text-[13px] hidden"></p>
       <button id="btnManual" type="submit" class="btn-netflix w-full py-[12px] rounded-[4px] text-white font-bold text-[16px] mt-2 flex items-center justify-center gap-2"><span id="btnManualText">Masuk</span></button>
     </form>
+
     <div class="flex items-center gap-3 my-6"><div class="h-[1px] flex-1 bg-white/20"></div><span class="text-white/50 text-[14px]">ATAU</span><div class="h-[1px] flex-1 bg-white/20"></div></div>
     <button id="btnGoogle" class="w-full bg-white py-[12px] rounded-[4px] text-black font-medium text-[15px] flex items-center justify-center gap-3 hover:bg-gray-200 transition"><img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5"><span id="btnGoogleText">Masuk dengan Google</span></button>
     <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center"><div class="w-12 h-12 border-4 border-[#E50914]/30 border-t-[#E50914] rounded-full animate-[spin_1s_linear_infinite] mb-4"></div><p class="text-white font-bold tracking-widest animate-pulse">FARELFLIX</p></div>
@@ -50,27 +68,86 @@ const firebaseConfig = {
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+
 const btnManual = document.getElementById('btnManual');
 const btnManualText = document.getElementById('btnManualText');
 const btnGoogle = document.getElementById('btnGoogle');
 const btnGoogleText = document.getElementById('btnGoogleText');
 const errorMsg = document.getElementById('errorMsg');
+const errorGeneral = document.getElementById('errorGeneral');
+const errorPassword = document.getElementById('errorPassword');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
 const loadingOverlay = document.getElementById('loadingOverlay');
+
 function showLoading(btn, textEl){ textEl.innerHTML = '<span class="spinner"></span> Memuat...'; btn.disabled = true; btn.style.opacity="0.7"; }
 function hideLoading(btn, textEl, txt){ textEl.innerHTML = txt; btn.disabled = false; btn.style.opacity="1"; }
 function successAnim(){ loadingOverlay.classList.remove('hidden'); setTimeout(()=>{ window.location.href = "index.html"; }, 900); }
+
+function resetErrors(){
+  errorGeneral.classList.add('hidden');
+  errorPassword.classList.add('hidden');
+  errorMsg.classList.add('hidden');
+  emailInput.classList.remove('error');
+  passwordInput.classList.remove('error');
+  emailInput.classList.remove('shake');
+  passwordInput.classList.remove('shake');
+}
+
+// Hilangkan error saat user ketik lagi
+emailInput.addEventListener('input', resetErrors);
+passwordInput.addEventListener('input', resetErrors);
+
 document.getElementById('manualForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  errorMsg.classList.add('hidden');
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  resetErrors();
   showLoading(btnManual, btnManualText);
-  try{ await auth.signInWithEmailAndPassword(email, password); successAnim(); }catch(err){ hideLoading(btnManual, btnManualText, 'Masuk'); errorMsg.textContent = err.code==='auth/invalid-credential'? 'Email atau kata sandi salah.' : err.message; errorMsg.classList.remove('hidden'); }
+
+  try{
+    await auth.signInWithEmailAndPassword(email, password);
+    successAnim();
+  }catch(err){
+    hideLoading(btnManual, btnManualText, 'Masuk');
+    console.log('Login error:', err.code);
+
+    // KASUS 1: PASSWORD SALAH
+    if(err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials'){
+      errorPassword.classList.remove('hidden');
+      errorPassword.innerHTML = '<span>ⓧ</span> Password salah, silakan coba lagi';
+      passwordInput.classList.add('error','shake');
+      passwordInput.focus();
+    }
+    // KASUS 2: EMAIL TIDAK DITEMUKAN / LOGIN GAGAL UMUM
+    else if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-email'){
+      errorGeneral.classList.remove('hidden');
+      errorGeneral.innerHTML = '<span class="text-[#E50914] text-[18px]">ⓧ</span> Login gagal, silakan coba lagi';
+      emailInput.classList.add('error','shake');
+    }
+    else {
+      // Error lain tetap tampilkan pesan umum
+      errorGeneral.classList.remove('hidden');
+      errorGeneral.innerHTML = '<span class="text-[#E50914] text-[18px]">ⓧ</span> Login gagal, silakan coba lagi';
+    }
+  }
 });
+
 btnGoogle.addEventListener('click', async ()=>{
-  errorMsg.classList.add('hidden');
+  resetErrors();
   showLoading(btnGoogle, btnGoogleText);
-  try{ const provider = new firebase.auth.GoogleAuthProvider(); await auth.signInWithPopup(provider); successAnim(); }catch(err){ hideLoading(btnGoogle, btnGoogleText, 'Masuk dengan Google'); if(err.code!=='auth/popup-closed-by-user') { errorMsg.textContent = err.message; errorMsg.classList.remove('hidden'); } }
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+    successAnim();
+  }catch(err){
+    hideLoading(btnGoogle, btnGoogleText, 'Masuk dengan Google');
+    if(err.code!== 'auth/popup-closed-by-user') {
+      errorGeneral.classList.remove('hidden');
+      errorGeneral.innerHTML = '<span class="text-[#E50914] text-[18px]">ⓧ</span> Login gagal, silakan coba lagi';
+    }
+  }
 });
 </script>
 </body>
