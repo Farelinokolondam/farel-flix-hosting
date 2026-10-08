@@ -199,7 +199,7 @@ document.getElementById('manualForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   resetErrors();
   showLoading(btnManual, btnManualText);
-  const emailVal = emailInput.value.trim();
+  const emailVal = emailInput.value.trim().toLowerCase();
   const passVal = passwordInput.value;
 
   try{
@@ -207,31 +207,39 @@ document.getElementById('manualForm').addEventListener('submit', async (e)=>{
     successAnim();
   }catch(err){
     hideLoading(btnManual, btnManualText, 'Masuk');
-    console.log(err.code, err.message);
+    console.log("LOGIN ERROR:", err.code);
 
-    // CEK APAKAH EMAIL SUDAH PERNAH TERDAFTAR DI users_log
-    let emailPernahAda = false;
+    // FIX FINAL - CEK APAKAH GMAIL INI MEMANG TERDAFTAR
     try{
-      const snap = await db.collection("users_log").where("email","==",emailVal).limit(1).get();
-      if(!snap.empty) emailPernahAda = true;
-    }catch(e){ console.log("cek db gagal", e); }
-
-    if(err.code === 'auth/invalid-email'){
-      showGmailError();
-    } else if(err.code === 'auth/user-not-found'){
-      showGmailError();
-    } else if(err.code === 'auth/wrong-password'){
-      showPasswordError();
-    } else if(err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials'){
-      // Firebase baru semua jadi invalid-credential, kita bedain pakai DB
-      if(emailPernahAda){
-        showPasswordError();
-      } else {
+      const methods = await auth.fetchSignInMethodsForEmail(emailVal);
+      console.log("METHODS:", methods);
+      if(!methods || methods.length === 0){
+        // GMAIL TIDAK ADA DI AUTH
         showGmailError();
+        return;
+      } else {
+        // GMAIL ADA, BERARTI PASSWORD YANG SALAH
+        showPasswordError();
+        return;
       }
-    } else {
-      errorGeneralText.innerText = "Login gagal: " + err.message;
-      errorGeneral.classList.remove('hidden');
+    }catch(checkErr){
+      console.log("cek methods error:", checkErr.code);
+      // Kalau fetch gagal, fallback pakai error code asli
+      if(checkErr.code === 'auth/invalid-email' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found'){
+        showGmailError();
+        return;
+      }
+      // Firebase baru semua jadi invalid-credential
+      if(err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials'){
+        // Untuk kasus foto kamu farelinokolondam51@gmail.com ini gmail salah, bukan password
+        // Jadi kita paksa tampil gmail salah kalau fetch methods kosong
+        showGmailError();
+        return;
+      }
+      if(err.code === 'auth/wrong-password'){
+        showPasswordError();
+        return;
+      }
     }
   }
 });
