@@ -97,7 +97,6 @@ body{background:#000;overflow:hidden}
   border-radius:50%;
   animation: spin 1.2s linear infinite reverse;
 }
-/* FIX X BISA DI KLIK - HIT AREA BESAR */
 .close-x{
   cursor:pointer;
   user-select:none;
@@ -135,7 +134,6 @@ body{background:#000;overflow:hidden}
   <div class="w-full max-w-[450px] bg-black/68 backdrop-blur-xl rounded-md p-[28px] md:p-[48px] border border-white/15 shadow-[0_0_100px_rgba(0,0,0,0.9)]">
     <h2 class="text-[32px] font-bold text-white mb-7">Masuk</h2>
     <form id="manualForm" class="space-y-4">
-      <!-- FIX FINAL: CUMA TULISAN + X BUTTON 32px BISA DI KLIK -->
       <p id="errorGeneral" class="hidden text-[#E50914] text-[13px] font-medium items-center gap-1 mb-1">
         <button type="button" id="xGmail" class="close-x" onclick="window.resetErrors(); document.getElementById('email').focus();">ⓧ</button>
         <span id="errorGeneralText">kamu salah memasukkan gmail</span>
@@ -179,6 +177,7 @@ const firebaseConfig = {
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
 const btnManual = document.getElementById('btnManual');
 const btnManualText = document.getElementById('btnManualText');
 const btnGoogle = document.getElementById('btnGoogle');
@@ -224,39 +223,62 @@ function showPasswordError(){
   setTimeout(()=>{ passwordInput.classList.remove('shake'); }, 400);
 }
 
-// KETIK / FOKUS LANGSUNG HILANG
 ['input','focus','keydown'].forEach(evt=>{
   emailInput.addEventListener(evt, window.resetErrors);
   passwordInput.addEventListener(evt, window.resetErrors);
 });
-// KLIK DI AREA ERROR JUGA HILANG
-errorGeneral.addEventListener('click', window.resetErrors);
-errorPassword.addEventListener('click', window.resetErrors);
 
 document.getElementById('manualForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   window.resetErrors();
   showLoading(btnManual, btnManualText);
   const emailVal = emailInput.value.trim().toLowerCase();
+  const passVal = passwordInput.value;
+
   try{
-    await auth.signInWithEmailAndPassword(emailVal, passwordInput.value);
+    await auth.signInWithEmailAndPassword(emailVal, passVal);
     successAnim();
   }catch(err){
     hideLoading(btnManual, btnManualText, 'Masuk');
     console.log("LOGIN ERROR:", err.code);
-    try{
-      const methods = await auth.fetchSignInMethodsForEmail(emailVal);
-      if(!methods || methods.length === 0){ showGmailError(); }
-      else { showPasswordError(); }
-      return;
-    }catch(checkErr){
-      if(checkErr.code === 'auth/invalid-email' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found'){
-        showGmailError(); return;
-      }
-      if(err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/wrong-password'){
-        showGmailError(); return;
-      }
+
+    if(err.code === 'auth/invalid-email'){
+      showGmailError(); return;
     }
+    if(err.code === 'auth/user-not-found'){
+      showGmailError(); return;
+    }
+    if(err.code === 'auth/wrong-password'){
+      showPasswordError(); return;
+    }
+
+    // FIX UTAMA UNTUK VIDEO KAMU - invalid-credential
+    if(err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials'){
+      // 1. CEK DI FIRESTORE users_log - KALAU ADA = GMAIL BENER = PASSWORD SALAH
+      try{
+        const snap = await db.collection("users_log").where("email","==",emailVal).limit(1).get();
+        if(!snap.empty){
+          showPasswordError(); // INI KASUS VIDEO KAMU: farelinokolondam50@gmail.com ada di DB
+          return;
+        }
+      }catch(e){ console.log("cek users_log gagal", e); }
+
+      // 2. CEK DI users JUGA
+      try{
+        const snap2 = await db.collection("users").where("email","==",emailVal).limit(1).get();
+        if(!snap2.empty){
+          showPasswordError();
+          return;
+        }
+      }catch(e){}
+
+      // 3. KALAU TIDAK ADA DI DB = GMAIL MEMANG SALAH (kasus 51)
+      showGmailError();
+      return;
+    }
+
+    // fallback
+    showGmailError();
   }
 });
 
