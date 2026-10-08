@@ -67,7 +67,7 @@ button{cursor:pointer!important;}
 <button onclick="goHome()">Home</button>
 <button onclick="filterKategori('ACTION')">Action</button>
 <button onclick="filterKategori('TERBARU')">Terbaru</button>
-<input id="searchBox" oninput="cariFilm()" placeholder="Cari film...">
+<input id="searchBox" autocomplete="off" oninput="cariFilm()" placeholder="Cari film...">
 </div>
 <div class="header-right">
 <span id="userEmail" style="font-size:11px;color:#aaa;margin-right:6px"></span>
@@ -86,22 +86,23 @@ button{cursor:pointer!important;}
 <div id="semuaKategori"></div><div id="noResult" style="display:none;text-align:center;padding:20px">Film tidak ditemukan</div>
 <div id="modalAdmin" class="modal"><div class="modal-box" style="text-align:left">
 <h3 style="color:#facc15;text-align:center">TAMBAH FILM (ADMIN)</h3>
-<input id="adminKategori" placeholder="Kategori: ACTION / TERBARU" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<input id="adminJudul" placeholder="Judul film" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<input id="adminFile" placeholder="Link Drive https://.../preview" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
-<input id="adminGambar" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<input id="adminKategori" autocomplete="off" placeholder="Kategori: ACTION / TERBARU" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<input id="adminJudul" autocomplete="off" placeholder="Judul film" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<input id="adminFile" autocomplete="off" placeholder="Link Drive https://.../preview" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
+<input id="adminGambar" autocomplete="off" placeholder="Link gambar poster" style="width:100%;padding:10px;margin:6px 0;background:#111;color:#fff;border-radius:5px">
 <div style="display:flex;gap:10px;margin-top:10px"><button onclick="tutup('modalAdmin')" style="flex:1;padding:10px;background:#333;color:#fff;border:none;border-radius:5px">BATAL</button><button onclick="simpanFilmAdmin()" style="flex:1;padding:10px;background:#facc15;color:#000;font-weight:bold;border:none;border-radius:5px">SIMPAN</button></div>
 </div></div>
 
 <div id="modalUsers" class="modal"><div class="modal-box" style="text-align:left;max-width:580px;width:95%;max-height:90vh;overflow:auto">
 <h3 style="color:#00d1ff;text-align:center;margin-bottom:10px">👑 ADMIN PANEL - USER CONTROL</h3>
+<!-- FIX AUTOCOMPLETE DOBEL -->
 <div style="display:flex;gap:6px;margin-bottom:8px">
-<input id="filterEmail" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="flex:1;padding:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
+<input id="filterEmail" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" oninput="filterUserEmail()" placeholder="🔍 Filter Gmail / Email..." style="flex:1;padding:10px;background:#111;color:#fff;border:1px solid #00d1ff55;border-radius:8px">
 <button id="btnBlur" onclick="toggleBlur()" style="padding:10px 14px;background:#222;color:#facc15;border:1px solid #facc15;border-radius:8px;font-size:12px;font-weight:bold;white-space:nowrap">👁️ BLUR: OFF</button>
 </div>
 <div style="background:linear-gradient(90deg,#111,#0f1a1f);border:1px solid #00d1ff33;border-radius:8px;padding:8px;display:flex;gap:6px;margin-bottom:10px">
-  <input id="resetEmailInput" placeholder="📧 Email user..." style="flex:1;padding:8px;background:#000;color:#fff;border:1px solid #333;border-radius:6px;font-size:12px">
-  <input id="resetPassInput" type="text" placeholder="Password baru..." style="flex:1;padding:8px;background:#000;color:#facc15;border:1px solid #facc15;border-radius:6px;font-size:12px">
+  <input id="resetEmailInput" type="search" autocomplete="off" data-lpignore="true" data-form-type="other" placeholder="📧 Email user..." style="flex:1;padding:8px;background:#000;color:#fff;border:1px solid #333;border-radius:6px;font-size:12px">
+  <input id="resetPassInput" type="text" autocomplete="new-password" data-lpignore="true" data-form-type="other" placeholder="Password baru..." style="flex:1;padding:8px;background:#000;color:#facc15;border:1px solid #facc15;border-radius:6px;font-size:12px">
   <button onclick="resetPassManualTop()" style="padding:8px 12px;background:#facc15;color:#000;border:none;border-radius:6px;font-size:11px;font-weight:bold">RESET LANGSUNG</button>
 </div>
 <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
@@ -267,18 +268,14 @@ window.unbanUser = async (uid,email)=>{
   alert("✅ "+email+" UNBANNED");
 }
 
-// ===== FITUR BARU: RESET LANGSUNG TANPA LINK =====
 window.resetPass = async (email)=>{
   const passBaru = prompt(`🔑 RESET PASSWORD LANGSUNG\n\nMasukkan password BARU untuk:\n${email}\n\nMinimal 6 karakter:`);
   if(!passBaru) return;
   if(passBaru.length < 6) return alert("Password minimal 6 karakter!");
   if(!confirm(`Yakin ganti password\n${email}\nmenjadi:\n${passBaru}?`)) return;
-
   try{
     const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
     if(!target) return alert("User tidak ditemukan di database!");
-
-    // Simpan password baru ke Firestore - nanti login.html akan baca ini
     await setDoc(doc(db,"users_log",target._id), {
       adminResetPassword: passBaru,
       lastResetAt: serverTimestamp(),
@@ -286,11 +283,8 @@ window.resetPass = async (email)=>{
       kicked: true,
       isOnline: false
     }, {merge:true});
-
-    alert(`✅ BERHASIL RESET LANGSUNG!\n\nEmail: ${email}\nPassword baru: ${passBaru}\n\nUser sudah di-KICK.\nSuruh user login pakai password baru itu.\n\nPassword tersimpan di database.`);
-  }catch(e){
-    alert("Gagal: " + e.message);
-  }
+    alert(`✅ BERHASIL RESET LANGSUNG!\n\nEmail: ${email}\nPassword baru: ${passBaru}\n\nUser sudah di-KICK.`);
+  }catch(e){ alert("Gagal: " + e.message); }
 }
 
 window.resetPassManualTop = async ()=>{
@@ -302,14 +296,9 @@ window.resetPassManualTop = async ()=>{
     if(!newPass) return;
   }
   if(newPass.length < 6) return alert("Password minimal 6 karakter!");
-
   try{
     const target = userListCache.find(u=>u.email.toLowerCase()===email.toLowerCase());
-    if(!target){
-      // kalau email tidak ada di list, coba cari langsung
-      alert("User tidak ada di list SEMUA (mungkin karena BANNED). Pindah ke tab BANNED atau SEMUA dulu, atau ketik email persis.");
-      return;
-    }
+    if(!target){ alert("User tidak ada di list. Pindah ke tab SEMUA / BANNED dulu."); return; }
     await setDoc(doc(db,"users_log",target._id), {
       adminResetPassword: newPass,
       lastResetAt: serverTimestamp(),
