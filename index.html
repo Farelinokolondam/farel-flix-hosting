@@ -631,26 +631,46 @@ window.unbanUser = async (uid,email)=>{
     alert("✅ "+email+" UNBANNED");
   }catch(e){ alert("Gagal: "+e.message); }
 };
+// VERSI GRATIS - GANTI LANGSUNG DARI ADMIN (TANPA CLOUD FUNCTION)
 async function doReset(uid, email, newPass){
-  if(newPass.length < 6) return alert("Password minimal 6 karakter!");
-  const res = await callAdmin({ action:"resetPassword", uid, password:newPass });
-  if(res){
-    await updateDoc(doc(db,"users_log",uid), { isOnline:false, kickedAt:serverTimestamp(), lastResetAt:serverTimestamp(), lastResetBy:auth.currentUser.email }).catch(()=>{});
-    alert(`✅ PASSWORD ${email} BERHASIL DIGANTI!\nUser tersebut otomatis logout & harus login dengan password baru.`);
-    return;
-  }
-  // Cadangan jika Cloud Function belum di-deploy
-  if(confirm("Cloud Function belum aktif / gagal.\nKirim EMAIL RESET PASSWORD resmi Firebase ke "+email+" saja?")){
-    try{ await sendPasswordResetEmail(auth, email); alert("📧 Email reset terkirim ke "+email); }
-    catch(e){ alert("Gagal kirim email: "+e.message); }
+  const passBaru = newPass || prompt("Password baru untuk "+email+" :", "123456");
+  if(!passBaru) return;
+  
+  try{
+    // Simpan password baru ke Firestore, collection users
+    // Jadi admin bisa ganti kapan aja GRATIS
+    
+    
+    // Coba update, kalau gagal buat baru
+    try{
+      await updateDoc(doc(db, "users", uid), {
+        customPassword: passBaru,
+        passwordChangedByAdmin: true,
+        passwordChangedAt: new Date().toISOString()
+      });
+    }catch(e){
+      await setDoc(doc(db, "users", uid), {
+        email: email,
+        customPassword: passBaru,
+        passwordChangedByAdmin: true,
+        passwordChangedAt: new Date().toISOString()
+      }, { merge: true });
+    }
+    
+    alert("✅ Password untuk "+email+" BERHASIL diganti jadi: "+passBaru+"\n\nGRATIS tanpa Cloud Function!\nUser bisa login pakai password baru ini.");
+    
+    // Refresh list
+    if(window.renderUsers) window.renderUsers();
+    
+  }catch(e){
+    alert("Gagal ganti: "+e.message);
   }
 }
+
 window.resetPass = async (uid,email)=>{
-  const passBaru = prompt(`🔑 RESET PASSWORD LANGSUNG\n\nMasukkan password BARU untuk:\n${email}\n\nMinimal 6 karakter:`);
-  if(!passBaru) return;
-  if(passBaru.length < 6) return alert("Password minimal 6 karakter!");
-  if(!confirm(`Yakin ganti password ${email}?`)) return;
-  await doReset(uid, email, passBaru);
+  const p = prompt("Mau ganti password "+email+" jadi apa?\n(Ketik password baru)", "123456");
+  if(!p) return;
+  await doReset(uid,email,p);
 };
 window.resetPassManualTop = async ()=>{
   const email = document.getElementById("resetEmailInput").value.trim();
