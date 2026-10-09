@@ -504,113 +504,64 @@ window.simpanEditFilm = async ()=>{
 
 /* ================= AUTH: MODE TAMU / MODE LOGIN ================= */
 onAuthStateChanged(auth, async (user)=>{
-  const guestBar = document.getElementById('guestBar');
-  const btnLoginGuest = document.getElementById('btnLoginGuest');
-  const btnLogout = document.getElementById('btnLogout');
-  const userEmailEl = document.getElementById('userEmail');
-  document.getElementById("loadingScreen").style.display = "none";
-  if(unsubSelf){ unsubSelf(); unsubSelf = null; }
-  if(unsubUsers){ unsubUsers(); unsubUsers = null; }
-  if(heartbeatTimer){ clearInterval(heartbeatTimer); heartbeatTimer = null; }
-
   if(!user){
-    // ====== MODE TAMU (yang dilihat Google) ======
-    window.isGuestMode = true; window.isAdmin = false;
-    guestBar.style.display = "block"; document.body.classList.add('guest-mode');
-    btnLogout.style.display = "none"; btnLoginGuest.style.display = "inline-block";
-    userEmailEl.innerText = "Mode Tamu - Login untuk nonton";
-    document.getElementById("btnAdmin").style.display = "none";
-    document.getElementById("btnUsers").style.display = "none";
-    document.getElementById("adminDashboard").style.display = "none";
-    showStatus("");
-    if(usingFallback) applyFilms(fallbackList(), true); else rerender();
+    if(heartbeatTimer) clearInterval(heartbeatTimer);
     return;
   }
+    // === FIX LANGSUNG GANTI MODE, JANGAN TUNGGU LOG ===
+  document.body.classList.remove("guest-mode");
+  document.body.classList.add("logged-in");
+  console.log("LOGIN OK:", user.email);
+  // =================================================
 
-  // ====== MODE LOGIN (member / admin) ======
-  window.isGuestMode = false;
-  window.isAdmin = isAdminEmail(user.email);
-  guestBar.style.display = "none"; document.body.classList.remove('guest-mode');
-  btnLogout.style.display = "inline-block"; btnLoginGuest.style.display = "none";
-  userEmailEl.innerText = user.email;
-  currentUserDoc = doc(db, "users_log", user.uid);
+    const currentUserDoc = doc(db, "users_log", user.uid);
+  const loginVia = user.providerData[0]?.providerId || "email";
 
-  if(window.isAdmin){
-    document.getElementById("btnAdmin").style.display = "inline-block";
-    document.getElementById("btnUsers").style.display = "inline-block";
-    document.getElementById("adminDashboard").style.display = "flex";
-  } else {
-    document.getElementById("btnAdmin").style.display = "none";
-    document.getElementById("btnUsers").style.display = "none";
-    document.getElementById("adminDashboard").style.display = "none";
-  }
-  if(usingFallback) applyFilms(fallbackList(), true); else rerender();
-  if(window.isAdmin){ updateStatus(); migrasiFilm(); }
+  let dev = { fullText:"unknown", model:"-", browser:"-", os:"-", situs: location.hostname, media: document.referrer || "direct" };
+  try{ dev = getDeviceAndMedia(); }catch(e){ console.log("dev fail", e); }
 
-  // Pantau BAN / KICK untuk akun ini (kick pakai kickedAt, tidak bisa dipalsukan user)
-  let kickBase = null;
-  unsubSelf = onSnapshot(currentUserDoc, snap=>{
-    if(!snap.exists()) return;
-    const d = snap.data();
-    if(d.isBanned){
-      alert("🚫 AKUN KAMU DI-BANNED ADMIN!");
-      signOut(auth).then(()=>window.location.href="login.html"); return;
-    }
- const k = d.kickedAt?.toMillis ? d.kickedAt.toMillis() : 0;
-const now = Date.now();
-const TEN_MINUTES = 10 * 60 * 1000;
+  let lok = { lokasiText:"unknown", kota:"-", region:"-", ip:"-" };
+  try{ lok = await getLokasi(); }catch(e){ console.log("lokasi fail", e); }
 
-// Jika di-kick dalam 10 menit terakhir, tendang
-if (k && (now - k) < TEN_MINUTES) {
-  const sisa = Math.ceil((TEN_MINUTES - (now - k)) / 60000);
-  alert(` KAMU DI-KICK ADMIN! Coba lagi dalam ${sisa} menit.`);
-  signOut(auth).then(()=>window.location.href="login.html");
-  return;
-}
-  }, err=>console.log("self snapshot", err));
-
-  // Daftar user hanya untuk admin
-  if(window.isAdmin){
-    unsubUsers = onSnapshot(collection(db,"users_log"), snap=>{
-      let online = 0; userListCache = [];
-      snap.forEach(d=>{
-        const u = d.data(); u._id = d.id;
-        const diff = u.lastActive?.toDate ? Math.floor((new Date() - u.lastActive.toDate())/1000) : 9999;
-        if(u.isOnline && diff < 120 && !u.isBanned) online++;
-        userListCache.push(u);
-      });
-      document.getElementById("statUserCount").innerText = snap.size;
-      document.getElementById("statOnlineCount").innerText = online;
-      if(document.getElementById("modalUsers").style.display == "flex") renderUserList();
-    }, err=>console.log("users snapshot", err));
-  }
-
-  let loginVia = "Email/Password";
-  const p = user.providerData?.[0]?.providerId;
-  if(p === "google.com") loginVia = "🔵 Google";
-  else if(p === "facebook.com") loginVia = "🔵 Facebook";
-  else if(p === "password") loginVia = "📧 Email";
-  else if(p === "phone") loginVia = "📱 No HP";
-  else if(p) loginVia = p;
-
-  const dev = getDeviceAndMedia();
-  const lok = await getLokasi();
-  try{
-    // isBanned / kicked TIDAK ditulis di sini supaya status ban tidak ke-reset saat login
+    try{
     await setDoc(currentUserDoc, {
       email:user.email, uid:user.uid, lastLogin:serverTimestamp(), lastActive:serverTimestamp(), isOnline:true,
       loginVia, device:dev.fullText, hp_model:dev.model, browser:dev.browser, os:dev.os,
       situs_login:dev.situs, datang_dari_media:dev.media, lokasi:lok.lokasiText, kota:lok.kota, region:lok.region, ip:lok.ip
     }, {merge:true});
-    heartbeatTimer = setInterval(()=>{ setDoc(currentUserDoc, { lastActive:serverTimestamp(), isOnline:true }, {merge:true}).catch(()=>{}); }, 10000);
-  }catch(e){ console.log(e); }
+  }catch(e){
+    console.log("Gagal simpan users_log (cek Firestore Rules):", e);
+  }
+
+  document.body.classList.remove("guest-mode");
+
+  // ===== AUTO LOGOUT 30 MENIT AFK =====
+  let afk = 0;
+  setInterval(()=>{
+    afk++;
+    if(afk >= 30){
+      alert("Sesi habis, login lagi ya");
+      signOut(auth).then(()=>window.location.href="login.html");
+    }
+  }, 60000);
+  ['click','mousemove','keydown','scroll','touchstart'].forEach(e=>{
+    window.addEventListener(e, ()=> afk = 0);
+  });
+  // ===== SELESAI =====
 });
 
-/* ================= ADMIN: KICK / BAN / UNBAN / RESET PASSWORD ================= */
 async function callAdmin(payload){
-  try{ return await adminAction(payload); }
-  catch(e){ console.log("Cloud Function:", e.code, e.message); return null; }
+  try{
+    const token = await auth.currentUser.getIdToken();
+    const res = await fetch("https://us-central1-farel-flix-hosting.cloudfunctions.net/adminAction",{
+      method:"POST",
+      headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
+      body:JSON.stringify(payload)
+    });
+    return await res.json();
+  }catch(e){ console.log("Cloud Function:", e.code, e.message); return null; }
 }
+
 window.kickUser = async (uid,email)=>{
   if(isAdminEmail(email) || uid === auth.currentUser?.uid) return alert("🤣 GABISA KICK AKUN ADMIN SENDIRI!");
   if(!confirm("KICK "+email+"? Dia akan logout paksa!")) return;
@@ -876,16 +827,16 @@ applyFilms(fallbackList(), true);   // film bawaan tampil seketika (untuk tamu &
 mulaiFilmListener();                // lalu ganti dengan data Firebase
 </script>
 <script>
-// FAILSAFE ANTI MUTER (loading screen tidak menutupi konten lebih dari sebentar)
-function hideLoading(){ const ls = document.getElementById('loadingScreen'); if(ls) ls.style.display='none'; }
-window.addEventListener('DOMContentLoaded', ()=>setTimeout(hideLoading, 600));
-setTimeout(hideLoading, 1500);
-window.addEventListener('error', hideLoading);
-</script>
-<footer style="background:#111; color:#aaa; text-align:center; padding:20px; margin-top:40px; font-size:14px;">
-  <p>© 2026 FARELFLIX-tambala - Nonton Film Gratis</p>
-  <p>
-    <a href="/privacy.html" style="color:#ff9900; text-decoration:none; margin:0 10px;">Kebijakan Privasi</a> |
+                                // FAILSAFE ANTI MUTER (loading screen tidak menutupi konten lebih dari sebentar)
+    function hideLoading(){ const ls = document.getElementById('loadingScreen'); if(ls) ls.style.display='none'; }
+      window.addEventListener('DOMContentLoaded', ()=>setTimeout(hideLoading, 600));
+            setTimeout(hideLoading, 1500);
+                    window.addEventListener('error', hideLoading);
+                   </script>
+                  <footer style="background:#111; color:#aaa; text-align:center; padding:20px; margin-top:40px; font-size:14px;">
+           <p>© 2026 FARELFLIX-tambala - Nonton Film Gratis</p>
+          <p>
+          <a href="/privacy.html" style="color:#ff9900; text-decoration:none; margin:0 10px;">Kebijakan Privasi</a> |
     <a href="/login.html" style="color:#ff9900; text-decoration:none; margin:0 10px;">Login</a> |
     <a href="mailto:farelinokolondam50@gmail.com" style="color:#ff9900; text-decoration:none; margin:0 10px;">Kontak</a>
   </p
