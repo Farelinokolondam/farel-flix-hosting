@@ -444,6 +444,32 @@ window.hapusDobel = async ()=>{
   for(const id of toDelete){ await window.hapusFilm(id); }
   alert("Selesai!");
 };
+// RESET UNTUK SEMUA USER
+window.resetPasswordUser = async (email)=>{
+  const targetEmail = (email || "").trim();
+  if(!targetEmail){ alert("Email kosong!"); return; }
+  if(!confirm("Kirim email reset ke "+targetEmail+" ?")) return;
+  try{
+    await sendPasswordResetEmail(auth, targetEmail);
+    alert("✅ Email reset TERKIRIM ke " + targetEmail);
+  }catch(e){
+    alert("Gagal: "+e.message);
+  }
+};
+
+window.lupaPassword = async ()=>{
+  const inputEmail = document.getElementById("email") || document.getElementById("emailLogin") || document.getElementById("loginEmail");
+  const email = inputEmail?.value?.trim() || prompt("Masukkan email kamu yang mau direset:");
+  if(!email){ alert("Email harus diisi!"); return; }
+  try{
+    await sendPasswordResetEmail(auth, email);
+    alert("✅ Link reset udah dikirim ke " + email);
+  }catch(e){
+    alert("Gagal kirim: "+e.message);
+  }
+};
+
+/* ---- EDIT FILM / POSTER ---- */
 /* ---- EDIT FILM / POSTER ---- */
 window.bukaEdit = id=>{
   const f = window.filmsById[id]; if(!f) return;
