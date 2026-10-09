@@ -400,28 +400,35 @@ async function migrasiFilm(){
       batch.set(doc(collection(db,"films")), { kategori:f.kategori, judul:f.judul, file:f.file, type:f.type||"drive", gambar:f.gambar||PH(f.judul), urut:f.urut, createdAt: serverTimestamp() });
     });
     await batch.commit();
-  }catch(e){
+   }catch(e){
     seeding = false; dbError = e;
     applyFilms(fallbackList(), true); updateStatus();
   }
-}
 
-/* ---- TAMBAH FILM ---- */
-window.bukaAdmin = ()=>{ document.getElementById("modalAdmin").style.display = "flex"; };
-window.simpanFilmAdmin = async ()=>{
+
+
+ /* ---- TAMBAH FILM ---- */
+ window.bukaAdmin = ()=>{
+  document.getElementById("modalAdmin").style.display = "flex";
+ };
+ window.simpanFilmAdmin = async ()=>{
   if(!window.isAdmin) return;
+  if(window._isSaving) return; window._isSaving = true;
   const kat = document.getElementById("adminKategori").value.toUpperCase().trim();
   const judul = document.getElementById("adminJudul").value.trim();
   const file = document.getElementById("adminFile").value.trim();
   const gambar = document.getElementById("adminGambar").value.trim();
-  if(!kat || !judul || !file){ alert("Isi kategori, judul, file!"); return; }
+  if(!kat || !judul || !file){ alert("Isi kategori, judul, file!"); window._isSaving = false; return; }
   try{
     await addDoc(collection(db,"films"), { kategori:kat, judul, file, type:"drive", gambar: gambar || PH(judul), urut: Date.now(), createdAt: serverTimestamp() });
     window.tutup('modalAdmin');
     ["adminKategori","adminJudul","adminFile","adminGambar"].forEach(i=>document.getElementById(i).value="");
     alert("Berhasil tambah "+judul);
-  }catch(e){ alert("Gagal simpan: "+e.message+"\n\nCek Firestore Rules sudah di-publish."); }
+    window._isSaving = false;
+  }catch(e){ window._isSaving = false; alert("Gagal simpan: "+e.message); }
 };
+ 
+ 
 /* ---- HAPUS FILM ---- */
 window.hapusFilm = async id=>{
   if(!window.isAdmin) return;
