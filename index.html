@@ -395,8 +395,7 @@ async function migrasiFilm(){
   return;
 }
 
-
- /* ---- TAMBAH FILM ---- */
+/* ---- TAMBAH FILM ---- */
  window.bukaAdmin = ()=>{
   document.getElementById("modalAdmin").style.display = "flex";
  };
@@ -419,11 +418,33 @@ async function migrasiFilm(){
  
  
 /* ---- HAPUS FILM ---- */
-window.hapusFilm = async id=>{
-  if(!window.isAdmin) return;
-  const f = window.filmsById[id]; if(!f) return;
-  if(!confirm("Hapus film "+f.judul+" (beserta posternya)?")) return;
-  try{ await deleteDoc(doc(db,"films",id)); }catch(e){ alert("Gagal hapus: "+e.message); }
+window.hapusFilm = async (id)=>{
+  if(!window.isAdmin){ alert("Bukan admin!"); return; }
+  if(!confirm("Hapus film ini?")) return;
+  try{
+    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    await deleteDoc(doc(db, "films", id));
+    alert("Berhasil dihapus!");
+  }catch(e){
+    alert("Gagal hapus: " + e.message);
+    console.error(e);
+  }
+};
+
+// TOMBOL BARU: Hapus yang dobel otomatis
+window.hapusDobel = async ()=>{
+  if(!confirm("Hapus semua film dobel dan sisain 1 per judul?")) return;
+  const seen = new Set();
+  const toDelete = [];
+  (window.allFilms || []).forEach(f=>{
+    const key = (f.judul||"").toLowerCase().trim();
+    if(seen.has(key)) toDelete.push(f.id);
+    else seen.add(key);
+  });
+  if(!toDelete.length){ alert("Gak ada yang dobel!"); return; }
+  if(!confirm(`Mau hapus ${toDelete.length} film dobel?`)) return;
+  for(const id of toDelete){ await window.hapusFilm(id); }
+  alert("Selesai!");
 };
 /* ---- EDIT FILM / POSTER ---- */
 window.bukaEdit = id=>{
