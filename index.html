@@ -556,17 +556,16 @@ onAuthStateChanged(auth, async (user)=>{
       alert("🚫 AKUN KAMU DI-BANNED ADMIN!");
       signOut(auth).then(()=>window.location.href="login.html"); return;
     }
-  const k = d.kickedAt?.toMillis ? d.kickedAt.toMillis() : 0;
+ const k = d.kickedAt?.toMillis ? d.kickedAt.toMillis() : 0;
 const now = Date.now();
-// Jika baru di-kick dalam 10 menit terakhir dan k lebih baru dari kickBase, baru kick
-if(kickBase === null){ kickBase = k; return; }
-if(k > kickBase && (now - k) < (10 * 60 * 1000) ){
-  alert(" KAMU DI-KICK ADMIN! Coba login lagi 10 menit.");
+const TEN_MINUTES = 10 * 60 * 1000;
+
+// Jika di-kick dalam 10 menit terakhir, tendang
+if (k && (now - k) < TEN_MINUTES) {
+  const sisa = Math.ceil((TEN_MINUTES - (now - k)) / 60000);
+  alert(` KAMU DI-KICK ADMIN! Coba lagi dalam ${sisa} menit.`);
   signOut(auth).then(()=>window.location.href="login.html");
   return;
-} else {
-  // Jika sudah lewat 10 menit, update kickBase biar bisa login lagi
-  kickBase = k; 
 }
   }, err=>console.log("self snapshot", err));
 
