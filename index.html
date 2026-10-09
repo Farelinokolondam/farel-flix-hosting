@@ -392,18 +392,7 @@ function mulaiFilmListener(){
 }
 // Admin: pindahkan film (localStorage / bawaan) ke Firestore, sekali saja
 async function migrasiFilm(){
-  if(!window.isAdmin || !usingFallback || seeding || dbError) return;
-  seeding = true;
-  try{
-    const batch = writeBatch(db);
-    sumberSeed().forEach(f=>{
-      batch.set(doc(collection(db,"films")), { kategori:f.kategori, judul:f.judul, file:f.file, type:f.type||"drive", gambar:f.gambar||PH(f.judul), urut:f.urut, createdAt: serverTimestamp() });
-    });
-    await batch.commit();
-   }catch(e){
-    seeding = false; dbError = e;
-    applyFilms(fallbackList(), true); updateStatus();
-  }
+  return;
 }
 
 
