@@ -556,12 +556,18 @@ onAuthStateChanged(auth, async (user)=>{
       alert("🚫 AKUN KAMU DI-BANNED ADMIN!");
       signOut(auth).then(()=>window.location.href="login.html"); return;
     }
-    const k = d.kickedAt?.toMillis ? d.kickedAt.toMillis() : 0;
-    if(kickBase === null){ kickBase = k; return; }
-    if(k > kickBase){
-      alert("👢 KAMU DI-KICK ADMIN!");
-      signOut(auth).then(()=>window.location.href="login.html");
-    }
+  const k = d.kickedAt?.toMillis ? d.kickedAt.toMillis() : 0;
+const now = Date.now();
+// Jika baru di-kick dalam 10 menit terakhir dan k lebih baru dari kickBase, baru kick
+if(kickBase === null){ kickBase = k; return; }
+if(k > kickBase && (now - k) < (10 * 60 * 1000) ){
+  alert(" KAMU DI-KICK ADMIN! Coba login lagi 10 menit.");
+  signOut(auth).then(()=>window.location.href="login.html");
+  return;
+} else {
+  // Jika sudah lewat 10 menit, update kickBase biar bisa login lagi
+  kickBase = k; 
+}
   }, err=>console.log("self snapshot", err));
 
   // Daftar user hanya untuk admin
@@ -883,6 +889,6 @@ window.addEventListener('error', hideLoading);
     <a href="/privacy.html" style="color:#ff9900; text-decoration:none; margin:0 10px;">Kebijakan Privasi</a> |
     <a href="/login.html" style="color:#ff9900; text-decoration:none; margin:0 10px;">Login</a> |
     <a href="mailto:farelinokolondam50@gmail.com" style="color:#ff9900; text-decoration:none; margin:0 10px;">Kontak</a>
-  </p>
+  </p
 </footer>
 </body></html>
